@@ -6,7 +6,8 @@
     "git:assistant": "node scripts/git-assistant.js",
     "git:assistant:dev": "node scripts/git-assistant.js --dry-run",
     "git:assistant:verbose": "node scripts/git-assistant.js --verbose",
-    "git:assistant:dry-verbose": "node scripts/git-assistant.js --dry-run --verbose"
+    "git:assistant:dry-verbose": "node scripts/git-assistant.js --dry-run --verbose",
+    "git:commit": "node commit-now.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.56.0",
