@@ -12,7 +12,9 @@ import {
   Settings,
   LogOut,
   MapPin,
-  Package 
+  Package,
+  Shield,
+  UserCog 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -32,6 +34,11 @@ const navigation = [
   { name: 'Proyek', href: '/dashboard/projects', icon: Briefcase, permission: PERMISSIONS.VIEW_ALL_PROJECTS },
   { name: 'Laporan', href: '/dashboard/reports', icon: TrendingUp, permission: PERMISSIONS.VIEW_REPORTS },
   { name: 'Settings', href: '/dashboard/settings', icon: Settings, permission: null },
+];
+
+const adminNavigation = [
+  { name: 'Admin', href: '#', icon: Shield, permission: null, isSection: true },
+  { name: 'User Management', href: '/admin/users', icon: UserCog, permission: null },
 ];
 
 export default function DashboardLayout({
@@ -77,6 +84,43 @@ export default function DashboardLayout({
                 </Link>
               );
             })}
+            
+            {/* Admin Section - Only for superadmin */}
+            {user?.role === 'superadmin' && (
+              <>
+                <div className="pt-4">
+                  {adminNavigation.map((item) => {
+                    if (item.isSection) {
+                      return (
+                        <div key={item.name} className="px-3 pb-2">
+                          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                            <item.icon className="h-3 w-3" />
+                            {item.name}
+                          </h3>
+                        </div>
+                      );
+                    }
+                    
+                    const isActive = pathname === item.href;
+                    return (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        className={cn(
+                          'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                          isActive
+                            ? 'bg-primary text-primary-foreground'
+                            : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                        )}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        {item.name}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </>
+            )}
           </nav>
 
           {/* User menu */}

@@ -11,6 +11,7 @@ interface AuthContextType {
   loading: boolean;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error?: string }>;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
+  signInWithGoogle: () => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   hasPermission: (permission: string) => boolean;
   hasAllPermissions: (permissions: string[]) => boolean;
@@ -30,6 +31,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
 
   useEffect(() => {
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        // Get user data from our users table
+        const { data: userData } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+        
+        // If user doesn't exist in our table, create them
+        if (!userData) {
+          await supabase
+            .from('users')
+            .insert({
+              id: session.user.id,
+              full_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Unknown User',
+              role: 'sales_rep', // Default role for new users
+            });
+        }
+        
+        setUser({
+          id: session.user.id,
+          email: session.user.email!,
+          name: userData?.full_name || session.user.user_metadata?.full_name || 'Unknown User',
+          role: userData?.role || 'sales_rep',
+          company: 'PT Pake Aja Teknologi',
+        });
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+      }
+    });
+
     // Check for existing session
     const checkUser = async () => {
       if (DEMO_MODE) {
@@ -80,6 +114,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     checkUser();
+    
+    // Cleanup subscription
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [supabase]);
 
   const signUp = async (email: string, password: string, fullName?: string) => {
@@ -179,6 +218,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const signInWithGoogle = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      
+      if (error) return { error: error.message };
+      return {};
+    } catch {
+      return { error: 'An unexpected error occurred' };
+    }
+  };
+
   const signOut = async () => {
     if (USE_DEV_AUTH) {
       await devAuth.signOut();
@@ -199,7 +254,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user, 
       loading, 
       signUp, 
-      signIn, 
+      signIn,
+      signInWithGoogle, 
       signOut,
       hasPermission: checkPermission,
       hasAllPermissions: checkAllPermissions,

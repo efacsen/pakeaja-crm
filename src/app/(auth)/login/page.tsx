@@ -28,7 +28,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const router = useRouter()
-  const { signIn } = useAuth()
+  const { signIn, signInWithGoogle } = useAuth()
 
   const {
     register,
@@ -71,9 +71,14 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true)
     try {
-      // For development, use mock Google login
-      toast.info('Login Google tidak tersedia dalam mode pengembangan')
-      // You can add Google OAuth when Supabase is properly configured
+      const { error } = await signInWithGoogle()
+      
+      if (error) {
+        toast.error(error)
+        return
+      }
+      
+      // Google OAuth will handle the redirect
     } catch {
       toast.error('Login Google gagal. Silakan coba lagi.')
     } finally {

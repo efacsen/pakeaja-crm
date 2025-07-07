@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'sales_rep' | 'sales_manager' | 'estimator' | 'project_manager' | 'foreman' | 'customer';
+export type UserRole = 'superadmin' | 'admin' | 'sales_rep' | 'sales_manager' | 'estimator' | 'project_manager' | 'foreman' | 'customer';
 
 export interface User {
   id: string;
@@ -51,6 +51,7 @@ export const PERMISSIONS = {
 
 // Role-based permission mappings
 export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
+  superadmin: Object.values(PERMISSIONS), // SuperAdmin has all permissions
   admin: Object.values(PERMISSIONS),
   
   sales_rep: [
@@ -110,7 +111,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
 // Helper function to check permissions
 export function hasPermission(user: User | null, permission: string): boolean {
   if (!user) return false;
-  if (user.role === 'admin') return true; // Admin has all permissions
+  if (user.role === 'superadmin' || user.role === 'admin') return true; // SuperAdmin and Admin have all permissions
   
   const rolePermissions = ROLE_PERMISSIONS[user.role] || [];
   return rolePermissions.includes(permission);
