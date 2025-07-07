@@ -3,9 +3,6 @@
 
 echo "🚀 Running pre-push checks..."
 
-# Change to the correct directory
-cd horizon-suite
-
 # Run comprehensive checks before push
 npm run pre-push
 
