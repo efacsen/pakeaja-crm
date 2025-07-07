@@ -301,12 +301,12 @@ export default function ProjectGanttPage() {
                   <p className="text-sm text-muted-foreground">Status</p>
                   <Badge
                     variant={
-                      selectedMilestone.status === 'completed' ? 'default' :
-                      selectedMilestone.status === 'in_progress' ? 'secondary' :
+                      (selectedMilestone as any).status === 'completed' ? 'default' :
+                      (selectedMilestone as any).status === 'in_progress' ? 'secondary' :
                       'outline'
                     }
                   >
-                    {selectedMilestone.status.replace('_', ' ')}
+                    {(selectedMilestone as any).status.replace('_', ' ')}
                   </Badge>
                 </div>
               </div>
