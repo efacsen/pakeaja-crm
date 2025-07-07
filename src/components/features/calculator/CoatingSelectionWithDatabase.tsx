@@ -190,7 +190,7 @@ export function CoatingSelectionWithDatabase({ data, onNext, onBack }: CoatingSe
     let totalThickness = 0;
 
     // Add primer if selected
-    if (customSystem.primer) {
+    if (customSystem.primer && customSystem.primer !== 'none') {
       const primerMaterial = materials.find(m => m.id === customSystem.primer);
       if (primerMaterial) {
         const product = convertMaterialToProduct(primerMaterial);
@@ -205,7 +205,7 @@ export function CoatingSelectionWithDatabase({ data, onNext, onBack }: CoatingSe
     }
 
     // Add intermediate if selected
-    if (customSystem.intermediate) {
+    if (customSystem.intermediate && customSystem.intermediate !== 'none') {
       const intermediateMaterial = materials.find(m => m.id === customSystem.intermediate);
       if (intermediateMaterial) {
         const product = convertMaterialToProduct(intermediateMaterial);
@@ -406,7 +406,7 @@ export function CoatingSelectionWithDatabase({ data, onNext, onBack }: CoatingSe
                         <SelectValue placeholder="Pilih primer" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Tidak ada</SelectItem>
+                        <SelectItem value="none">Tidak ada</SelectItem>
                         {materials
                           .filter(m => m.category === 'primer')
                           .map(material => (
@@ -444,7 +444,7 @@ export function CoatingSelectionWithDatabase({ data, onNext, onBack }: CoatingSe
                         <SelectValue placeholder="Pilih intermediate" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Tidak ada</SelectItem>
+                        <SelectItem value="none">Tidak ada</SelectItem>
                         {materials
                           .filter(m => m.category === 'intermediate')
                           .map(material => (

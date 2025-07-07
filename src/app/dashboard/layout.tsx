@@ -87,10 +87,12 @@ export default function DashboardLayout({
                   <div className="font-medium">{user.name || user.email}</div>
                   <div className="text-muted-foreground text-xs">{user.email}</div>
                 </div>
-                {/* Role Selector for Demo */}
-                <div className="px-3">
-                  <RoleSelector />
-                </div>
+                {/* Role Selector for Demo - only for superadmin */}
+                {user.role === 'superadmin' && (
+                  <div className="px-3">
+                    <RoleSelector />
+                  </div>
+                )}
               </>
             )}
             <Button 

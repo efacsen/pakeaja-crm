@@ -60,7 +60,7 @@ const getNavigationItems = (role?: string): SidebarItem[] => {
   ];
 
   // Sales-specific navigation
-  if (role === 'sales_rep' || role === 'sales_manager' || role === 'admin') {
+  if (role === 'sales_rep' || role === 'sales_manager' || role === 'admin' || role === 'superadmin') {
     items.push(
       { name: 'Sales Pipeline', href: '/dashboard/sales', icon: TrendingUp },
       { name: 'Quotes', href: '/dashboard/quotes', icon: FileText },
@@ -74,14 +74,14 @@ const getNavigationItems = (role?: string): SidebarItem[] => {
   );
 
   // Project management items
-  if (role === 'project_manager' || role === 'admin' || role === 'foreman' || role === 'customer') {
+  if (role === 'project_manager' || role === 'admin' || role === 'superadmin' || role === 'foreman' || role === 'customer') {
     items.push(
       { name: 'Projects', href: '/dashboard/projects', icon: Package }
     );
   }
 
   // Admin-only items
-  if (role === 'admin') {
+  if (role === 'admin' || role === 'superadmin') {
     items.push(
       { name: 'Reports', href: '/dashboard/reports', icon: BarChart3 },
       { name: 'Users', href: '/dashboard/users', icon: Users }
