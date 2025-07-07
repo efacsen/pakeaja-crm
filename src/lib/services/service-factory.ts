@@ -4,7 +4,7 @@
  * based on environment configuration
  */
 
-import { mockCanvassingService } from './canvassing-service';
+import { canvassingService as mockCanvassingService } from './canvassing-service';
 import { mockPipelineService } from './sales/mock-pipeline.service';
 import { supabaseCanvassingService } from './supabase-canvassing.service';
 import { supabasePipelineService } from './supabase-pipeline.service';

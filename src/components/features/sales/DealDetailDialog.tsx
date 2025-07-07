@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Lead, Activity } from '@/types/sales';
+import { Lead, LeadActivity } from '@/types/sales';
 import {
   Dialog,
   DialogContent,

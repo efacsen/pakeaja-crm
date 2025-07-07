@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 import { Database } from '@/types/supabase.types';
-import { Lead, Activity, LeadStage } from '@/types/sales';
+import { Lead, LeadActivity, LeadStage } from '@/types/sales';
 import { Comment } from '@/types/comments';
 
 type DbLead = Database['public']['Tables']['leads']['Row'];
@@ -315,7 +315,7 @@ export class SupabasePipelineService {
     outcome?: string,
     nextAction?: string,
     nextActionDate?: string
-  ): Promise<{ data: Activity | null; error: string | null }> {
+  ): Promise<{ data: LeadActivity | null; error: string | null }> {
     try {
       const { data: activity, error } = await this.supabase
         .from('lead_activities')
@@ -347,7 +347,7 @@ export class SupabasePipelineService {
   /**
    * Get activities for a lead
    */
-  async getLeadActivities(leadId: string): Promise<{ data: Activity[]; error: string | null }> {
+  async getLeadActivities(leadId: string): Promise<{ data: LeadActivity[]; error: string | null }> {
     try {
       const { data, error } = await this.supabase
         .from('lead_activities')
@@ -574,7 +574,7 @@ export class SupabasePipelineService {
     };
   }
 
-  private convertActivityToAppFormat(dbActivity: any): Activity {
+  private convertActivityToAppFormat(dbActivity: any): LeadActivity {
     return {
       id: dbActivity.id,
       lead_id: dbActivity.lead_id,
