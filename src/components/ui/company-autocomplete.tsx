@@ -148,7 +148,12 @@ export function CompanyAutocomplete({
                       size="sm"
                       variant="secondary"
                       className="w-full"
-                      onClick={handleCreate}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleCreate();
+                      }}
+                      type="button"
                     >
                       <Plus className="mr-2 h-4 w-4" />
                       Tambah "{searchTerm}"
@@ -163,8 +168,11 @@ export function CompanyAutocomplete({
                 {searchResults.map((result) => (
                   <CommandItem
                     key={result.company_id}
-                    value={result.company_id}
-                    onSelect={() => handleSelect(result)}
+                    value={`${result.company_name}-${result.company_id}`}
+                    onSelect={() => {
+                      handleSelect(result);
+                    }}
+                    className="cursor-pointer"
                   >
                     <Check
                       className={cn(
@@ -183,7 +191,13 @@ export function CompanyAutocomplete({
                 {onCreate && searchTerm.trim() && !searchResults.some(r => 
                   r.company_name.toLowerCase() === searchTerm.trim().toLowerCase()
                 ) && (
-                  <CommandItem onSelect={handleCreate}>
+                  <CommandItem 
+                    value={`create-new-${searchTerm}`}
+                    onSelect={() => {
+                      handleCreate();
+                    }}
+                    className="cursor-pointer"
+                  >
                     <Plus className="mr-2 h-4 w-4" />
                     <span>Tambah perusahaan baru "{searchTerm}"</span>
                   </CommandItem>

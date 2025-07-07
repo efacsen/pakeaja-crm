@@ -203,6 +203,11 @@ export class CustomersService {
     }
   }
 
+  // Alias for getCustomerStats to match new interface
+  async getStats(): Promise<{ data: CustomerStats | null; error: string | null }> {
+    return this.getCustomerStats();
+  }
+
   // Search customers by name or email
   async searchCustomers(query: string): Promise<{ data: Customer[] | null; error: string | null }> {
     try {

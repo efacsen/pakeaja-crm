@@ -145,7 +145,12 @@ export function ContactAutocomplete({
                       size="sm"
                       variant="secondary"
                       className="w-full"
-                      onClick={() => setSearchTerm('Kontak Baru')}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setSearchTerm('Kontak Baru');
+                      }}
+                      type="button"
                     >
                       <Plus className="mr-2 h-4 w-4" />
                       Tambah Kontak Baru
@@ -164,7 +169,12 @@ export function ContactAutocomplete({
                       size="sm"
                       variant="secondary"
                       className="w-full"
-                      onClick={handleCreate}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleCreate();
+                      }}
+                      type="button"
                     >
                       <Plus className="mr-2 h-4 w-4" />
                       Tambah "{searchTerm}"
@@ -177,8 +187,11 @@ export function ContactAutocomplete({
                 {filteredContacts.map((contact) => (
                   <CommandItem
                     key={contact.id}
-                    value={contact.id}
-                    onSelect={() => handleSelect(contact)}
+                    value={`${contact.name}-${contact.id}`}
+                    onSelect={() => {
+                      handleSelect(contact);
+                    }}
+                    className="cursor-pointer"
                   >
                     <Check
                       className={cn(
@@ -205,7 +218,13 @@ export function ContactAutocomplete({
                 {onCreate && searchTerm.trim() && !filteredContacts.some(c => 
                   c.name.toLowerCase() === searchTerm.trim().toLowerCase()
                 ) && (
-                  <CommandItem onSelect={handleCreate}>
+                  <CommandItem 
+                    value={`create-new-${searchTerm}`}
+                    onSelect={() => {
+                      handleCreate();
+                    }}
+                    className="cursor-pointer"
+                  >
                     <Plus className="mr-2 h-4 w-4" />
                     <span>Tambah kontak baru "{searchTerm}"</span>
                   </CommandItem>

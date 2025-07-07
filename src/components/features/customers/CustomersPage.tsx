@@ -22,10 +22,10 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { CustomersTable } from './CustomersTable';
-import { CustomerForm } from './CustomerForm';
+import { CustomerFormV2 } from './CustomerFormV2';
 import { CustomerStats } from './CustomerStats';
 import { Customer, CustomerFilters } from '@/types/customers';
-import { customersService } from '@/lib/services/customers-service';
+import { customersService } from '@/lib/services/service-factory';
 import { useToast } from '@/hooks/use-toast';
 
 export function CustomersPage() {
@@ -197,7 +197,7 @@ export function CustomersPage() {
                 Create a new customer record with contact and project information.
               </DialogDescription>
             </DialogHeader>
-            <CustomerForm
+            <CustomerFormV2
               onSubmit={handleCreateCustomer}
               onCancel={() => setIsCreateDialogOpen(false)}
             />
@@ -318,8 +318,8 @@ export function CustomersPage() {
             </DialogDescription>
           </DialogHeader>
           {selectedCustomer && (
-            <CustomerForm
-              customer={selectedCustomer}
+            <CustomerFormV2
+              customerId={selectedCustomer.id}
               onSubmit={(data) => handleUpdateCustomer(selectedCustomer.id, data)}
               onCancel={() => {
                 setIsEditDialogOpen(false);

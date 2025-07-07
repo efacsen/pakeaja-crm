@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Users, Building, Factory, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CustomerStats as CustomerStatsType } from '@/types/customers';
-import { customersService } from '@/lib/services/customers-service';
+import { customersService } from '@/lib/services/service-factory';
 
 export function CustomerStats() {
   const [stats, setStats] = useState<CustomerStatsType | null>(null);
@@ -13,7 +13,7 @@ export function CustomerStats() {
   useEffect(() => {
     const loadStats = async () => {
       try {
-        const { data } = await customersService.getCustomerStats();
+        const { data } = await customersService.getStats();
         if (data) {
           setStats(data);
         }
