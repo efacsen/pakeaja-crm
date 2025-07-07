@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+
+// Force dynamic rendering to avoid static generation issues with auth
+export const dynamic = 'force-dynamic';
 import { 
   Calculator, 
   Users, 

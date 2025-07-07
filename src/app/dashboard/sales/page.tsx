@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic rendering to avoid static generation issues with auth
+export const dynamic = 'force-dynamic';
+
 import { PipelineKanban } from '@/components/features/sales/PipelineKanban';
 import { useAuth } from '@/contexts/auth-context';
 
