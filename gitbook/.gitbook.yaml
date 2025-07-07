@@ -20,7 +20,7 @@ plugins:
 
 pluginsConfig:
   github:
-    url: "https://github.com/horizon-suite/documentation"
+    url: "https://github.com/pakeaja-crm/documentation"
   
   tbfed-pagefooter:
     copyright: "Copyright &copy; 2024 Horizon Suite"

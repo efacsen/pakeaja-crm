@@ -450,7 +450,7 @@ CREATE POLICY "Users can delete their own photos" ON storage.objects
 -- Your PakeAja CRM database is now ready!
 -- 
 -- Next steps:
--- 1. Go to your app: https://horizon-suite-hx3qq9jsq-efacsens-projects.vercel.app
+-- 1. Go to your app: https://pakeaja-crm.vercel.app
 -- 2. Register a new account (this will create your first user)
 -- 3. Start using the CRM features
 -- 

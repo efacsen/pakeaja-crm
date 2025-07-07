@@ -100,7 +100,7 @@ feature/new-feature → develop → main → production
 
 ### **Setup**
 ```bash
-cd horizon-suite
+cd pakeaja-crm
 npm install
 npm run dev
 ```

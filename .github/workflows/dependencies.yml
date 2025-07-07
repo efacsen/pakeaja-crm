@@ -21,14 +21,14 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: 'horizon-suite/package-lock.json'
+          cache-dependency-path: 'package-lock.json'
 
       - name: Install dependencies
-        working-directory: ./horizon-suite
+        working-directory: .
         run: npm ci
 
       - name: Check for outdated dependencies
-        working-directory: ./horizon-suite
+        working-directory: .
         run: |
           echo "📊 Checking for outdated dependencies..."
           npm outdated --json > outdated.json || true
@@ -44,13 +44,13 @@ jobs:
 
       - name: Update minor and patch versions
         if: env.OUTDATED_FOUND == 'true'
-        working-directory: ./horizon-suite
+        working-directory: .
         run: |
           echo "🔄 Updating minor and patch versions..."
           npm update --save
 
       - name: Check for security vulnerabilities
-        working-directory: ./horizon-suite
+        working-directory: .
         run: |
           echo "🔒 Checking for security vulnerabilities..."
           npm audit --audit-level=moderate --json > audit.json || true
@@ -65,13 +65,13 @@ jobs:
 
       - name: Fix security vulnerabilities
         if: env.VULNERABILITIES_FOUND == 'true'
-        working-directory: ./horizon-suite
+        working-directory: .
         run: |
           echo "🔧 Fixing security vulnerabilities..."
           npm audit fix --force
 
       - name: Run tests after updates
-        working-directory: ./horizon-suite
+        working-directory: .
         run: |
           echo "🧪 Running tests to verify updates..."
           npm run test:unit
@@ -80,7 +80,7 @@ jobs:
 
       - name: Generate update report
         if: env.OUTDATED_FOUND == 'true' || env.VULNERABILITIES_FOUND == 'true'
-        working-directory: ./horizon-suite
+        working-directory: .
         run: |
           echo "📋 Generating update report..."
           
@@ -127,7 +127,7 @@ jobs:
             - Fix security vulnerabilities
             - All tests passing
           title: '🔄 Automated Dependency Updates'
-          body-path: horizon-suite/update-report.md
+          body-path: update-report.md
           branch: dependency-updates
           delete-branch: true
           labels: |
@@ -169,14 +169,14 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: 'horizon-suite/package-lock.json'
+          cache-dependency-path: 'package-lock.json'
 
       - name: Install dependencies
-        working-directory: ./horizon-suite
+        working-directory: .
         run: npm ci
 
       - name: Run security audit
-        working-directory: ./horizon-suite
+        working-directory: .
         run: |
           echo "🔒 Running comprehensive security audit..."
           npm audit --audit-level=low --json > security-audit.json || true
@@ -194,7 +194,7 @@ jobs:
 
       - name: Generate security report
         if: env.SECURITY_ISSUES == 'true'
-        working-directory: ./horizon-suite
+        working-directory: .
         run: |
           echo "📋 Generating security report..."
           
@@ -226,7 +226,7 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const report = fs.readFileSync('./horizon-suite/security-report.md', 'utf8');
+            const report = fs.readFileSync('./security-report.md', 'utf8');
             
             await github.rest.issues.create({
               owner: context.repo.owner,
@@ -241,5 +241,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: security-audit-report
-          path: horizon-suite/security-audit.json
+          path: security-audit.json
           retention-days: 30 
