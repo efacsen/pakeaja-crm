@@ -1,5 +1,7 @@
 # Environment Variables Setup Guide
 
+> Last updated: January 7, 2025
+
 ## Required Environment Variables
 
 The following environment variables MUST be set for the application to build and run:
