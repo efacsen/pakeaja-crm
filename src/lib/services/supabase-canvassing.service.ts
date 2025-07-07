@@ -165,7 +165,13 @@ export class SupabaseCanvassingService {
     data: { reports: CanvassingReport[]; total: number } | null; 
     error: string | null 
   }> {
-    return this.getReports({ ...filters, page, limit });
+    // If filters already contains page/limit, use those; otherwise use the parameters
+    const finalFilters = {
+      ...filters,
+      page: filters?.page ?? page,
+      limit: filters?.limit ?? limit
+    };
+    return this.getReports(finalFilters);
   }
 
   /**
