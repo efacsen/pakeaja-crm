@@ -15,7 +15,17 @@
     "db:reset": "npx supabase db reset",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
-    "test:debug": "playwright test --debug"
+    "test:debug": "playwright test --debug",
+    "test:unit": "node tests/run-unit-tests.ts",
+    "test:integration": "playwright test tests/integration.test.ts",
+    "test:e2e": "playwright test tests/auth.spec.ts tests/dashboard-authenticated.test.ts",
+    "test:ci": "npm run test:unit && npm run test:integration && npm run test:e2e",
+    "security:audit": "npm audit --audit-level=moderate",
+    "security:fix": "npm audit fix",
+    "analyze": "ANALYZE=true npm run build",
+    "lighthouse": "lighthouse-ci autorun",
+    "pre-commit": "npm run lint && npm run type-check && npm run format",
+    "prepare": "husky install || true"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
