@@ -1,0 +1,47 @@
+root: ./
+
+structure:
+  readme: README.md
+  summary: SUMMARY.md
+
+plugins:
+  - mermaid
+  - katex
+  - search-pro
+  - back-to-top-button
+  - chapter-fold
+  - code
+  - copy-code-button
+  - github
+  - page-toc-button
+  - splitter
+  - tbfed-pagefooter
+  - theme-comscore
+
+pluginsConfig:
+  github:
+    url: "https://github.com/horizon-suite/documentation"
+  
+  tbfed-pagefooter:
+    copyright: "Copyright &copy; 2024 Horizon Suite"
+    modify_label: "Last modified: "
+    modify_format: "YYYY-MM-DD HH:mm:ss"
+  
+  theme-comscore:
+    hide-elements:
+      - ".gitbook-link"
+    
+  page-toc-button:
+    maxTocDepth: 2
+    minTocSize: 2
+
+title: "Horizon Suite Documentation"
+description: "Complete user guide for Horizon Suite CRM/ERP system"
+author: "Horizon Suite Team"
+language: "en"
+
+links:
+  sidebar:
+    "🏠 Dashboard": "https://app.horizonsuite.com"
+    "📞 Support": "https://support.horizonsuite.com"
+    "🎓 Training": "https://training.horizonsuite.com" 

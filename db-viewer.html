@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizon Suite Database Schema</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .header { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .header h1 { color: #1e293b; margin-bottom: 8px; }
+        .header p { color: #64748b; }
+        .tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+        .tab { padding: 12px 20px; background: white; border: none; border-radius: 6px; cursor: pointer; color: #64748b; transition: all 0.2s; }
+        .tab.active { background: #3b82f6; color: white; }
+        .tab:hover { background: #e2e8f0; }
+        .tab.active:hover { background: #2563eb; }
+        .content { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .table-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
+        .table-card { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+        .table-header { background: #f1f5f9; padding: 16px; border-bottom: 1px solid #e2e8f0; }
+        .table-name { font-weight: 600; color: #1e293b; margin-bottom: 4px; }
+        .table-desc { font-size: 14px; color: #64748b; }
+        .columns { padding: 16px; }
+        .column { display: flex; justify-content: between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+        .column:last-child { border-bottom: none; }
+        .col-name { font-weight: 500; color: #374151; flex: 1; }
+        .col-type { font-size: 12px; color: #6b7280; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; margin-left: 8px; }
+        .pk { color: #dc2626; }
+        .fk { color: #2563eb; }
+        .relationships { margin-top: 20px; }
+        .rel-item { padding: 12px; background: #f8fafc; border-radius: 6px; margin-bottom: 8px; }
+        .search { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 6px; margin-bottom: 20px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .stat-card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .stat-number { font-size: 32px; font-weight: bold; color: #3b82f6; }
+        .stat-label { color: #64748b; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗃️ Horizon Suite Database Schema</h1>
+            <p>Production-ready database design for CRM/ERP system with temperature-based sales pipeline</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">27</div>
+                <div class="stat-label">Total Tables</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">8</div>
+                <div class="stat-label">Table Groups</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">45+</div>
+                <div class="stat-label">Relationships</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">350+</div>
+                <div class="stat-label">Total Columns</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('all')">All Tables</button>
+            <button class="tab" onclick="showTab('auth')">Authentication</button>
+            <button class="tab" onclick="showTab('sales')">Sales Pipeline</button>
+            <button class="tab" onclick="showTab('customers')">Customers</button>
+            <button class="tab" onclick="showTab('quotes')">Quotes</button>
+            <button class="tab" onclick="showTab('projects')">Projects</button>
+            <button class="tab" onclick="showTab('materials')">Materials</button>
+            <button class="tab" onclick="showTab('commission')">Commission</button>
+        </div>
+
+        <input type="text" class="search" placeholder="Search tables, columns, or relationships..." onkeyup="filterTables(this.value)">
+
+        <div class="content">
+            <div id="tables-container" class="table-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        const tables = {
+            auth: [
+                {
+                    name: 'users',
+                    description: 'Core user authentication and basic information',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'email', type: 'TEXT', constraint: 'UNIQUE' },
+                        { name: 'password_hash', type: 'TEXT' },
+                        { name: 'full_name', type: 'TEXT' },
+                        { name: 'role', type: 'TEXT' },
+                        { name: 'active', type: 'BOOLEAN' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'updated_at', type: 'TIMESTAMPTZ' },
+                        { name: 'created_by', type: 'UUID', constraint: 'FK' }
+                    ]
+                },
+                {
+                    name: 'user_profiles',
+                    description: 'Extended user profile data and preferences',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'user_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'avatar_url', type: 'TEXT' },
+                        { name: 'phone', type: 'TEXT' },
+                        { name: 'position', type: 'TEXT' },
+                        { name: 'department', type: 'TEXT' },
+                        { name: 'preferences', type: 'JSON' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'updated_at', type: 'TIMESTAMPTZ' }
+                    ]
+                },
+                {
+                    name: 'territories',
+                    description: 'Geographic regions (Jakarta, Bandung, Surabaya, etc.)',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'name', type: 'TEXT' },
+                        { name: 'code', type: 'TEXT' },
+                        { name: 'region', type: 'TEXT' },
+                        { name: 'boundaries', type: 'JSON' },
+                        { name: 'active', type: 'BOOLEAN' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'updated_at', type: 'TIMESTAMPTZ' }
+                    ]
+                },
+                {
+                    name: 'sales_reps',
+                    description: 'Sales team information with territory assignments',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'user_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'employee_id', type: 'TEXT' },
+                        { name: 'name', type: 'TEXT' },
+                        { name: 'email', type: 'TEXT' },
+                        { name: 'phone', type: 'TEXT' },
+                        { name: 'primary_territory_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'secondary_territories', type: 'JSON' },
+                        { name: 'expertise', type: 'TEXT' },
+                        { name: 'active', type: 'BOOLEAN' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'updated_at', type: 'TIMESTAMPTZ' }
+                    ]
+                }
+            ],
+            customers: [
+                {
+                    name: 'customers',
+                    description: 'Complete customer database with territory assignment',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'name', type: 'TEXT' },
+                        { name: 'email', type: 'TEXT' },
+                        { name: 'phone', type: 'TEXT' },
+                        { name: 'company', type: 'TEXT' },
+                        { name: 'address', type: 'TEXT' },
+                        { name: 'city', type: 'TEXT' },
+                        { name: 'state', type: 'TEXT' },
+                        { name: 'zip_code', type: 'TEXT' },
+                        { name: 'country', type: 'TEXT' },
+                        { name: 'customer_type', type: 'TEXT' },
+                        { name: 'lead_source', type: 'TEXT' },
+                        { name: 'status', type: 'TEXT' },
+                        { name: 'territory_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'assigned_rep_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'notes', type: 'TEXT' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'updated_at', type: 'TIMESTAMPTZ' },
+                        { name: 'created_by', type: 'UUID', constraint: 'FK' }
+                    ]
+                },
+                {
+                    name: 'customer_contacts',
+                    description: 'Multiple contacts per customer with decision-maker flags',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'customer_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'name', type: 'TEXT' },
+                        { name: 'email', type: 'TEXT' },
+                        { name: 'phone', type: 'TEXT' },
+                        { name: 'position', type: 'TEXT' },
+                        { name: 'department', type: 'TEXT' },
+                        { name: 'is_primary', type: 'BOOLEAN' },
+                        { name: 'is_decision_maker', type: 'BOOLEAN' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'updated_at', type: 'TIMESTAMPTZ' }
+                    ]
+                }
+            ],
+            sales: [
+                {
+                    name: 'deals',
+                    description: 'Core deal records with temperature tracking (Cold/Warm/Hot/Critical)',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'deal_number', type: 'TEXT' },
+                        { name: 'title', type: 'TEXT' },
+                        { name: 'customer_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'sales_rep_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'stage', type: 'TEXT' },
+                        { name: 'sub_stage', type: 'TEXT' },
+                        { name: 'temperature', type: 'TEXT' },
+                        { name: 'deal_type', type: 'TEXT' },
+                        { name: 'estimated_value', type: 'DECIMAL' },
+                        { name: 'currency', type: 'TEXT' },
+                        { name: 'probability', type: 'DECIMAL' },
+                        { name: 'expected_close_date', type: 'DATE' },
+                        { name: 'actual_close_date', type: 'DATE' },
+                        { name: 'territory_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'source', type: 'TEXT' },
+                        { name: 'competitor', type: 'TEXT' },
+                        { name: 'description', type: 'TEXT' },
+                        { name: 'next_action', type: 'TEXT' },
+                        { name: 'next_follow_up', type: 'DATE' },
+                        { name: 'priority', type: 'TEXT' },
+                        { name: 'custom_fields', type: 'JSON' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'updated_at', type: 'TIMESTAMPTZ' },
+                        { name: 'created_by', type: 'UUID', constraint: 'FK' },
+                        { name: 'updated_by', type: 'UUID', constraint: 'FK' }
+                    ]
+                },
+                {
+                    name: 'deal_temperature_history',
+                    description: 'Audit trail of temperature changes',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'deal_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'old_temperature', type: 'TEXT' },
+                        { name: 'new_temperature', type: 'TEXT' },
+                        { name: 'reason', type: 'TEXT' },
+                        { name: 'notes', type: 'TEXT' },
+                        { name: 'changed_at', type: 'TIMESTAMPTZ' },
+                        { name: 'changed_by', type: 'UUID', constraint: 'FK' }
+                    ]
+                },
+                {
+                    name: 'deal_stage_history',
+                    description: 'Audit trail of stage progressions',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'deal_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'old_stage', type: 'TEXT' },
+                        { name: 'new_stage', type: 'TEXT' },
+                        { name: 'old_sub_stage', type: 'TEXT' },
+                        { name: 'new_sub_stage', type: 'TEXT' },
+                        { name: 'old_value', type: 'DECIMAL' },
+                        { name: 'new_value', type: 'DECIMAL' },
+                        { name: 'notes', type: 'TEXT' },
+                        { name: 'changed_at', type: 'TIMESTAMPTZ' },
+                        { name: 'changed_by', type: 'UUID', constraint: 'FK' }
+                    ]
+                },
+                {
+                    name: 'deal_activities',
+                    description: 'All interactions (calls, meetings, emails)',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'deal_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'activity_type', type: 'TEXT' },
+                        { name: 'subject', type: 'TEXT' },
+                        { name: 'description', type: 'TEXT' },
+                        { name: 'activity_date', type: 'TIMESTAMPTZ' },
+                        { name: 'duration_minutes', type: 'INTEGER' },
+                        { name: 'outcome', type: 'TEXT' },
+                        { name: 'next_action', type: 'TEXT' },
+                        { name: 'next_follow_up', type: 'DATE' },
+                        { name: 'attachments', type: 'JSON' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'created_by', type: 'UUID', constraint: 'FK' }
+                    ]
+                },
+                {
+                    name: 'lost_deals',
+                    description: 'Analysis of lost opportunities with competitor info',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'deal_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'reason_category', type: 'TEXT' },
+                        { name: 'reason_detail', type: 'TEXT' },
+                        { name: 'competitor', type: 'TEXT' },
+                        { name: 'lost_value', type: 'DECIMAL' },
+                        { name: 'feedback', type: 'TEXT' },
+                        { name: 'lessons_learned', type: 'TEXT' },
+                        { name: 'winback_possible', type: 'BOOLEAN' },
+                        { name: 'winback_date', type: 'DATE' },
+                        { name: 'lost_at', type: 'TIMESTAMPTZ' },
+                        { name: 'lost_by', type: 'UUID', constraint: 'FK' }
+                    ]
+                },
+                {
+                    name: 'sales_activities',
+                    description: 'General sales activity tracking',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'sales_rep_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'deal_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'activity_type', type: 'TEXT' },
+                        { name: 'subject', type: 'TEXT' },
+                        { name: 'description', type: 'TEXT' },
+                        { name: 'activity_date', type: 'TIMESTAMPTZ' },
+                        { name: 'duration_minutes', type: 'INTEGER' },
+                        { name: 'outcome', type: 'TEXT' },
+                        { name: 'metadata', type: 'JSON' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'created_by', type: 'UUID', constraint: 'FK' }
+                    ]
+                }
+            ],
+            quotes: [
+                {
+                    name: 'quotes',
+                    description: 'Professional quotes with Indonesian formatting',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'quote_number', type: 'TEXT' },
+                        { name: 'deal_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'customer_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'project_name', type: 'TEXT' },
+                        { name: 'project_address', type: 'TEXT' },
+                        { name: 'project_date', type: 'DATE' },
+                        { name: 'client_name', type: 'TEXT' },
+                        { name: 'client_email', type: 'TEXT' },
+                        { name: 'client_phone', type: 'TEXT' },
+                        { name: 'total_area', type: 'DECIMAL' },
+                        { name: 'total_cost', type: 'DECIMAL' },
+                        { name: 'cost_per_sqft', type: 'DECIMAL' },
+                        { name: 'currency', type: 'TEXT' },
+                        { name: 'status', type: 'TEXT' },
+                        { name: 'calculator_data', type: 'JSON' },
+                        { name: 'quote_template_data', type: 'JSON' },
+                        { name: 'payment_terms', type: 'TEXT' },
+                        { name: 'notes', type: 'TEXT' },
+                        { name: 'expires_at', type: 'DATE' },
+                        { name: 'sent_at', type: 'TIMESTAMPTZ' },
+                        { name: 'approved_at', type: 'TIMESTAMPTZ' },
+                        { name: 'rejected_at', type: 'TIMESTAMPTZ' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'updated_at', type: 'TIMESTAMPTZ' },
+                        { name: 'created_by', type: 'UUID', constraint: 'FK' }
+                    ]
+                },
+                {
+                    name: 'quote_templates',
+                    description: 'Standardized quote templates for different scenarios',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'name', type: 'TEXT' },
+                        { name: 'code', type: 'TEXT' },
+                        { name: 'template_type', type: 'TEXT' },
+                        { name: 'header_config', type: 'JSON' },
+                        { name: 'footer_config', type: 'JSON' },
+                        { name: 'terms_conditions', type: 'JSON' },
+                        { name: 'active', type: 'BOOLEAN' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'updated_at', type: 'TIMESTAMPTZ' },
+                        { name: 'created_by', type: 'UUID', constraint: 'FK' }
+                    ]
+                },
+                {
+                    name: 'quote_items',
+                    description: 'Detailed line items for materials and services',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'quote_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'item_type', type: 'TEXT' },
+                        { name: 'description', type: 'TEXT' },
+                        { name: 'quantity', type: 'DECIMAL' },
+                        { name: 'unit', type: 'TEXT' },
+                        { name: 'unit_price', type: 'DECIMAL' },
+                        { name: 'total_price', type: 'DECIMAL' },
+                        { name: 'currency', type: 'TEXT' },
+                        { name: 'item_details', type: 'JSON' },
+                        { name: 'sort_order', type: 'INTEGER' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'updated_at', type: 'TIMESTAMPTZ' }
+                    ]
+                },
+                {
+                    name: 'payment_terms',
+                    description: 'CBD, COD, NET 7/14/30 terms',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'code', type: 'TEXT' },
+                        { name: 'name', type: 'TEXT' },
+                        { name: 'description', type: 'TEXT' },
+                        { name: 'days', type: 'INTEGER' },
+                        { name: 'term_type', type: 'TEXT' },
+                        { name: 'active', type: 'BOOLEAN' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'updated_at', type: 'TIMESTAMPTZ' }
+                    ]
+                }
+            ],
+            projects: [
+                {
+                    name: 'projects',
+                    description: 'Convert won deals to projects',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'project_number', type: 'TEXT' },
+                        { name: 'name', type: 'TEXT' },
+                        { name: 'description', type: 'TEXT' },
+                        { name: 'customer_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'quote_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'deal_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'project_manager_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'status', type: 'TEXT' },
+                        { name: 'priority', type: 'TEXT' },
+                        { name: 'start_date', type: 'DATE' },
+                        { name: 'end_date', type: 'DATE' },
+                        { name: 'actual_start_date', type: 'DATE' },
+                        { name: 'actual_end_date', type: 'DATE' },
+                        { name: 'budget', type: 'DECIMAL' },
+                        { name: 'actual_cost', type: 'DECIMAL' },
+                        { name: 'currency', type: 'TEXT' },
+                        { name: 'progress_percentage', type: 'INTEGER' },
+                        { name: 'notes', type: 'TEXT' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'updated_at', type: 'TIMESTAMPTZ' },
+                        { name: 'created_by', type: 'UUID', constraint: 'FK' }
+                    ]
+                },
+                {
+                    name: 'project_tasks',
+                    description: 'Detailed task management with dependencies',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'project_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'task_number', type: 'TEXT' },
+                        { name: 'title', type: 'TEXT' },
+                        { name: 'description', type: 'TEXT' },
+                        { name: 'phase_id', type: 'TEXT' },
+                        { name: 'status', type: 'TEXT' },
+                        { name: 'priority', type: 'TEXT' },
+                        { name: 'start_date', type: 'DATE' },
+                        { name: 'end_date', type: 'DATE' },
+                        { name: 'actual_start_date', type: 'DATE' },
+                        { name: 'actual_end_date', type: 'DATE' },
+                        { name: 'progress_percentage', type: 'INTEGER' },
+                        { name: 'estimated_hours', type: 'DECIMAL' },
+                        { name: 'actual_hours', type: 'DECIMAL' },
+                        { name: 'assigned_to', type: 'UUID', constraint: 'FK' },
+                        { name: 'parent_task_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'dependencies', type: 'JSON' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'updated_at', type: 'TIMESTAMPTZ' },
+                        { name: 'created_by', type: 'UUID', constraint: 'FK' }
+                    ]
+                },
+                {
+                    name: 'project_milestones',
+                    description: 'Key project checkpoints',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'project_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'title', type: 'TEXT' },
+                        { name: 'description', type: 'TEXT' },
+                        { name: 'due_date', type: 'DATE' },
+                        { name: 'completed_date', type: 'DATE' },
+                        { name: 'status', type: 'TEXT' },
+                        { name: 'progress_percentage', type: 'INTEGER' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'updated_at', type: 'TIMESTAMPTZ' },
+                        { name: 'created_by', type: 'UUID', constraint: 'FK' }
+                    ]
+                }
+            ],
+            materials: [
+                {
+                    name: 'materials',
+                    description: '600+ coating products from NIPPON catalog',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'sku', type: 'TEXT' },
+                        { name: 'name', type: 'TEXT' },
+                        { name: 'category', type: 'TEXT' },
+                        { name: 'brand', type: 'TEXT' },
+                        { name: 'description', type: 'TEXT' },
+                        { name: 'unit', type: 'TEXT' },
+                        { name: 'unit_price', type: 'DECIMAL' },
+                        { name: 'currency', type: 'TEXT' },
+                        { name: 'stock_quantity', type: 'INTEGER' },
+                        { name: 'min_stock_level', type: 'INTEGER' },
+                        { name: 'supplier', type: 'TEXT' },
+                        { name: 'packaging_info', type: 'JSON' },
+                        { name: 'application_methods', type: 'JSON' },
+                        { name: 'active', type: 'BOOLEAN' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'updated_at', type: 'TIMESTAMPTZ' },
+                        { name: 'created_by', type: 'UUID', constraint: 'FK' }
+                    ]
+                },
+                {
+                    name: 'material_systems',
+                    description: 'Pre-configured coating systems',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'name', type: 'TEXT' },
+                        { name: 'code', type: 'TEXT' },
+                        { name: 'description', type: 'TEXT' },
+                        { name: 'category', type: 'TEXT' },
+                        { name: 'total_thickness', type: 'INTEGER' },
+                        { name: 'warranty_years', type: 'INTEGER' },
+                        { name: 'coverage_per_unit', type: 'DECIMAL' },
+                        { name: 'products', type: 'JSON' },
+                        { name: 'active', type: 'BOOLEAN' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'updated_at', type: 'TIMESTAMPTZ' },
+                        { name: 'created_by', type: 'UUID', constraint: 'FK' }
+                    ]
+                },
+                {
+                    name: 'calculations',
+                    description: 'Coating calculator results',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'calculation_number', type: 'TEXT' },
+                        { name: 'customer_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'deal_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'project_name', type: 'TEXT' },
+                        { name: 'surface_data', type: 'JSON' },
+                        { name: 'material_system', type: 'JSON' },
+                        { name: 'cost_breakdown', type: 'JSON' },
+                        { name: 'total_cost', type: 'DECIMAL' },
+                        { name: 'total_area', type: 'DECIMAL' },
+                        { name: 'currency', type: 'TEXT' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'updated_at', type: 'TIMESTAMPTZ' },
+                        { name: 'created_by', type: 'UUID', constraint: 'FK' }
+                    ]
+                }
+            ],
+            commission: [
+                {
+                    name: 'sales_targets',
+                    description: 'Monthly/yearly targets per sales rep',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'sales_rep_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'year', type: 'INTEGER' },
+                        { name: 'month', type: 'INTEGER' },
+                        { name: 'target_amount', type: 'DECIMAL' },
+                        { name: 'currency', type: 'TEXT' },
+                        { name: 'target_type', type: 'TEXT' },
+                        { name: 'achievement_percentage', type: 'DECIMAL' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'updated_at', type: 'TIMESTAMPTZ' },
+                        { name: 'created_by', type: 'UUID', constraint: 'FK' }
+                    ]
+                },
+                {
+                    name: 'commission_calculations',
+                    description: 'Automated commission calculations',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'deal_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'sales_rep_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'commission_type', type: 'TEXT' },
+                        { name: 'deal_value', type: 'DECIMAL' },
+                        { name: 'commission_rate', type: 'DECIMAL' },
+                        { name: 'gross_commission', type: 'DECIMAL' },
+                        { name: 'admin_share', type: 'DECIMAL' },
+                        { name: 'sales_share', type: 'DECIMAL' },
+                        { name: 'tax_amount', type: 'DECIMAL' },
+                        { name: 'net_commission', type: 'DECIMAL' },
+                        { name: 'currency', type: 'TEXT' },
+                        { name: 'payment_status', type: 'TEXT' },
+                        { name: 'payment_date', type: 'DATE' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'updated_at', type: 'TIMESTAMPTZ' },
+                        { name: 'created_by', type: 'UUID', constraint: 'FK' }
+                    ]
+                },
+                {
+                    name: 'commission_payments',
+                    description: 'Payment tracking and tax handling',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'commission_calculation_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'sales_rep_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'amount', type: 'DECIMAL' },
+                        { name: 'currency', type: 'TEXT' },
+                        { name: 'payment_method', type: 'TEXT' },
+                        { name: 'payment_reference', type: 'TEXT' },
+                        { name: 'payment_date', type: 'DATE' },
+                        { name: 'status', type: 'TEXT' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' },
+                        { name: 'updated_at', type: 'TIMESTAMPTZ' },
+                        { name: 'created_by', type: 'UUID', constraint: 'FK' }
+                    ]
+                },
+                {
+                    name: 'pipeline_snapshots',
+                    description: 'Daily pipeline state for trend analysis',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'snapshot_date', type: 'DATE' },
+                        { name: 'sales_rep_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'territory_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'stage', type: 'TEXT' },
+                        { name: 'temperature', type: 'TEXT' },
+                        { name: 'total_value', type: 'DECIMAL' },
+                        { name: 'deal_count', type: 'INTEGER' },
+                        { name: 'stage_breakdown', type: 'JSON' },
+                        { name: 'created_at', type: 'TIMESTAMPTZ' }
+                    ]
+                },
+                {
+                    name: 'attachments',
+                    description: 'File storage for quotes, contracts, photos',
+                    columns: [
+                        { name: 'id', type: 'UUID', constraint: 'PK' },
+                        { name: 'entity_type', type: 'TEXT' },
+                        { name: 'entity_id', type: 'UUID', constraint: 'FK' },
+                        { name: 'file_name', type: 'TEXT' },
+                        { name: 'file_type', type: 'TEXT' },
+                        { name: 'file_url', type: 'TEXT' },
+                        { name: 'file_size', type: 'INTEGER' },
+                        { name: 'uploaded_by_name', type: 'TEXT' },
+                        { name: 'uploaded_at', type: 'TIMESTAMPTZ' },
+                        { name: 'uploaded_by', type: 'UUID', constraint: 'FK' }
+                    ]
+                }
+            ]
+        };
+
+        let currentFilter = 'all';
+        let searchTerm = '';
+
+        function showTab(category) {
+            currentFilter = category;
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            renderTables();
+        }
+
+        function filterTables(term) {
+            searchTerm = term.toLowerCase();
+            renderTables();
+        }
+
+        function renderTables() {
+            const container = document.getElementById('tables-container');
+            container.innerHTML = '';
+
+            let tablesToShow = [];
+            if (currentFilter === 'all') {
+                tablesToShow = Object.values(tables).flat();
+            } else {
+                tablesToShow = tables[currentFilter] || [];
+            }
+
+            if (searchTerm) {
+                tablesToShow = tablesToShow.filter(table => {
+                    return table.name.toLowerCase().includes(searchTerm) ||
+                           table.description.toLowerCase().includes(searchTerm) ||
+                           table.columns.some(col => col.name.toLowerCase().includes(searchTerm));
+                });
+            }
+
+            tablesToShow.forEach(table => {
+                const tableCard = document.createElement('div');
+                tableCard.className = 'table-card';
+                
+                const columnsHtml = table.columns.map(col => {
+                    const constraintClass = col.constraint === 'PK' ? 'pk' : col.constraint === 'FK' ? 'fk' : '';
+                    return `
+                        <div class="column">
+                            <span class="col-name ${constraintClass}">${col.name}</span>
+                            <span class="col-type">${col.type}</span>
+                            ${col.constraint ? `<span class="col-type">${col.constraint}</span>` : ''}
+                        </div>
+                    `;
+                }).join('');
+
+                tableCard.innerHTML = `
+                    <div class="table-header">
+                        <div class="table-name">${table.name}</div>
+                        <div class="table-desc">${table.description}</div>
+                    </div>
+                    <div class="columns">
+                        ${columnsHtml}
+                    </div>
+                `;
+
+                container.appendChild(tableCard);
+            });
+        }
+
+        // Initial render
+        renderTables();
+    </script>
+</body>
+</html> 

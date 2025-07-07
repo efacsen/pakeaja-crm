@@ -1,10 +1,19 @@
 # CLAUDE.md - Automated CRM/ERP Development Assistant
 
 ## Project Context
-- **Goal**: Build comprehensive internal CRM/ERP focusing on user experience
-- **Developer**: Solo developer prioritizing business value over technical complexity
+- **Goal**: Build comprehensive CRM/ERP for Indonesian coating/painting industry
+- **Company**: Distributor & applicator for NIPPON, JOTUN, KANSAI, DULUX, SKK, PROPAN
+- **Users**: Sales team, estimators, project managers, foremen, clients
 - **Approach**: Maximum automation, minimal manual configuration
 - **Focus**: What the app does for users, not how it's built
+
+## Business Model Understanding
+- **Direct partnership** with paint principals (better pricing than competitors)
+- **Dual role**: Distributor AND applicator
+- **Specialization**: Protective, decorative, marine, floor, texture coatings
+- **Target market**: Indonesia (metric system, Rupiah currency)
+- **Project sizes**: 50m² to 50,000m² 
+- **Competitive advantage**: Specialized expertise + better pricing
 
 ## Core Development Philosophy
 1. **Automate all technical decisions** - Use proven patterns
@@ -12,470 +21,236 @@
 3. **Use low-code/no-code tools** where possible
 4. **Generate boilerplate code** automatically
 5. **Test through user scenarios** not unit tests
+6. **Mobile-first** - Field workers use phones/tablets
 
 ## Automated Tech Stack
 
 ### Complete Full-Stack Solution: Supabase + Next.js
-```bash
-# One command to set up everything
-npx create-t3-app@latest crm-app --prisma --tailwind --nextAuth --trpc
+- **Database**: Supabase auto-generates APIs from schema
+- **Auth**: Built-in with social logins
+- **Real-time**: Built into Supabase for live updates
+- **Storage**: Supabase Storage for photos/documents
+- **Type Safety**: Automatic from database to frontend
+- **Mobile**: Progressive Web App + React Native later
+
+## System Modules Overview
+
+### 1. Sales Pipeline Management
+- **Daily reporting** by sales team
+- **Lead tracking** from first contact to won/lost
+- **Multi-view**: Kanban, list, calendar views
+- **Activity logging**: Calls, visits, emails with outcomes
+- **Automatic metrics**: Conversion rates, cycle time
+- **Mobile app** for field sales
+
+### 2. Coating Calculator System
+- **Multi-brand support**: All principal products
+- **Indonesian market**: Metric units, Rupiah, local materials
+- **Spreading rates**: Unique per material per DFT
+- **Package optimization**: Minimize waste or cost
+- **System templates**: Save and reuse coating systems
+- **Additional calculators**: Thinner, abrasives, labor, equipment
+
+### 3. Project Management
+- **Auto-creation** from won deals
+- **Gantt charts** with weather integration
+- **Resource planning**: Workers, equipment, materials
+- **Progress tracking**: Daily reports from site
+- **Quality control**: Digital checklists, DFT readings
+- **Photo documentation**: GPS-tagged progress photos
+
+### 4. Client Portal
+- **Self-service** project tracking
+- **Live progress** with simplified Gantt
+- **Document library**: Warranties, certificates, reports
+- **Photo galleries**: Before/after, progress photos
+- **Maintenance requests**: Post-project services
+- **Coating history**: All work done on their properties
+
+### 5. Analytics & Intelligence
+- **Sales performance**: By rep, by product type
+- **Estimator accuracy**: Actual vs estimated tracking
+- **Project profitability**: By type, client, manager
+- **Material efficiency**: Usage vs estimates
+- **Predictive insights**: Maintenance needs, inventory
+
+### 6. AI Chat Integration
+- **Natural language queries** in English/Indonesian
+- **Business insights**: "Show top customers this month"
+- **Cost control**: <$0.50/query, mock mode for development
+- **Role-based access**: Sales see their data only
+- **Actionable responses**: Tables, charts, action buttons
+
+## Database Design Patterns
+
+### Multi-Tenant Architecture
+```sql
+-- All tables include organization_id for future scaling
+-- Row Level Security (RLS) for data isolation
+-- Audit fields: created_at, updated_at, created_by
 ```
 
-### Why This Stack Works Automatically:
-- **Database**: Supabase auto-generates APIs from your schema
-- **Auth**: Built-in with social logins (Google, etc.)
-- **Admin Panel**: Auto-generated from database
-- **Type Safety**: Automatic from database to frontend
-- **Real-time**: Built into Supabase
+### Key Entities
+1. **Leads & Opportunities**: Sales pipeline
+2. **Customers & Contacts**: CRM data
+3. **Coating Systems**: Reusable templates
+4. **Materials**: Products with packaging/pricing
+5. **Projects**: From estimation to completion
+6. **Daily Reports**: Progress, quality, issues
+7. **Warranties**: Digital tracking with reminders
 
-## How We'll Work Together
+## Business Workflow Automation
+
+### Sales to Project Flow
+```
+Lead → Qualify → Site Survey → Estimate → Proposal → Win → Project
+  ↓        ↓          ↓            ↓          ↓        ↓       ↓
+Track   Validate   Photos     Calculate   Quote    Convert  Execute
+```
+
+### Daily Operations Flow
+```
+Morning: Sales update pipeline → Foreman check weather → Plan day
+During: Log activities → Report progress → Track materials
+Evening: Submit reports → Update clients → Plan tomorrow
+```
+
+### Quality Control Flow
+```
+Apply coating → Measure DFT → Photo document → Inspector approve → Client sign-off
+```
+
+## Mobile-First Features
+
+### Sales App
+- Quick lead entry
+- Photo capture with notes
+- Offline capability
+- Push notifications for follow-ups
+
+### Foreman App  
+- Daily reporting wizard
+- Material barcode scanning
+- Progress photos with markup
+- Weather alerts
+
+### Inspector App
+- Digital checklists
+- DFT reading entry
+- Non-conformance reports
+- Certificate generation
+
+## Integration Points
+
+### External Systems
+- **Weather API**: Real-time conditions for scheduling
+- **WhatsApp Business**: Client notifications
+- **Google Maps**: Site locations and routing
+- **Principal systems**: For material pricing/availability
+
+### Future Integrations
+- **Accounting software**: Invoice sync
+- **HR systems**: Worker time tracking
+- **IoT sensors**: Temperature/humidity monitoring
+- **Drones**: Aerial progress tracking
+
+## Development Approach
 
 ### You Describe What Users Need → I Build It
 
 ```markdown
 Example:
-YOU: "Sales team needs to track customer interactions"
+YOU: "Sales team needs to see their pipeline on mobile"
 
 ME: I'll automatically:
-1. Design the database schema
-2. Generate the API endpoints
-3. Create the UI components
-4. Set up the workflows
-5. Add necessary automations
+1. Design the mobile-optimized UI
+2. Create the API endpoints
+3. Add offline capability
+4. Set up real-time sync
+5. Include push notifications
 ```
 
-## Automated Database Design
+## Performance & Scalability
 
-### Just Describe Your Business Entities
-When you tell me about a business need, I'll automatically create:
+### Targets
+- **Page load**: <2 seconds on 4G
+- **Offline capable**: Critical features work without internet
+- **Data sync**: Real-time where needed, batch where possible
+- **Storage efficient**: Compress photos, archive old data
 
-```sql
--- Example: "We need to track customers and their orders"
--- I'll generate complete schema with:
-- Proper relationships
-- Audit fields (created_at, updated_at, created_by)
-- Soft deletes
-- Indexes for performance
-- Row Level Security policies
-- Triggers for automation
-```
+## Security & Compliance
 
-### Supabase Magic: Database → Instant API
-```javascript
-// Supabase automatically provides:
-const { data: customers } = await supabase
-  .from('customers')
-  .select(`
-    *,
-    orders (*),
-    interactions (*)
-  `)
-  .order('created_at', { ascending: false });
+### Data Protection
+- **Role-based access**: Granular permissions
+- **Audit trails**: All changes tracked
+- **Encryption**: At rest and in transit
+- **Backups**: Automated daily with 30-day retention
 
-// That's it! No backend code needed
-```
-
-## UI Generation Approach
-
-### Describe the Screen → Get Complete Component
-
-```markdown
-YOU: "I need a customer list with search, filters, and quick actions"
-
-I'll provide complete implementation using:
-- Shadcn/ui components (copy-paste ready)
-- TanStack Table (advanced data grid)
-- Built-in search/filter/sort
-- Responsive design
-- Loading states
-- Error handling
-```
-
-### Automated UI Patterns
-
-#### 1. List Views (Customers, Orders, etc.)
-```typescript
-// I'll generate complete tables with:
-- Pagination
-- Search
-- Multi-column filtering
-- Bulk actions
-- Export functionality
-- Column visibility toggle
-- Responsive mobile view
-```
-
-#### 2. Detail/Form Views
-```typescript
-// Automatic form generation with:
-- Field validation
-- Error messages
-- Loading states
-- Success notifications
-- Autosave drafts
-- Change history
-```
-
-#### 3. Dashboards
-```typescript
-// Auto-generated analytics with:
-- KPI cards
-- Charts (using Recharts)
-- Real-time updates
-- Date range filters
-- Export options
-```
-
-## Business Workflow Automation
-
-### Describe Process → Get Implementation
-
-```markdown
-Example Workflow:
-"When opportunity reaches 80% probability, notify sales manager and create draft contract"
-
-I'll automatically implement:
-1. Database triggers
-2. Email notifications
-3. Document generation
-4. Task creation
-5. Activity logging
-```
-
-### Common Automations I'll Build
-
-```typescript
-// Sales Pipeline Automations
-- Lead scoring based on interactions
-- Automatic follow-up reminders
-- Deal stage progression rules
-- Commission calculations
-- Territory assignments
-
-// Project Management Automations
-- Task dependencies
-- Resource conflict detection
-- Milestone notifications
-- Time tracking reminders
-- Budget alerts
-
-// Document Automations
-- Template selection based on criteria
-- Dynamic field population
-- Approval workflows
-- Version control
-- Distribution rules
-```
-
-## Supabase Studio - Your Visual Database Manager
-
-### No SQL Needed - Just Click!
-```markdown
-1. Table Editor - Spreadsheet-like interface
-2. Relationship Manager - Drag & drop foreign keys
-3. RLS Policy Builder - Visual security rules
-4. SQL Editor - For when you need it
-5. Realtime Inspector - See live data changes
-```
-
-## Rapid Development Patterns
-
-### 1. Start with User Stories
-```markdown
-Format: "As a [role], I want to [action] so that [benefit]"
-
-Example:
-"As a sales manager, I want to see team performance dashboard 
-so that I can identify who needs support"
-```
-
-### 2. I'll Generate Everything
-```markdown
-From each user story, I'll create:
-1. Database schema
-2. API endpoints (auto-generated by Supabase)
-3. Frontend components
-4. Business logic
-5. Automated workflows
-```
-
-### 3. Quick Iteration Cycle
-```markdown
-1. You test with real scenarios
-2. Tell me what needs adjustment
-3. I provide updated code
-4. Deploy instantly with Vercel
-```
-
-## Pre-Built Module Templates
-
-### Sales CRM Module
-```typescript
-// Just say "implement sales module" and get:
-- Contact management
-- Lead tracking
-- Opportunity pipeline
-- Activity logging
-- Email integration
-- Call scheduling
-- Performance dashboards
-- Commission tracking
-```
-
-### Project Management Module
-```typescript
-// Say "add project tracking" and receive:
-- Project creation wizard
-- Task management
-- Resource allocation
-- Gantt charts
-- Time tracking
-- Budget monitoring
-- Client portal
-- Report generation
-```
-
-### Document Generation Module
-```typescript
-// Request "document templates" and get:
-- Template builder
-- Variable mapping
-- PDF generation
-- E-signatures
-- Distribution workflows
-- Version control
-- Access permissions
-```
-
-## Automated Testing Approach
-
-### User Scenario Testing (No Code Required)
-```markdown
-Instead of unit tests, we'll create:
-
-1. User Journey Tests
-   - "Can user create customer and send quote?"
-   - "Does manager see team notifications?"
-   
-2. Business Rule Validation
-   - "Are discounts applied correctly?"
-   - "Do permissions work properly?"
-
-I'll generate Playwright tests you can run with one click
-```
+### Indonesian Compliance
+- **Tax compliance**: NPWP fields where needed
+- **Language**: Bilingual UI (Indonesian/English)
+- **Currency**: Proper Rupiah formatting
+- **Dates**: DD/MM/YYYY format
 
 ## Quick Commands for Common Needs
 
 ### Database Operations
 ```typescript
 // Just ask me:
-"Add email tracking to customers" 
-// I'll provide complete migration
-
-"Show me all overdue tasks"
-// I'll write the query
-
-"Set up automatic backups"
-// I'll configure Supabase
+"Add commission tracking to sales"
+"Create warranty reminder system"
+"Set up inventory alerts"
 ```
 
 ### UI Components
 ```typescript
 // Request any UI:
-"Customer search with filters"
-"Kanban board for tasks"  
-"Revenue chart by month"
-"Team performance cards"
-
-// Get complete, styled components
+"Mobile-friendly project gallery"
+"Gantt chart with weather overlay"  
+"Sales dashboard with charts"
+"DFT measurement form"
 ```
 
 ### Business Logic
 ```typescript
 // Describe the rule:
-"Leads untouched for 7 days go to queue"
-"High-value deals need manager approval"
-"Auto-assign based on territory"
-
-// Get full implementation
+"Auto-assign leads by territory"
+"Calculate commissions with tiers"
+"Alert if project margin below 25%"
 ```
 
-## Deployment Automation
+## Deployment Strategy
 
-### One-Click Deployment
-```bash
-# Frontend (Vercel)
-- Push to GitHub
-- Auto-deploys
-- Preview for each PR
+### Progressive Rollout
+1. **Phase 1**: Sales pipeline + Calculator
+2. **Phase 2**: Project management
+3. **Phase 3**: Field reporting
+4. **Phase 4**: Client portal
+5. **Phase 5**: Analytics & AI
 
-# Backend (Supabase)
-- Migrations auto-applied
-- Environment management
-- Automatic backups
-```
+### Environment Management
+- **Development**: Test new features
+- **Staging**: Client demos
+- **Production**: Live system
 
-## Integration Templates
+## Success Metrics
 
-### Common Integrations (Pre-Built)
-```typescript
-// Just say which you need:
-- Google Workspace (Calendar, Drive, Gmail)
-- Microsoft 365
-- Slack notifications
-- SendGrid/Resend for emails
-- Stripe for payments
-- Twilio for SMS
-- Zapier webhooks
-```
+### Business KPIs
+- Sales cycle reduction: Target 20%
+- Estimation accuracy: Target 95%
+- Project margin improvement: Target 5%
+- Client satisfaction: Target 90%
 
-## AI-Powered Features
-
-### Built-in AI Capabilities
-```typescript
-// Available out-of-box:
-- Smart email drafting
-- Lead scoring
-- Sentiment analysis
-- Data extraction from documents
-- Predictive analytics
-- Chatbot for user support
-```
-
-## Getting Started - Simplified
-
-### 1. Initial Setup (One Time)
-```bash
-# I'll provide exact commands:
-npx create-next-app@latest crm-app
-cd crm-app
-npm install [all-dependencies]
-
-# Connect Supabase
-# I'll walk through the UI setup
-```
-
-### 2. Daily Development Flow
-```markdown
-1. Tell me what users need
-2. I generate complete solution
-3. Copy-paste the code
-4. Test with real data
-5. Tell me adjustments needed
-```
-
-## Example Conversations
-
-### Scenario 1: New Feature
-```markdown
-YOU: "Sales team needs to track competitor information for each deal"
-
-ME: Here's everything:
-- Database schema update
-- Migration script
-- UI component for competitor cards
-- Automatic competitive analysis
-- Report template
-```
-
-### Scenario 2: Process Automation
-```markdown
-YOU: "Automatically create tasks when project milestones approach"
-
-ME: Complete solution:
-- Cron job configuration
-- Task templates
-- Assignment rules
-- Notification setup
-- Dashboard widget
-```
-
-### Scenario 3: Integration
-```markdown
-YOU: "Sync our Google Calendar with project deadlines"
-
-ME: Full integration:
-- OAuth setup
-- Bi-directional sync
-- Conflict resolution
-- Permission handling
-- Error recovery
-```
-
-## Business-First Database Design
-
-### Just Describe Your Business
-```markdown
-Instead of technical specs, tell me:
-- What you sell
-- Who your customers are
-- Your sales process
-- Team structure
-- Reporting needs
-
-I'll design the optimal schema
-```
-
-## Smart Defaults for Everything
-
-### Pre-Configured Best Practices
-- Audit trails on all records
-- Soft deletes (never lose data)
-- Automatic backups
-- Email notifications
-- Mobile-responsive UI
-- Dark mode support
-- Export capabilities
-- Search functionality
-
-## Troubleshooting Made Simple
-
-### Common Issues → Simple Solutions
-```markdown
-"Data not showing" → Check RLS policies (I'll provide fix)
-"Slow loading" → Add index (I'll show where)
-"Can't login" → Check redirect URLs (I'll give correct ones)
-"Lost changes" → Enable autosave (here's the code)
-```
-
-## Focus Areas for You
-
-### What You Should Think About:
-1. **User workflows** - How should the process work?
-2. **Business rules** - What are the constraints?
-3. **User experience** - What would make users happy?
-4. **Reports needed** - What insights matter?
-
-### What I'll Handle:
-1. **Technical architecture** - Optimal patterns
-2. **Database design** - Proper normalization
-3. **Security** - Authentication & authorization  
-4. **Performance** - Caching & optimization
-5. **Error handling** - Graceful failures
-6. **Code structure** - Maintainable patterns
-
-## Quick Reference Card
-
-### When You Want Something, Just Ask:
-- "Add [feature] to [module]"
-- "Users need to [action]"
-- "Automate [process]"
-- "Show me [data] as [visualization]"
-- "Integrate with [service]"
-- "Fix [problem]"
-
-### I'll Always Provide:
-1. Complete, working code
-2. Step-by-step implementation
-3. Business logic included
-4. UI components styled
-5. Database migrations
-6. Deployment instructions
+### System KPIs
+- User adoption: 100% in 30 days
+- Mobile usage: 60% of interactions
+- Data quality: 95% complete records
+- System uptime: 99.9%
 
 ## Remember
-- **You focus on WHAT** the app should do
-- **I handle HOW** it gets done
-- No technical decision is too complex - I'll simplify it
-- Every feature can be automated
-- If something seems hard, there's probably a tool for it
-- Your time should be spent on user value, not coding details
+- **You focus on WHAT** users need to do
+- **I handle HOW** it gets done technically
+- Every feature should save time or increase revenue
+- Mobile experience is as important as desktop
+- Data integrity is critical for analytics
+- Client experience drives referrals

@@ -1,0 +1,245 @@
+name: Dependency Updates
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  update-dependencies:
+    name: Update Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'horizon-suite/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: ./horizon-suite
+        run: npm ci
+
+      - name: Check for outdated dependencies
+        working-directory: ./horizon-suite
+        run: |
+          echo "📊 Checking for outdated dependencies..."
+          npm outdated --json > outdated.json || true
+          
+          if [ -s outdated.json ]; then
+            echo "📦 Found outdated dependencies"
+            cat outdated.json
+            echo "OUTDATED_FOUND=true" >> $GITHUB_ENV
+          else
+            echo "✅ All dependencies are up to date"
+            echo "OUTDATED_FOUND=false" >> $GITHUB_ENV
+          fi
+
+      - name: Update minor and patch versions
+        if: env.OUTDATED_FOUND == 'true'
+        working-directory: ./horizon-suite
+        run: |
+          echo "🔄 Updating minor and patch versions..."
+          npm update --save
+
+      - name: Check for security vulnerabilities
+        working-directory: ./horizon-suite
+        run: |
+          echo "🔒 Checking for security vulnerabilities..."
+          npm audit --audit-level=moderate --json > audit.json || true
+          
+          if [ -s audit.json ] && [ "$(cat audit.json | jq '.metadata.vulnerabilities.total')" -gt 0 ]; then
+            echo "🚨 Found security vulnerabilities"
+            echo "VULNERABILITIES_FOUND=true" >> $GITHUB_ENV
+          else
+            echo "✅ No security vulnerabilities found"
+            echo "VULNERABILITIES_FOUND=false" >> $GITHUB_ENV
+          fi
+
+      - name: Fix security vulnerabilities
+        if: env.VULNERABILITIES_FOUND == 'true'
+        working-directory: ./horizon-suite
+        run: |
+          echo "🔧 Fixing security vulnerabilities..."
+          npm audit fix --force
+
+      - name: Run tests after updates
+        working-directory: ./horizon-suite
+        run: |
+          echo "🧪 Running tests to verify updates..."
+          npm run test:unit
+          npm run type-check
+          npm run lint
+
+      - name: Generate update report
+        if: env.OUTDATED_FOUND == 'true' || env.VULNERABILITIES_FOUND == 'true'
+        working-directory: ./horizon-suite
+        run: |
+          echo "📋 Generating update report..."
+          
+          echo "# Dependency Update Report" > update-report.md
+          echo "" >> update-report.md
+          echo "**Date:** $(date)" >> update-report.md
+          echo "" >> update-report.md
+          
+          if [ "$OUTDATED_FOUND" = "true" ]; then
+            echo "## 📦 Updated Dependencies" >> update-report.md
+            echo "" >> update-report.md
+            echo "The following dependencies were updated:" >> update-report.md
+            echo "" >> update-report.md
+            npm outdated --json | jq -r '.[] | "- \(.name): \(.current) → \(.wanted)"' >> update-report.md || true
+            echo "" >> update-report.md
+          fi
+          
+          if [ "$VULNERABILITIES_FOUND" = "true" ]; then
+            echo "## 🔒 Security Fixes" >> update-report.md
+            echo "" >> update-report.md
+            echo "Security vulnerabilities were found and fixed:" >> update-report.md
+            echo "" >> update-report.md
+            npm audit --audit-level=moderate --json | jq -r '.vulnerabilities | to_entries[] | "- \(.key): \(.value.severity) severity"' >> update-report.md || true
+            echo "" >> update-report.md
+          fi
+          
+          echo "## ✅ Verification" >> update-report.md
+          echo "" >> update-report.md
+          echo "- [x] Tests passing" >> update-report.md
+          echo "- [x] Type checking passed" >> update-report.md
+          echo "- [x] Linting passed" >> update-report.md
+          echo "" >> update-report.md
+          echo "**Status:** Ready for review" >> update-report.md
+
+      - name: Create Pull Request
+        if: env.OUTDATED_FOUND == 'true' || env.VULNERABILITIES_FOUND == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            chore: update dependencies and security fixes
+            
+            - Update outdated dependencies to latest compatible versions
+            - Fix security vulnerabilities
+            - All tests passing
+          title: '🔄 Automated Dependency Updates'
+          body-path: horizon-suite/update-report.md
+          branch: dependency-updates
+          delete-branch: true
+          labels: |
+            dependencies
+            security
+            automated
+          reviewers: |
+            efacsen
+          draft: false
+
+      - name: Notify on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Dependency Update Failed',
+              body: `The automated dependency update workflow failed.
+              
+              **Workflow:** ${context.workflow}
+              **Run:** ${context.runId}
+              **Commit:** ${context.sha}
+              
+              Please check the workflow logs for details.`,
+              labels: ['dependencies', 'bug', 'automated']
+            });
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'horizon-suite/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: ./horizon-suite
+        run: npm ci
+
+      - name: Run security audit
+        working-directory: ./horizon-suite
+        run: |
+          echo "🔒 Running comprehensive security audit..."
+          npm audit --audit-level=low --json > security-audit.json || true
+          
+          # Check if there are any vulnerabilities
+          VULN_COUNT=$(cat security-audit.json | jq '.metadata.vulnerabilities.total' 2>/dev/null || echo "0")
+          
+          if [ "$VULN_COUNT" -gt 0 ]; then
+            echo "🚨 Found $VULN_COUNT vulnerabilities"
+            echo "SECURITY_ISSUES=true" >> $GITHUB_ENV
+          else
+            echo "✅ No security vulnerabilities found"
+            echo "SECURITY_ISSUES=false" >> $GITHUB_ENV
+          fi
+
+      - name: Generate security report
+        if: env.SECURITY_ISSUES == 'true'
+        working-directory: ./horizon-suite
+        run: |
+          echo "📋 Generating security report..."
+          
+          echo "# Security Audit Report" > security-report.md
+          echo "" >> security-report.md
+          echo "**Date:** $(date)" >> security-report.md
+          echo "" >> security-report.md
+          
+          VULN_COUNT=$(cat security-audit.json | jq '.metadata.vulnerabilities.total')
+          echo "**Total Vulnerabilities:** $VULN_COUNT" >> security-report.md
+          echo "" >> security-report.md
+          
+          echo "## 🚨 Vulnerabilities Found" >> security-report.md
+          echo "" >> security-report.md
+          
+          # Extract vulnerability details
+          cat security-audit.json | jq -r '.vulnerabilities | to_entries[] | "### \(.key)\n- **Severity:** \(.value.severity)\n- **Via:** \(.value.via | join(", "))\n- **Range:** \(.value.range)\n"' >> security-report.md
+          
+          echo "" >> security-report.md
+          echo "## 🔧 Recommended Actions" >> security-report.md
+          echo "" >> security-report.md
+          echo "1. Run \`npm audit fix\` to automatically fix vulnerabilities" >> security-report.md
+          echo "2. Review and update dependencies manually if needed" >> security-report.md
+          echo "3. Consider alternative packages for unfixable vulnerabilities" >> security-report.md
+
+      - name: Create security issue
+        if: env.SECURITY_ISSUES == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('./horizon-suite/security-report.md', 'utf8');
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🔒 Security Vulnerabilities Detected',
+              body: report,
+              labels: ['security', 'vulnerability', 'automated', 'urgent']
+            });
+
+      - name: Upload security report
+        if: env.SECURITY_ISSUES == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-report
+          path: horizon-suite/security-audit.json
+          retention-days: 30 
