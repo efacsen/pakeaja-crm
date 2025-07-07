@@ -20,8 +20,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Use development auth for now due to Supabase email validation issues
-const USE_DEV_AUTH = true;
-const DEMO_MODE = true; // Force demo user for development
+const USE_DEV_AUTH = false;
+const DEMO_MODE = false; // Disable demo mode - use real Supabase auth
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -60,12 +60,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
+          // Get user data from our users table
+          const { data: userData } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+          
           setUser({
             id: session.user.id,
             email: session.user.email!,
-            name: session.user.user_metadata?.full_name,
-            role: (session.user.user_metadata?.role as UserRole) || 'customer',
-            company: session.user.user_metadata?.company,
+            name: userData?.full_name || session.user.user_metadata?.full_name || 'Unknown User',
+            role: userData?.role || 'sales_rep',
+            company: 'PT Pake Aja Teknologi',
           });
         }
       }
@@ -100,12 +107,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         if (error) return { error: error.message };
         if (data.user) {
+          // Create user record in our users table
+          const { error: insertError } = await supabase
+            .from('users')
+            .insert({
+              id: data.user.id,
+              full_name: fullName || 'Unknown User',
+              role: 'sales_rep', // Default role
+            });
+          
+          if (insertError) {
+            console.error('Error creating user record:', insertError);
+          }
+          
           setUser({
             id: data.user.id,
             email: data.user.email!,
             name: fullName,
-            role: 'customer' as UserRole,
-            company: fullName?.split(' ')[0] + ' Company',
+            role: 'sales_rep' as UserRole,
+            company: 'PT Pake Aja Teknologi',
           });
         }
         return {};
@@ -137,12 +157,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         if (error) return { error: error.message };
         if (data.user) {
+          // Get user data from our users table
+          const { data: userData } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', data.user.id)
+            .single();
+          
           setUser({
             id: data.user.id,
             email: data.user.email!,
-            name: data.user.user_metadata?.full_name,
-            role: (data.user.user_metadata?.role as UserRole) || 'customer',
-            company: data.user.user_metadata?.company,
+            name: userData?.full_name || data.user.user_metadata?.full_name || 'Unknown User',
+            role: userData?.role || 'sales_rep',
+            company: 'PT Pake Aja Teknologi',
           });
         }
         return {};
