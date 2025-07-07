@@ -23,14 +23,21 @@ export const pipelineService = USE_SUPABASE
   ? supabasePipelineService 
   : mockPipelineService;
 
-export const customersService = USE_SUPABASE
-  ? supabaseCustomersService
+export const customersService = USE_SUPABASE 
+  ? supabaseCustomersService 
   : mockCustomersService;
 
-// Helper to check which mode we're in
-export const isUsingSupabase = () => USE_SUPABASE;
+// Export service types for TypeScript
+export type CanvassingServiceType = typeof canvassingService;
+export type PipelineServiceType = typeof pipelineService;
+export type CustomersServiceType = typeof customersService;
 
-// Export service types for consistency
-export type CanvassingService = typeof canvassingService;
-export type PipelineService = typeof pipelineService;
-export type CustomersService = typeof customersService;
+// Export service configuration
+export const serviceConfig = {
+  useSupabase: USE_SUPABASE,
+  services: {
+    canvassing: USE_SUPABASE ? 'supabase' : 'mock',
+    pipeline: USE_SUPABASE ? 'supabase' : 'mock',
+    customers: USE_SUPABASE ? 'supabase' : 'mock',
+  }
+};
