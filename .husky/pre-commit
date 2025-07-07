@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🚀 Running pre-commit checks..."
+
+# Change to the correct directory
+cd horizon-suite
+
+# Run pre-commit checks
+npm run pre-commit
+
+echo "✅ Pre-commit checks passed!" 
