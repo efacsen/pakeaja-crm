@@ -46,7 +46,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { CreateCanvassingReportRequest } from '@/types/canvassing';
-import { canvassingService } from '@/lib/services/canvassing-service';
+import { canvassingService } from '@/lib/services/service-factory';
 import { formatCurrency } from '@/lib/calculator-utils';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';

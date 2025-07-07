@@ -22,8 +22,10 @@ export class SupabaseCanvassingService {
         .from('canvassing_reports')
         .insert({
           visit_date: data.visit_date,
+          company_id: data.company_id,
           company_name: data.company_name,
           company_address: data.company_address,
+          contact_id: data.contact_id,
           contact_person: data.contact_person,
           contact_position: data.contact_position,
           contact_phone: data.contact_phone,

@@ -47,7 +47,7 @@ import { CanvassingStats } from './CanvassingStats';
 import { CanvassingPipelineTab } from './CanvassingPipelineTab';
 import { PipelineStatusBadge } from './PipelineStatusBadge';
 import { CanvassingReportFilters } from '@/types/canvassing';
-import { canvassingService } from '@/lib/services/canvassing-service';
+import { canvassingService } from '@/lib/services/service-factory';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import Link from 'next/link';

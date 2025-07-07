@@ -14,7 +14,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/calculator-utils';
-import { canvassingService } from '@/lib/services/canvassing-service';
+import { canvassingService } from '@/lib/services/service-factory';
 import { CanvassingStats as CanvassingStatsType } from '@/types/canvassing';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';

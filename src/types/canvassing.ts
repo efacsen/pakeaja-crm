@@ -4,7 +4,9 @@ export interface CanvassingReport {
   sales_rep_name?: string;
   
   // Company Information
+  company_id?: string;
   company_name: string;
+  contact_id?: string;
   contact_person: string;
   contact_position: string;
   contact_phone?: string;
@@ -65,7 +67,9 @@ export interface CanvassingPhoto {
 }
 
 export interface CreateCanvassingReportRequest {
+  company_id?: string;
   company_name: string;
+  contact_id?: string;
   contact_person: string;
   contact_position: string;
   contact_phone?: string;
