@@ -1,12 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-
-// Force dynamic rendering to avoid static generation issues with auth context
-export const dynamic = 'force-dynamic';
 import { useAuth } from '@/contexts/auth-context';
-import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { Database } from '@/types/database.types';
 import {
   Table,
   TableBody,
@@ -36,7 +33,9 @@ import {
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Loader2, Pencil, Trash2, UserPlus, Search, Shield } from 'lucide-react';
-import { UserRole } from '@/types/auth';
+
+type UserRole = Database['public']['Enums']['user_role'];
+type ProfileRow = Database['public']['Tables']['profiles']['Row'];
 
 interface DatabaseUser {
   id: string;
@@ -44,12 +43,13 @@ interface DatabaseUser {
   full_name?: string;
   role: UserRole;
   created_at: string;
-  last_sign_in_at?: string;
+  updated_at: string;
+  organization_id?: string;
+  avatar_url?: string;
 }
 
 export default function AdminUsersPage() {
   const { user } = useAuth();
-  const router = useRouter();
   const supabase = createClient();
   
   const [users, setUsers] = useState<DatabaseUser[]>([]);
@@ -64,60 +64,39 @@ export default function AdminUsersPage() {
   const [formData, setFormData] = useState({
     email: '',
     full_name: '',
-    role: 'sales_rep' as UserRole,
+    role: 'user' as UserRole,
     password: '',
   });
-
-  // Check if user is superadmin
-  useEffect(() => {
-    if (!user || user.role !== 'superadmin') {
-      toast.error('Access denied. Superadmin only.');
-      router.push('/dashboard');
-    }
-  }, [user, router]);
 
   // Load users
   const loadUsers = async () => {
     try {
       setLoading(true);
       
-      // First, get auth users
-      const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
-      
-      if (authError) {
-        console.error('Auth error:', authError);
-        // Fallback to direct table query
-        const { data: dbUsers, error: dbError } = await supabase
-          .from('users')
-          .select('*')
-          .order('created_at', { ascending: false });
-          
-        if (dbError) throw dbError;
-        setUsers(dbUsers || []);
-        return;
+      // Query users from the profiles table
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+        
+      if (profilesError) {
+        console.error('Database error:', profilesError);
+        throw profilesError;
       }
 
-      // Get user roles from users table
-      const { data: userRoles, error: rolesError } = await supabase
-        .from('users')
-        .select('id, role, full_name');
-        
-      if (rolesError) throw rolesError;
+      // Transform the data to match our interface
+      const formattedUsers: DatabaseUser[] = (profilesData || []).map((profile: ProfileRow) => ({
+        id: profile.id,
+        email: '', // Email is not available in profiles table directly
+        full_name: profile.full_name || 'Unknown',
+        role: profile.role,
+        created_at: profile.created_at,
+        updated_at: profile.updated_at,
+        organization_id: profile.organization_id || undefined,
+        avatar_url: profile.avatar_url || undefined,
+      }));
 
-      // Merge auth users with roles
-      const mergedUsers = authData.users.map(authUser => {
-        const userRole = userRoles?.find(r => r.id === authUser.id);
-        return {
-          id: authUser.id,
-          email: authUser.email,
-          full_name: userRole?.full_name || authUser.user_metadata?.full_name || 'Unknown',
-          role: userRole?.role || 'sales_rep',
-          created_at: authUser.created_at,
-          last_sign_in_at: authUser.last_sign_in_at,
-        };
-      });
-
-      setUsers(mergedUsers);
+      setUsers(formattedUsers);
     } catch (error) {
       console.error('Error loading users:', error);
       toast.error('Failed to load users');
@@ -127,10 +106,8 @@ export default function AdminUsersPage() {
   };
 
   useEffect(() => {
-    if (user?.role === 'superadmin') {
-      loadUsers();
-    }
-  }, [user]);
+    loadUsers();
+  }, []);
 
   // Filter users based on search
   const filteredUsers = users.filter(u => 
@@ -140,38 +117,9 @@ export default function AdminUsersPage() {
 
   // Create new user
   const handleCreateUser = async () => {
-    try {
-      // Create auth user
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: formData.email,
-        password: formData.password,
-        email_confirm: true,
-        user_metadata: {
-          full_name: formData.full_name,
-        },
-      });
-
-      if (authError) throw authError;
-
-      // Create user record
-      const { error: dbError } = await supabase
-        .from('users')
-        .insert({
-          id: authData.user.id,
-          full_name: formData.full_name,
-          role: formData.role,
-        });
-
-      if (dbError) throw dbError;
-
-      toast.success('User created successfully');
-      setIsCreateModalOpen(false);
-      setFormData({ email: '', full_name: '', role: 'sales_rep', password: '' });
-      loadUsers();
-    } catch (error: any) {
-      console.error('Error creating user:', error);
-      toast.error(error.message || 'Failed to create user');
-    }
+    toast.error('User creation requires server-side implementation');
+    setIsCreateModalOpen(false);
+    // TODO: Implement server-side API endpoint for user creation
   };
 
   // Update user
@@ -179,19 +127,9 @@ export default function AdminUsersPage() {
     if (!selectedUser) return;
 
     try {
-      // Update user metadata in auth
-      const { error: authError } = await supabase.auth.admin.updateUserById(
-        selectedUser.id,
-        {
-          user_metadata: { full_name: formData.full_name },
-        }
-      );
-
-      if (authError) throw authError;
-
-      // Update role in users table
+      // Update role in profiles table
       const { error: dbError } = await supabase
-        .from('users')
+        .from('profiles')
         .update({
           full_name: formData.full_name,
           role: formData.role,
@@ -204,9 +142,9 @@ export default function AdminUsersPage() {
       setIsEditModalOpen(false);
       setSelectedUser(null);
       loadUsers();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error updating user:', error);
-      toast.error(error.message || 'Failed to update user');
+      toast.error('Failed to update user');
     }
   };
 
@@ -215,20 +153,15 @@ export default function AdminUsersPage() {
     if (!selectedUser) return;
 
     try {
-      // Delete from auth
-      const { error: authError } = await supabase.auth.admin.deleteUser(selectedUser.id);
-      if (authError) throw authError;
-
-      // Delete from users table (cascade should handle this, but just in case)
-      await supabase.from('users').delete().eq('id', selectedUser.id);
-
-      toast.success('User deleted successfully');
+      // Note: We cannot directly delete from profiles table due to foreign key constraint
+      // This would require admin API access to delete the auth.users record
+      toast.error('User deletion requires server-side implementation');
       setIsDeleteModalOpen(false);
       setSelectedUser(null);
-      loadUsers();
-    } catch (error: any) {
+      // TODO: Implement server-side API endpoint for user deletion
+    } catch (error) {
       console.error('Error deleting user:', error);
-      toast.error(error.message || 'Failed to delete user');
+      toast.error('Failed to delete user');
     }
   };
 
@@ -251,57 +184,59 @@ export default function AdminUsersPage() {
   };
 
   const getRoleBadgeColor = (role: UserRole) => {
-    const colors: Record<UserRole, string> = {
-      superadmin: 'bg-red-500',
-      admin: 'bg-orange-500',
-      project_manager: 'bg-blue-500',
-      sales_rep: 'bg-green-500',
-      estimator: 'bg-purple-500',
-      foreman: 'bg-yellow-500',
-      customer: 'bg-gray-500',
-    };
-    return colors[role] || 'bg-gray-500';
+    switch (role) {
+      case 'admin':
+        return 'bg-red-100 text-red-800';
+      case 'user':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('id-ID', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
+      <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-start">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Shield className="h-8 w-8" />
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Shield className="h-6 w-6" />
             User Management
           </h1>
           <p className="text-muted-foreground">
-            Manage system users and their roles
+            Manage user accounts and permissions
           </p>
         </div>
-        
-        <Button onClick={() => setIsCreateModalOpen(true)} className="gap-2">
-          <UserPlus className="h-4 w-4" />
+        <Button onClick={() => setIsCreateModalOpen(true)}>
+          <UserPlus className="h-4 w-4 mr-2" />
           Add User
         </Button>
       </div>
 
       {/* Search */}
-      <div className="flex gap-4 items-center max-w-md">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search users..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
+      <div className="flex items-center space-x-2">
+        <Search className="h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search users..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="max-w-sm"
+        />
       </div>
 
       {/* Users Table */}
@@ -309,131 +244,103 @@ export default function AdminUsersPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
+              <TableHead>User</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Created</TableHead>
-              <TableHead>Last Sign In</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Updated</TableHead>
+              <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredUsers.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground">
-                  No users found
+            {filteredUsers.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell className="font-medium">
+                  {user.full_name || 'Unknown'}
+                </TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>
+                  <Badge className={getRoleBadgeColor(user.role)}>
+                    {user.role}
+                  </Badge>
+                </TableCell>
+                <TableCell>{formatDate(user.created_at)}</TableCell>
+                <TableCell>{formatDate(user.updated_at)}</TableCell>
+                <TableCell>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => openEditModal(user)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => openDeleteModal(user)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
-            ) : (
-              filteredUsers.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.full_name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>
-                    <Badge className={getRoleBadgeColor(user.role)}>
-                      {user.role.replace('_', ' ')}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {new Date(user.created_at).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    {user.last_sign_in_at
-                      ? new Date(user.last_sign_in_at).toLocaleDateString()
-                      : 'Never'}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex gap-2 justify-end">
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        onClick={() => openEditModal(user)}
-                        disabled={user.id === supabase.auth.user()?.id}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        onClick={() => openDeleteModal(user)}
-                        disabled={user.id === supabase.auth.user()?.id}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
+            ))}
           </TableBody>
         </Table>
       </div>
 
-      {/* Create User Modal */}
+      {/* Create User Dialog */}
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Create New User</DialogTitle>
             <DialogDescription>
-              Add a new user to the system with specific role and permissions.
+              Add a new user to the system
             </DialogDescription>
           </DialogHeader>
-          
           <div className="space-y-4">
             <div>
-              <Label htmlFor="create-email">Email</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="create-email"
-                type="email"
+                id="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="user@example.com"
               />
             </div>
-            
             <div>
-              <Label htmlFor="create-name">Full Name</Label>
+              <Label htmlFor="full_name">Full Name</Label>
               <Input
-                id="create-name"
+                id="full_name"
                 value={formData.full_name}
                 onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                 placeholder="John Doe"
               />
             </div>
-            
             <div>
-              <Label htmlFor="create-password">Password</Label>
-              <Input
-                id="create-password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                placeholder="Minimum 6 characters"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="create-role">Role</Label>
-              <Select
-                value={formData.role}
-                onValueChange={(value) => setFormData({ ...formData, role: value as UserRole })}
-              >
-                <SelectTrigger id="create-role">
+              <Label htmlFor="role">Role</Label>
+              <Select value={formData.role} onValueChange={(value: UserRole) => setFormData({ ...formData, role: value })}>
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="superadmin">Super Admin</SelectItem>
+                  <SelectItem value="user">User</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="project_manager">Project Manager</SelectItem>
-                  <SelectItem value="sales_rep">Sales Rep</SelectItem>
-                  <SelectItem value="estimator">Estimator</SelectItem>
-                  <SelectItem value="foreman">Foreman</SelectItem>
-                  <SelectItem value="customer">Customer</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                placeholder="Enter password"
+              />
+            </div>
           </div>
-          
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsCreateModalOpen(false)}>
               Cancel
@@ -443,59 +350,47 @@ export default function AdminUsersPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Edit User Modal */}
+      {/* Edit User Dialog */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
             <DialogDescription>
-              Update user information and role.
+              Update user information
             </DialogDescription>
           </DialogHeader>
-          
           <div className="space-y-4">
             <div>
-              <Label htmlFor="edit-email">Email</Label>
+              <Label htmlFor="edit_email">Email</Label>
               <Input
-                id="edit-email"
-                type="email"
+                id="edit_email"
                 value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 disabled
-                className="bg-muted"
               />
             </div>
-            
             <div>
-              <Label htmlFor="edit-name">Full Name</Label>
+              <Label htmlFor="edit_full_name">Full Name</Label>
               <Input
-                id="edit-name"
+                id="edit_full_name"
                 value={formData.full_name}
                 onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                placeholder="John Doe"
               />
             </div>
-            
             <div>
-              <Label htmlFor="edit-role">Role</Label>
-              <Select
-                value={formData.role}
-                onValueChange={(value) => setFormData({ ...formData, role: value as UserRole })}
-              >
-                <SelectTrigger id="edit-role">
+              <Label htmlFor="edit_role">Role</Label>
+              <Select value={formData.role} onValueChange={(value: UserRole) => setFormData({ ...formData, role: value })}>
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="superadmin">Super Admin</SelectItem>
+                  <SelectItem value="user">User</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="project_manager">Project Manager</SelectItem>
-                  <SelectItem value="sales_rep">Sales Rep</SelectItem>
-                  <SelectItem value="estimator">Estimator</SelectItem>
-                  <SelectItem value="foreman">Foreman</SelectItem>
-                  <SelectItem value="customer">Customer</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
-          
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
               Cancel
@@ -505,7 +400,7 @@ export default function AdminUsersPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete User Dialog */}
       <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
         <DialogContent>
           <DialogHeader>
@@ -514,18 +409,6 @@ export default function AdminUsersPage() {
               Are you sure you want to delete this user? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          
-          {selectedUser && (
-            <div className="py-4">
-              <p className="text-sm text-muted-foreground">
-                User: <span className="font-medium text-foreground">{selectedUser.full_name}</span>
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Email: <span className="font-medium text-foreground">{selectedUser.email}</span>
-              </p>
-            </div>
-          )}
-          
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleteModalOpen(false)}>
               Cancel
