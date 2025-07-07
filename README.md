@@ -34,3 +34,16 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+---
+
+## CI/CD Pipeline Test
+
+This project includes a comprehensive CI/CD pipeline with:
+- ✅ Code quality checks (TypeScript, ESLint, Prettier)
+- 🔒 Security scanning (Trivy, TruffleHog)
+- 🧪 Automated testing (Unit, Integration, E2E)
+- 📊 Performance monitoring (Lighthouse CI)
+- 🚀 Automated deployment to Vercel
+
+<!-- CI/CD Pipeline Test - Updated: 2025-01-08 -->
