@@ -238,7 +238,7 @@ export default function ProjectGanttPage() {
               <div>
                 <h4 className="font-medium mb-2">Milestones</h4>
                 <div className="space-y-2">
-                  {selectedProject.milestones?.map((milestone) => (
+                  {(selectedProject as any).milestones?.map((milestone: any) => (
                     <div
                       key={milestone.id}
                       className="flex items-center justify-between p-3 border rounded-lg"
