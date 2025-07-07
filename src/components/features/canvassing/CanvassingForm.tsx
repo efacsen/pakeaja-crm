@@ -25,6 +25,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CompanyAutocomplete } from '@/components/ui/company-autocomplete';
+import { ContactAutocomplete } from '@/components/ui/contact-autocomplete';
+import { companyService } from '@/lib/services/company-service';
 import {
   Form,
   FormControl,
@@ -49,9 +52,11 @@ import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 
 const canvassingSchema = z.object({
+  company_id: z.string().min(1, 'Perusahaan wajib dipilih'),
   company_name: z.string().min(1, 'Nama perusahaan wajib diisi'),
+  contact_id: z.string().optional(),
   contact_person: z.string().min(1, 'Nama kontak wajib diisi'),
-  contact_position: z.string().min(1, 'Jabatan wajib diisi'),
+  contact_position: z.string().optional(),
   contact_phone: z.string().optional(),
   contact_email: z.string().email('Email tidak valid').optional().or(z.literal('')),
   company_address: z.string().optional(),
@@ -83,6 +88,8 @@ export function CanvassingForm({ onSuccess, onCancel }: CanvassingFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>('');
+  const [selectedContactId, setSelectedContactId] = useState<string>('');
 
   const { toast } = useToast();
 
@@ -295,9 +302,37 @@ export function CanvassingForm({ onSuccess, onCancel }: CanvassingFormProps) {
                 name="company_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nama Perusahaan *</FormLabel>
+                    <FormLabel>Nama Perusahaan <span className="text-red-500">*</span></FormLabel>
                     <FormControl>
-                      <Input placeholder="PT. Contoh Jaya" {...field} />
+                      <CompanyAutocomplete
+                        value={selectedCompanyId}
+                        onSelect={(company) => {
+                          setSelectedCompanyId(company.id);
+                          form.setValue('company_id', company.id);
+                          form.setValue('company_name', company.name);
+                          form.setValue('company_address', company.city || '');
+                          // Reset contact when company changes
+                          setSelectedContactId('');
+                          form.setValue('contact_id', '');
+                          form.setValue('contact_person', '');
+                          form.setValue('contact_position', '');
+                          form.setValue('contact_email', '');
+                          form.setValue('contact_phone', '');
+                        }}
+                        onCreate={async (name) => {
+                          const companyId = await companyService.getOrCreateCompany(name);
+                          if (companyId) {
+                            setSelectedCompanyId(companyId);
+                            form.setValue('company_id', companyId);
+                            form.setValue('company_name', name);
+                            toast({
+                              title: 'Perusahaan berhasil ditambahkan',
+                              description: `${name} telah ditambahkan ke database.`,
+                            });
+                          }
+                        }}
+                        placeholder="Ketik atau pilih perusahaan..."
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -339,9 +374,38 @@ export function CanvassingForm({ onSuccess, onCancel }: CanvassingFormProps) {
                   name="contact_person"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nama Kontak *</FormLabel>
+                      <FormLabel>Contact Person <span className="text-red-500">*</span></FormLabel>
                       <FormControl>
-                        <Input placeholder="Budi Santoso" {...field} />
+                        <ContactAutocomplete
+                          companyId={selectedCompanyId}
+                          value={selectedContactId}
+                          onSelect={(contact) => {
+                            setSelectedContactId(contact.id);
+                            form.setValue('contact_id', contact.id);
+                            form.setValue('contact_person', contact.name);
+                            form.setValue('contact_position', contact.position || '');
+                            form.setValue('contact_email', contact.email || '');
+                            form.setValue('contact_phone', contact.mobile_phone || '');
+                          }}
+                          onCreate={async (name) => {
+                            if (!selectedCompanyId) return;
+                            const contact = await companyService.createContact({
+                              company_id: selectedCompanyId,
+                              name,
+                              is_primary: false,
+                            });
+                            if (contact) {
+                              setSelectedContactId(contact.id);
+                              form.setValue('contact_id', contact.id);
+                              form.setValue('contact_person', contact.name);
+                              toast({
+                                title: 'Kontak berhasil ditambahkan',
+                                description: `${name} telah ditambahkan sebagai kontak.`,
+                              });
+                            }
+                          }}
+                          placeholder="Pilih atau tambah contact person..."
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -353,9 +417,13 @@ export function CanvassingForm({ onSuccess, onCancel }: CanvassingFormProps) {
                   name="contact_position"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Jabatan *</FormLabel>
+                      <FormLabel>Jabatan</FormLabel>
                       <FormControl>
-                        <Input placeholder="Manager Purchasing" {...field} />
+                        <Input 
+                          placeholder="Manager Purchasing" 
+                          {...field} 
+                          disabled={!!selectedContactId}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -375,6 +443,7 @@ export function CanvassingForm({ onSuccess, onCancel }: CanvassingFormProps) {
                             placeholder="0812-3456-7890" 
                             className="pl-10"
                             {...field} 
+                            disabled={!!selectedContactId}
                           />
                         </div>
                       </FormControl>
@@ -397,6 +466,7 @@ export function CanvassingForm({ onSuccess, onCancel }: CanvassingFormProps) {
                             placeholder="budi@example.co.id" 
                             className="pl-10"
                             {...field} 
+                            disabled={!!selectedContactId}
                           />
                         </div>
                       </FormControl>

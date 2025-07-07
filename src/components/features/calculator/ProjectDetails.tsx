@@ -5,10 +5,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Calendar } from 'lucide-react';
 import { format } from 'date-fns';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CompanyAutocomplete } from '@/components/ui/company-autocomplete';
+import { ContactAutocomplete } from '@/components/ui/contact-autocomplete';
+import { companyService } from '@/lib/services/company-service';
+import { useToast } from '@/hooks/use-toast';
 import {
   Form,
   FormControl,
@@ -29,12 +34,15 @@ import { ProjectDetails as ProjectDetailsType } from '@/types/calculator';
 
 const projectDetailsSchema = z.object({
   projectName: z.string().min(1, 'Nama proyek wajib diisi'),
-  clientName: z.string().min(1, 'Nama klien wajib diisi'),
-  clientEmail: z.string().optional().refine(
+  companyId: z.string().min(1, 'Perusahaan wajib dipilih'),
+  companyName: z.string().min(1, 'Nama perusahaan wajib diisi'),
+  contactId: z.string().optional(),
+  contactName: z.string().optional(),
+  contactEmail: z.string().optional().refine(
     (val) => !val || z.string().email().safeParse(val).success,
     'Format email tidak valid'
   ),
-  clientPhone: z.string().optional(),
+  contactPhone: z.string().optional(),
   projectAddress: z.string().optional(),
   projectDate: z.date().optional(),
   notes: z.string().optional(),
@@ -46,13 +54,20 @@ interface ProjectDetailsProps {
 }
 
 export function ProjectDetails({ data, onNext }: ProjectDetailsProps) {
+  const { toast } = useToast();
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>('');
+  const [selectedContactId, setSelectedContactId] = useState<string>('');
+
   const form = useForm<z.infer<typeof projectDetailsSchema>>({
     resolver: zodResolver(projectDetailsSchema),
     defaultValues: {
       projectName: data?.projectName || '',
-      clientName: data?.clientName || '',
-      clientEmail: data?.clientEmail || '',
-      clientPhone: data?.clientPhone || '',
+      companyId: '',
+      companyName: data?.clientName || '',
+      contactId: '',
+      contactName: '',
+      contactEmail: data?.clientEmail || '',
+      contactPhone: data?.clientPhone || '',
       projectAddress: data?.projectAddress || '',
       projectDate: data?.projectDate || undefined,
       notes: data?.notes || '',
@@ -60,7 +75,68 @@ export function ProjectDetails({ data, onNext }: ProjectDetailsProps) {
   });
 
   const onSubmit = (values: z.infer<typeof projectDetailsSchema>) => {
-    onNext(values);
+    // Map the new fields to the expected format
+    const mappedData = {
+      projectName: values.projectName,
+      clientName: values.companyName,
+      clientEmail: values.contactEmail,
+      clientPhone: values.contactPhone,
+      projectAddress: values.projectAddress,
+      projectDate: values.projectDate,
+      notes: values.notes,
+    };
+    onNext(mappedData);
+  };
+
+  const handleCompanySelect = async (company: { id: string; name: string; city?: string }) => {
+    setSelectedCompanyId(company.id);
+    form.setValue('companyId', company.id);
+    form.setValue('companyName', company.name);
+    // Reset contact when company changes
+    setSelectedContactId('');
+    form.setValue('contactId', '');
+    form.setValue('contactName', '');
+    form.setValue('contactEmail', '');
+    form.setValue('contactPhone', '');
+  };
+
+  const handleContactSelect = (contact: any) => {
+    setSelectedContactId(contact.id);
+    form.setValue('contactId', contact.id);
+    form.setValue('contactName', contact.name);
+    form.setValue('contactEmail', contact.email || '');
+    form.setValue('contactPhone', contact.mobile_phone || '');
+  };
+
+  const handleCreateCompany = async (name: string) => {
+    const companyId = await companyService.getOrCreateCompany(name);
+    if (companyId) {
+      setSelectedCompanyId(companyId);
+      form.setValue('companyId', companyId);
+      form.setValue('companyName', name);
+      toast({
+        title: 'Perusahaan berhasil ditambahkan',
+        description: `${name} telah ditambahkan ke database.`,
+      });
+    }
+  };
+
+  const handleCreateContact = async (name: string) => {
+    if (!selectedCompanyId) return;
+    
+    const contact = await companyService.createContact({
+      company_id: selectedCompanyId,
+      name,
+      is_primary: false,
+    });
+    
+    if (contact) {
+      handleContactSelect(contact);
+      toast({
+        title: 'Kontak berhasil ditambahkan',
+        description: `${name} telah ditambahkan sebagai kontak.`,
+      });
+    }
   };
 
   return (
@@ -134,12 +210,17 @@ export function ProjectDetails({ data, onNext }: ProjectDetailsProps) {
 
               <FormField
                 control={form.control}
-                name="clientName"
+                name="companyName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nama Klien / Client Name <span className="text-red-500">*</span></FormLabel>
+                    <FormLabel>Nama Perusahaan / Company Name <span className="text-red-500">*</span></FormLabel>
                     <FormControl>
-                      <Input placeholder="Contoh: PT. Maju Jaya" {...field} />
+                      <CompanyAutocomplete
+                        value={selectedCompanyId}
+                        onSelect={handleCompanySelect}
+                        onCreate={handleCreateCompany}
+                        placeholder="Ketik atau pilih perusahaan..."
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -148,12 +229,18 @@ export function ProjectDetails({ data, onNext }: ProjectDetailsProps) {
 
               <FormField
                 control={form.control}
-                name="clientEmail"
+                name="contactName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email Klien / Client Email</FormLabel>
+                    <FormLabel>Contact Person</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="client@example.com" {...field} />
+                      <ContactAutocomplete
+                        companyId={selectedCompanyId}
+                        value={selectedContactId}
+                        onSelect={handleContactSelect}
+                        onCreate={handleCreateContact}
+                        placeholder="Pilih atau tambah contact person..."
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -162,12 +249,36 @@ export function ProjectDetails({ data, onNext }: ProjectDetailsProps) {
 
               <FormField
                 control={form.control}
-                name="clientPhone"
+                name="contactEmail"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Telepon Klien / Client Phone</FormLabel>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type="tel" placeholder="08123456789" {...field} />
+                      <Input 
+                        type="email" 
+                        placeholder="email@example.com" 
+                        {...field} 
+                        disabled={!!selectedContactId}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="contactPhone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Telepon / Phone</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="tel" 
+                        placeholder="08123456789" 
+                        {...field} 
+                        disabled={!!selectedContactId}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

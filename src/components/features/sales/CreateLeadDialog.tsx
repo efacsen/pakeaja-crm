@@ -15,6 +15,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { CompanyAutocomplete } from '@/components/ui/company-autocomplete';
+import { ContactAutocomplete } from '@/components/ui/contact-autocomplete';
+import { companyService } from '@/lib/services/company-service';
 import {
   Select,
   SelectContent,
@@ -34,6 +37,8 @@ interface CreateLeadDialogProps {
 export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDialogProps) {
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>('');
+  const [selectedContactId, setSelectedContactId] = useState<string>('');
   const [formData, setFormData] = useState<Partial<Lead>>({
     project_name: '',
     project_description: '',
@@ -44,7 +49,9 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
     expected_close_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
   });
   const [customerData, setCustomerData] = useState({
+    company_id: '',
     company_name: '',
+    contact_id: '',
     contact_person: '',
     email: '',
     phone: '',
@@ -148,23 +155,78 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="company_name">Company Name *</Label>
-                  <Input
-                    id="company_name"
-                    value={customerData.company_name}
-                    onChange={(e) => setCustomerData({ ...customerData, company_name: e.target.value })}
-                    placeholder="PT. Example Indonesia"
-                    required
+                  <Label htmlFor="company_name">Company Name <span className="text-red-500">*</span></Label>
+                  <CompanyAutocomplete
+                    value={selectedCompanyId}
+                    onSelect={(company) => {
+                      setSelectedCompanyId(company.id);
+                      setCustomerData({ 
+                        ...customerData, 
+                        company_id: company.id,
+                        company_name: company.name,
+                        city: company.city || customerData.city,
+                      });
+                      // Reset contact when company changes
+                      setSelectedContactId('');
+                      setCustomerData(prev => ({ 
+                        ...prev, 
+                        contact_id: '',
+                        contact_person: '',
+                        email: '',
+                        phone: '',
+                      }));
+                    }}
+                    onCreate={async (name) => {
+                      const companyId = await companyService.getOrCreateCompany(name);
+                      if (companyId) {
+                        setSelectedCompanyId(companyId);
+                        setCustomerData({ ...customerData, company_id: companyId, company_name: name });
+                        toast({
+                          title: 'Company created',
+                          description: `${name} has been added to the database.`,
+                        });
+                      }
+                    }}
+                    placeholder="Type or select company..."
                   />
                 </div>
 
                 <div className="grid gap-2">
                   <Label htmlFor="contact_person">Contact Person</Label>
-                  <Input
-                    id="contact_person"
-                    value={customerData.contact_person}
-                    onChange={(e) => setCustomerData({ ...customerData, contact_person: e.target.value })}
-                    placeholder="Budi Santoso"
+                  <ContactAutocomplete
+                    companyId={selectedCompanyId}
+                    value={selectedContactId}
+                    onSelect={(contact) => {
+                      setSelectedContactId(contact.id);
+                      setCustomerData({ 
+                        ...customerData, 
+                        contact_id: contact.id,
+                        contact_person: contact.name,
+                        email: contact.email || customerData.email,
+                        phone: contact.mobile_phone || customerData.phone,
+                      });
+                    }}
+                    onCreate={async (name) => {
+                      if (!selectedCompanyId) return;
+                      const contact = await companyService.createContact({
+                        company_id: selectedCompanyId,
+                        name,
+                        is_primary: false,
+                      });
+                      if (contact) {
+                        setSelectedContactId(contact.id);
+                        setCustomerData({ 
+                          ...customerData, 
+                          contact_id: contact.id,
+                          contact_person: contact.name,
+                        });
+                        toast({
+                          title: 'Contact added',
+                          description: `${name} has been added as a contact.`,
+                        });
+                      }
+                    }}
+                    placeholder="Select or add contact person..."
                   />
                 </div>
 
@@ -176,6 +238,7 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
                     value={customerData.email}
                     onChange={(e) => setCustomerData({ ...customerData, email: e.target.value })}
                     placeholder="contact@example.co.id"
+                    disabled={!!selectedContactId}
                   />
                 </div>
 
@@ -186,6 +249,7 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
                     value={customerData.phone}
                     onChange={(e) => setCustomerData({ ...customerData, phone: e.target.value })}
                     placeholder="0812-3456-7890"
+                    disabled={!!selectedContactId}
                   />
                 </div>
 
