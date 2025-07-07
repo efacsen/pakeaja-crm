@@ -28,14 +28,15 @@ import { cn } from '@/lib/utils';
 import { ProjectDetails as ProjectDetailsType } from '@/types/calculator';
 
 const projectDetailsSchema = z.object({
-  projectName: z.string().min(1, 'Project name is required'),
-  clientName: z.string().min(1, 'Client name is required'),
-  clientEmail: z.string().email('Invalid email address'),
-  clientPhone: z.string().min(10, 'Phone number must be at least 10 digits'),
-  projectAddress: z.string().min(1, 'Project address is required'),
-  projectDate: z.date({
-    required_error: 'Project date is required',
-  }),
+  projectName: z.string().min(1, 'Nama proyek wajib diisi'),
+  clientName: z.string().min(1, 'Nama klien wajib diisi'),
+  clientEmail: z.string().optional().refine(
+    (val) => !val || z.string().email().safeParse(val).success,
+    'Format email tidak valid'
+  ),
+  clientPhone: z.string().optional(),
+  projectAddress: z.string().optional(),
+  projectDate: z.date().optional(),
   notes: z.string().optional(),
 });
 
@@ -53,7 +54,7 @@ export function ProjectDetails({ data, onNext }: ProjectDetailsProps) {
       clientEmail: data?.clientEmail || '',
       clientPhone: data?.clientPhone || '',
       projectAddress: data?.projectAddress || '',
-      projectDate: data?.projectDate || new Date(),
+      projectDate: data?.projectDate || undefined,
       notes: data?.notes || '',
     },
   });
@@ -67,7 +68,8 @@ export function ProjectDetails({ data, onNext }: ProjectDetailsProps) {
       <CardHeader>
         <CardTitle>Detail Proyek / Project Details</CardTitle>
         <CardDescription>
-          Masukkan informasi dasar tentang proyek coating dan detail klien
+          Masukkan informasi dasar tentang proyek coating dan detail klien. 
+          <span className="text-red-500">*</span> menandakan field wajib diisi.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -79,7 +81,7 @@ export function ProjectDetails({ data, onNext }: ProjectDetailsProps) {
                 name="projectName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nama Proyek / Project Name</FormLabel>
+                    <FormLabel>Nama Proyek / Project Name <span className="text-red-500">*</span></FormLabel>
                     <FormControl>
                       <Input placeholder="Contoh: Coating Lantai Gudang" {...field} />
                     </FormControl>
@@ -107,7 +109,7 @@ export function ProjectDetails({ data, onNext }: ProjectDetailsProps) {
                             {field.value ? (
                               format(field.value, 'PPP')
                             ) : (
-                              <span>Pilih tanggal</span>
+                              <span>Pilih tanggal (opsional)</span>
                             )}
                             <Calendar className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
@@ -135,7 +137,7 @@ export function ProjectDetails({ data, onNext }: ProjectDetailsProps) {
                 name="clientName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nama Klien / Client Name</FormLabel>
+                    <FormLabel>Nama Klien / Client Name <span className="text-red-500">*</span></FormLabel>
                     <FormControl>
                       <Input placeholder="Contoh: PT. Maju Jaya" {...field} />
                     </FormControl>
