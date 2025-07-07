@@ -1,5 +1,5 @@
-import { CanvassingPage } from '@/components/features/canvassing/CanvassingPage';
+import { CanvassingPageWrapper } from '@/components/features/canvassing/CanvassingPageWrapper';
 
 export default function Canvassing() {
-  return <CanvassingPage />;
+  return <CanvassingPageWrapper />;
 }

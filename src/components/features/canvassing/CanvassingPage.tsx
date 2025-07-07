@@ -218,7 +218,7 @@ export function CanvassingPage() {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto py-6 space-y-6 relative">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>

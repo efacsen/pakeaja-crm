@@ -121,7 +121,7 @@ export const dashboardService = {
     const { data: userLeads } = await supabase
       .from('leads')
       .select('*')
-      .eq('user_id', userId);
+      .eq('assigned_to', userId);
 
     const leadsAssigned = userLeads?.length || 0;
     const leadsContacted = userLeads?.filter(l => 
@@ -137,7 +137,7 @@ export const dashboardService = {
     const { data: userCanvassing } = await supabase
       .from('canvassing_reports')
       .select('*')
-      .eq('created_by', userId)
+      .eq('sales_rep_id', userId)
       .gte('created_at', startOfMonth.toISOString());
 
     const visitsCompleted = userCanvassing?.length || 0;
