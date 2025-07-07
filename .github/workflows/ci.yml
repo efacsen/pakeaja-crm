@@ -15,9 +15,6 @@ jobs:
   quality:
     name: Code Quality & Security
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./horizon-suite
     outputs:
       cache-hit: ${{ steps.cache.outputs.cache-hit }}
     steps:
@@ -31,14 +28,13 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: 'horizon-suite/package-lock.json'
 
       - name: Cache dependencies
         id: cache
         uses: actions/cache@v4
         with:
-          path: horizon-suite/node_modules
-          key: ${{ runner.os }}-node-${{ env.CACHE_VERSION }}-${{ hashFiles('horizon-suite/package-lock.json') }}
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ env.CACHE_VERSION }}-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-${{ env.CACHE_VERSION }}-
 
@@ -88,32 +84,27 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: 'horizon-suite/package-lock.json'
 
       - name: Restore dependencies cache
         uses: actions/cache@v4
         with:
-          path: horizon-suite/node_modules
-          key: ${{ runner.os }}-node-${{ env.CACHE_VERSION }}-${{ hashFiles('horizon-suite/package-lock.json') }}
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ env.CACHE_VERSION }}-${{ hashFiles('package-lock.json') }}
 
       - name: Install dependencies
-        working-directory: ./horizon-suite
         run: npm ci --prefer-offline --no-audit
 
       - name: Install Playwright browsers
         if: matrix.test-type == 'playwright'
-        working-directory: ./horizon-suite
         run: npx playwright install --with-deps
 
       - name: Run Jest tests
         if: matrix.test-type == 'jest'
-        working-directory: ./horizon-suite
         run: npm run test || echo "Jest tests failed but continuing..."
         continue-on-error: true
 
       - name: Run Playwright tests
         if: matrix.test-type == 'playwright'
-        working-directory: ./horizon-suite
         run: npm run test:e2e || echo "Playwright tests failed but continuing..."
         continue-on-error: true
         env:
@@ -125,9 +116,9 @@ jobs:
         with:
           name: test-results-${{ matrix.test-type }}
           path: |
-            horizon-suite/test-results/
-            horizon-suite/playwright-report/
-            horizon-suite/coverage/
+            test-results/
+            playwright-report/
+            coverage/
           retention-days: 7
 
   # Build & Package
@@ -135,9 +126,6 @@ jobs:
     name: Build Application
     runs-on: ubuntu-latest
     needs: [quality]
-    defaults:
-      run:
-        working-directory: ./horizon-suite
     outputs:
       build-cache-key: ${{ steps.build-cache.outputs.cache-primary-key }}
     steps:
@@ -149,13 +137,12 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: 'horizon-suite/package-lock.json'
 
       - name: Restore dependencies cache
         uses: actions/cache@v4
         with:
-          path: horizon-suite/node_modules
-          key: ${{ runner.os }}-node-${{ env.CACHE_VERSION }}-${{ hashFiles('horizon-suite/package-lock.json') }}
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ env.CACHE_VERSION }}-${{ hashFiles('package-lock.json') }}
 
       - name: Install dependencies
         run: npm ci --prefer-offline --no-audit
@@ -165,11 +152,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            horizon-suite/.next/cache
-            horizon-suite/.next/static
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('horizon-suite/package-lock.json') }}-${{ hashFiles('horizon-suite/**/*.js', 'horizon-suite/**/*.jsx', 'horizon-suite/**/*.ts', 'horizon-suite/**/*.tsx') }}
+            .next/cache
+            .next/static
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
           restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('horizon-suite/package-lock.json') }}-
+            ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-
 
       - name: Build application
         run: npm run build
@@ -184,8 +171,8 @@ jobs:
         with:
           name: build-files
           path: |
-            horizon-suite/.next/
-            horizon-suite/out/
+            .next/
+            out/
           retention-days: 1
 
   # Security Scanning
@@ -202,7 +189,7 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
-          scan-ref: './horizon-suite'
+          scan-ref: '.'
           format: 'sarif'
           output: 'trivy-results.sarif'
         continue-on-error: true

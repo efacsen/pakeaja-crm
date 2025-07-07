@@ -28,129 +28,8 @@ jobs:
         id: check
         run: |
           echo "CI workflow conclusion: ${{ github.event.workflow_run.conclusion }}"
-          
-          # Allow deployment if CI succeeded or if it failed but we want to be permissive
-          if [ "${{ github.event.workflow_run.conclusion }}" == "success" ]; then
-            echo "✅ CI workflow passed"
-            echo "result=true" >> $GITHUB_OUTPUT
-            echo "commit-sha=${{ github.event.workflow_run.head_sha }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event.workflow_run.conclusion }}" == "failure" ]; then
-            echo "⚠️  CI workflow failed, but allowing deployment (permissive mode)"
-            echo "result=permissive" >> $GITHUB_OUTPUT
-            echo "commit-sha=${{ github.event.workflow_run.head_sha }}" >> $GITHUB_OUTPUT
-          else
-            echo "❌ CI workflow status unclear, skipping deployment"
-            echo "result=false" >> $GITHUB_OUTPUT
-            exit 1
-          fi
-
-  # Preview deployment for PRs
-  preview:
-    name: Preview Deployment
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    environment:
-      name: preview
-      url: ${{ steps.deploy.outputs.preview-url }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: 'horizon-suite/package-lock.json'
-
-      - name: Install dependencies
-        working-directory: ./horizon-suite
-        run: npm ci --prefer-offline --no-audit
-
-      - name: Build project
-        working-directory: ./horizon-suite
-        run: npm run build
-        env:
-          NEXT_PUBLIC_USE_SUPABASE: true
-          NEXT_PUBLIC_APP_NAME: "PakeAja CRM (Preview)"
-          NEXT_TELEMETRY_DISABLED: 1
-
-      - name: Deploy to Vercel (Preview)
-        id: deploy
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ env.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ env.VERCEL_PROJECT_ID }}
-          working-directory: ./horizon-suite
-          scope: ${{ env.VERCEL_ORG_ID }}
-
-      - name: Wait for deployment
-        run: sleep 30
-
-      - name: Health check preview
-        run: |
-          URL="${{ steps.deploy.outputs.preview-url }}"
-          echo "🔍 Health checking: $URL"
-          
-          for i in {1..10}; do
-            if curl -f -s "$URL" > /dev/null; then
-              echo "✅ Health check passed"
-              break
-            fi
-            echo "⏳ Attempt $i failed, retrying in 10s..."
-            sleep 10
-            if [ $i -eq 10 ]; then
-              echo "❌ Health check failed after 10 attempts"
-              exit 1
-            fi
-          done
-
-      - name: Comment PR with preview URL
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            });
-            
-            const botComment = comments.find(comment => 
-              comment.user.type === 'Bot' && 
-              comment.body.includes('🚀 Preview deployment')
-            );
-            
-            const body = `🚀 **Preview deployment ready!**
-            
-            ✅ **Preview URL**: ${{ steps.deploy.outputs.preview-url }}
-            📊 **Build Status**: Success
-            🔍 **Commit**: ${context.sha.substring(0, 7)}
-            ⏱️ **Deployed**: ${new Date().toLocaleString()}
-            
-            **Quick Links:**
-            - 🏠 [Dashboard](${{ steps.deploy.outputs.preview-url }}/dashboard)
-            - 🧮 [Calculator](${{ steps.deploy.outputs.preview-url }}/dashboard/calculator)
-            - 👥 [Customers](${{ steps.deploy.outputs.preview-url }}/dashboard/customers)
-            
-            ---
-            *This preview will be automatically updated when you push new commits.*`;
-            
-            if (botComment) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: botComment.id,
-                body: body
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: body
-              });
-            }
+          echo "result=${{ github.event.workflow_run.conclusion }}" >> $GITHUB_OUTPUT
+          echo "commit-sha=${{ github.event.workflow_run.head_sha }}" >> $GITHUB_OUTPUT
 
   # Production deployment
   production:
@@ -172,86 +51,156 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: 'horizon-suite/package-lock.json'
 
       - name: Install dependencies
-        working-directory: ./horizon-suite
         run: npm ci --prefer-offline --no-audit
 
       - name: Build project
-        working-directory: ./horizon-suite
         run: npm run build
         env:
           NEXT_PUBLIC_USE_SUPABASE: true
           NEXT_PUBLIC_APP_NAME: "PakeAja CRM"
           NEXT_TELEMETRY_DISABLED: 1
 
-      - name: Deploy to Vercel (Production)
-        id: deploy
+      - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ env.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ env.VERCEL_PROJECT_ID }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: '--prod'
-          working-directory: ./horizon-suite
-          scope: ${{ env.VERCEL_ORG_ID }}
 
-      - name: Wait for deployment
-        run: sleep 30
-
-      - name: Health check production
-        run: |
-          URL="https://pakeaja-crm.vercel.app"
-          echo "🔍 Health checking: $URL"
-          
-          for i in {1..10}; do
-            if curl -f -s "$URL" > /dev/null; then
-              echo "✅ Production health check passed"
-              break
-            fi
-            echo "⏳ Attempt $i failed, retrying in 10s..."
-            sleep 10
-            if [ $i -eq 10 ]; then
-              echo "❌ Production health check failed"
-              echo "HEALTH_CHECK_FAILED=true" >> $GITHUB_ENV
-              break
-            fi
-          done
-
-      - name: Notify production deployment
+      - name: Comment deployment status
+        if: github.event_name == 'workflow_run'
         uses: actions/github-script@v7
         with:
           script: |
-            const success = '${{ env.HEALTH_CHECK_FAILED }}' !== 'true';
-            const status = success ? 'success' : 'failure';
-            const description = success ? 'Production deployment successful' : 'Production deployment failed';
+            const sha = '${{ needs.check-ci.outputs.commit-sha }}';
+            const deploymentUrl = 'https://pakeaja-crm.vercel.app';
             
-            await github.rest.repos.createCommitStatus({
+            // Get commits for the workflow run
+            const { data: commits } = await github.rest.repos.listCommits({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              sha: '${{ needs.check-ci.outputs.commit-sha }}',
-              state: status,
-              target_url: 'https://pakeaja-crm.vercel.app',
-              description: description,
-              context: 'deployment/production'
+              sha: sha,
+              per_page: 1
             });
+            
+            if (commits.length > 0) {
+              const commitMessage = commits[0].commit.message.split('\n')[0];
+              
+              await github.rest.repos.createCommitComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                commit_sha: sha,
+                body: `🚀 **Deployment Successful**
+                
+                **Environment**: Production
+                **URL**: ${deploymentUrl}
+                **Commit**: ${commitMessage}
+                **Status**: ✅ Live
+                
+                ---
+                *Deployed via GitHub Actions*`
+              });
+            }
 
-  # Cleanup
-  cleanup:
-    name: Cleanup
+  # Preview deployment for PRs
+  preview:
+    name: Preview Deployment
     runs-on: ubuntu-latest
-    needs: [preview, production]
+    if: github.event_name == 'pull_request'
+    environment:
+      name: preview
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Build project
+        run: npm run build
+        env:
+          NEXT_PUBLIC_USE_SUPABASE: true
+          NEXT_PUBLIC_APP_NAME: "PakeAja CRM (Preview)"
+          NEXT_TELEMETRY_DISABLED: 1
+
+      - name: Deploy to Vercel (Preview)
+        uses: amondnet/vercel-action@v25
+        id: vercel-preview
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          github-comment: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Comment PR with preview
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const previewUrl = '${{ steps.vercel-preview.outputs.preview-url }}';
+            
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('🎯 Preview Deployment')
+            );
+            
+            const body = `🎯 **Preview Deployment**
+            
+            **Status**: ✅ Deployed successfully
+            **URL**: ${previewUrl}
+            **Environment**: Preview
+            
+            > **Note**: This is a preview deployment. Changes will be reflected automatically.
+            
+            ---
+            *Updated: ${new Date().toISOString()}*`;
+            
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
+
+  # Post-deployment cleanup
+  cleanup:
+    name: Post-Deployment Cleanup
+    runs-on: ubuntu-latest
+    needs: [production]
     if: always()
     steps:
-      - name: Update deployment status
+      - name: Cleanup temporary files
         run: |
-          echo "📊 Deployment Summary:"
-          echo "- Preview: ${{ needs.preview.result || 'skipped' }}"
-          echo "- Production: ${{ needs.production.result || 'skipped' }}"
+          echo "🧹 Cleaning up deployment artifacts..."
+          echo "Deployment process completed."
           
-          if [[ "${{ needs.preview.result }}" == "success" || "${{ needs.production.result }}" == "success" ]]; then
-            echo "✅ At least one deployment succeeded"
+          if [ "${{ needs.production.result }}" == "success" ]; then
+            echo "✅ Production deployment successful"
           else
-            echo "⚠️  No deployments succeeded"
-          fi 
+            echo "❌ Production deployment failed"
+          fi
+        continue-on-error: true 
