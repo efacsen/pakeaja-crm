@@ -5,11 +5,18 @@ You're getting "infinite recursion detected in policy for relation profiles" bec
 
 ## Quick Fix Steps
 
-### Option 1: Run the Quick Fix (Recommended)
+### Option 1: Complete Fix (Recommended)
 1. Go to Supabase Dashboard → SQL Editor
-2. Copy ALL contents from: `RBAC Migration/FIX_RLS_RECURSION.sql`
+2. Copy ALL contents from: `RBAC Migration/FIX_RLS_COMPLETE.sql`
 3. Paste and run in SQL Editor
-4. You should see your profile with role = 'admin' at the end
+4. Look for the verification results at the bottom
+5. You should see "✅ Everything looks good!"
+
+### Option 2: Emergency Fix (If Option 1 Fails)
+If you get policy already exists errors:
+1. Copy ALL contents from: `RBAC Migration/EMERGENCY_FIX.sql`
+2. Paste and run in SQL Editor
+3. This temporarily disables RLS, fixes your profile, then re-enables it
 
 ### Option 2: Manual Fix via Dashboard
 1. Go to Supabase Dashboard → Authentication → Policies
