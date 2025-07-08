@@ -123,15 +123,5 @@
       "NEXT_TELEMETRY_DISABLED": "1",
       "SKIP_ENV_VALIDATION": "true"
     }
-  },
-  "crons": [
-    {
-      "path": "/api/cron/health-check",
-      "schedule": "0 */6 * * *"
-    },
-    {
-      "path": "/api/cron/cleanup",
-      "schedule": "0 2 * * *"
-    }
-  ]
+  }
 }
