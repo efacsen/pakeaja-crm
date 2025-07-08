@@ -56,11 +56,13 @@ jobs:
         run: npm ci --prefer-offline --no-audit
 
       - name: Build project
-        run: npm run build
+        run: npm run build:vercel
         env:
           NEXT_PUBLIC_USE_SUPABASE: true
           NEXT_PUBLIC_APP_NAME: "PakeAja CRM"
           NEXT_TELEMETRY_DISABLED: 1
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
@@ -126,11 +128,13 @@ jobs:
         run: npm ci --prefer-offline --no-audit
 
       - name: Build project
-        run: npm run build
+        run: npm run build:vercel
         env:
           NEXT_PUBLIC_USE_SUPABASE: true
           NEXT_PUBLIC_APP_NAME: "PakeAja CRM (Preview)"
           NEXT_TELEMETRY_DISABLED: 1
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
       - name: Deploy to Vercel (Preview)
         uses: amondnet/vercel-action@v25
