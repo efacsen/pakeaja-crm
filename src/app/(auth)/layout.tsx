@@ -28,8 +28,8 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
       radius: number;
     }> = [];
 
-    const particleCount = 100;
-    const connectionDistance = 150;
+    const particleCount = 80; // Reduced for better performance
+    const connectionDistance = 120;
     const mouseRadius = 100;
     let mouseX = 0;
     let mouseY = 0;
@@ -39,9 +39,9 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        radius: Math.random() * 2 + 1,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        radius: Math.random() * 1.5 + 0.5,
       });
     }
 
@@ -70,7 +70,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         // Draw particle
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(6, 182, 212, 0.8)';
+        ctx.fillStyle = 'rgba(6, 182, 212, 0.6)';
         ctx.fill();
 
         // Connect particles
@@ -85,7 +85,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
             ctx.beginPath();
             ctx.moveTo(particle.x, particle.y);
             ctx.lineTo(otherParticle.x, otherParticle.y);
-            const opacity = (1 - distance / connectionDistance) * 0.5;
+            const opacity = (1 - distance / connectionDistance) * 0.3;
             ctx.strokeStyle = `rgba(6, 182, 212, ${opacity})`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
@@ -101,9 +101,9 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
           ctx.beginPath();
           ctx.moveTo(particle.x, particle.y);
           ctx.lineTo(mouseX, mouseY);
-          const opacity = (1 - mouseDistance / mouseRadius) * 0.8;
+          const opacity = (1 - mouseDistance / mouseRadius) * 0.5;
           ctx.strokeStyle = `rgba(59, 130, 246, ${opacity})`;
-          ctx.lineWidth = 1;
+          ctx.lineWidth = 0.8;
           ctx.stroke();
         }
       });
@@ -134,65 +134,66 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
       <canvas
         ref={canvasRef}
         className="absolute inset-0 z-0"
+        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
       />
       
       {/* Content */}
       <div className="relative z-10 flex min-h-screen">
-        {/* Left side - Branding */}
-        <div className="hidden lg:flex lg:flex-1 lg:flex-col lg:justify-center lg:px-8">
-          <div className="mx-auto max-w-md">
+        {/* Left side - Branding - Hidden on mobile and tablet */}
+        <div className="hidden xl:flex xl:w-1/2 xl:flex-col xl:justify-center xl:px-8">
+          <div className="mx-auto max-w-sm">
             <div className="text-center">
               <div className="mx-auto h-16 w-16 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center mb-8 shadow-lg shadow-orange-500/25">
                 <Paintbrush className="h-8 w-8 text-white" />
               </div>
-              <h1 className="text-4xl font-bold text-white">
+              <h1 className="text-3xl font-bold text-white">
                 PakeAja CRM
               </h1>
-              <p className="mt-4 text-lg text-gray-300">
+              <p className="mt-4 text-base text-gray-300">
                 Solusi Coating Management Terpadu
               </p>
             </div>
             
-            <div className="mt-12 space-y-6">
-              <div className="flex items-center space-x-4 backdrop-blur-sm bg-white/5 rounded-lg p-4">
-                <div className="flex-shrink-0">
-                  <div className="h-8 w-8 rounded-full bg-cyan-500/20 flex items-center justify-center">
-                    <svg className="h-4 w-4 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
+            <div className="mt-10 space-y-3">
+              <div className="flex items-start space-x-3 backdrop-blur-sm bg-white/5 rounded-lg p-3">
+                <div className="flex-shrink-0 mt-0.5">
+                  <div className="h-5 w-5 rounded-full bg-cyan-500/20 flex items-center justify-center">
+                    <svg className="h-2.5 w-2.5 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <h3 className="text-sm font-medium text-white">Kalkulasi Coating Akurat</h3>
-                  <p className="text-sm text-gray-400">Multi-brand support dengan spreading rate tepat</p>
+                  <p className="text-xs text-gray-400 mt-0.5">Multi-brand support dengan spreading rate tepat</p>
                 </div>
               </div>
               
-              <div className="flex items-center space-x-4 backdrop-blur-sm bg-white/5 rounded-lg p-4">
-                <div className="flex-shrink-0">
-                  <div className="h-8 w-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-                    <svg className="h-4 w-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+              <div className="flex items-start space-x-3 backdrop-blur-sm bg-white/5 rounded-lg p-3">
+                <div className="flex-shrink-0 mt-0.5">
+                  <div className="h-5 w-5 rounded-full bg-blue-500/20 flex items-center justify-center">
+                    <svg className="h-2.5 w-2.5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <h3 className="text-sm font-medium text-white">Project Management</h3>
-                  <p className="text-sm text-gray-400">Monitoring progress dengan weather integration</p>
+                  <p className="text-xs text-gray-400 mt-0.5">Monitoring progress dengan weather integration</p>
                 </div>
               </div>
               
-              <div className="flex items-center space-x-4 backdrop-blur-sm bg-white/5 rounded-lg p-4">
-                <div className="flex-shrink-0">
-                  <div className="h-8 w-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                    <svg className="h-4 w-4 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+              <div className="flex items-start space-x-3 backdrop-blur-sm bg-white/5 rounded-lg p-3">
+                <div className="flex-shrink-0 mt-0.5">
+                  <div className="h-5 w-5 rounded-full bg-purple-500/20 flex items-center justify-center">
+                    <svg className="h-2.5 w-2.5 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <h3 className="text-sm font-medium text-white">Sales Pipeline</h3>
-                  <p className="text-sm text-gray-400">Lead tracking & conversion optimization</p>
+                  <p className="text-xs text-gray-400 mt-0.5">Lead tracking & conversion optimization</p>
                 </div>
               </div>
             </div>
@@ -200,16 +201,19 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         </div>
 
         {/* Right side - Auth Form */}
-        <div className="flex flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+        <div className="flex flex-1 flex-col justify-center px-6 py-12 xl:px-8">
           <div className="mx-auto w-full max-w-md">
             {/* Mobile branding */}
-            <div className="text-center lg:hidden mb-8">
+            <div className="text-center xl:hidden mb-8">
               <div className="mx-auto h-12 w-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center mb-4 shadow-lg shadow-orange-500/25">
                 <Paintbrush className="h-6 w-6 text-white" />
               </div>
               <h1 className="text-2xl font-bold text-white">
                 PakeAja CRM
               </h1>
+              <p className="mt-2 text-sm text-gray-300">
+                Solusi Coating Management Terpadu
+              </p>
             </div>
             
             {/* Auth form content */}
