@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { createAdminClient } from '@/lib/supabase/admin';
+import { getAdminClient, isAdminClientAvailable } from '@/lib/supabase/admin';
 import { checkSuperadminAccess } from '@/lib/auth/admin-check';
 import { z } from 'zod';
 
@@ -21,6 +21,13 @@ const updateUserSchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
+    // Check if we're in build time (no environment variables available)
+    if (!isAdminClientAvailable()) {
+      return NextResponse.json({ 
+        error: 'Admin client not available - missing environment variables' 
+      }, { status: 503 });
+    }
+
     // Check superadmin access
     const accessCheck = await checkSuperadminAccess();
     if (!accessCheck.authorized) {
@@ -41,7 +48,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get auth users to get email addresses using admin client
-    const adminClient = createAdminClient();
+    const adminClient = getAdminClient();
     const { data: authUsers, error: authUsersError } = await adminClient.auth.admin.listUsers();
 
     if (authUsersError) {
@@ -70,6 +77,13 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if we're in build time (no environment variables available)
+    if (!isAdminClientAvailable()) {
+      return NextResponse.json({ 
+        error: 'Admin client not available - missing environment variables' 
+      }, { status: 503 });
+    }
+
     // Check superadmin access
     const accessCheck = await checkSuperadminAccess();
     if (!accessCheck.authorized) {
@@ -83,7 +97,7 @@ export async function POST(request: NextRequest) {
     const validatedData = createUserSchema.parse(body);
 
     // Create user in auth.users using admin client
-    const adminClient = createAdminClient();
+    const adminClient = getAdminClient();
     const { data: newUser, error: createError } = await adminClient.auth.admin.createUser({
       email: validatedData.email,
       password: validatedData.password,
@@ -138,6 +152,13 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    // Check if we're in build time (no environment variables available)
+    if (!isAdminClientAvailable()) {
+      return NextResponse.json({ 
+        error: 'Admin client not available - missing environment variables' 
+      }, { status: 503 });
+    }
+
     // Check superadmin access
     const accessCheck = await checkSuperadminAccess();
     if (!accessCheck.authorized) {
@@ -175,7 +196,7 @@ export async function PATCH(request: NextRequest) {
 
     // Update email if provided
     if (validatedData.email) {
-      const adminClient = createAdminClient();
+      const adminClient = getAdminClient();
       const { error: emailError } = await adminClient.auth.admin.updateUserById(
         userId,
         { email: validatedData.email }
@@ -199,6 +220,13 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    // Check if we're in build time (no environment variables available)
+    if (!isAdminClientAvailable()) {
+      return NextResponse.json({ 
+        error: 'Admin client not available - missing environment variables' 
+      }, { status: 503 });
+    }
+
     // Check superadmin access
     const accessCheck = await checkSuperadminAccess();
     if (!accessCheck.authorized) {
@@ -221,7 +249,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete user from auth.users (this will cascade delete from profiles)
-    const adminClient = createAdminClient();
+    const adminClient = getAdminClient();
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(userId);
 
     if (deleteError) {

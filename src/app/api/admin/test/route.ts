@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { createAdminClient } from '@/lib/supabase/admin';
+import { getAdminClient, isAdminClientAvailable } from '@/lib/supabase/admin';
 
 export async function GET(request: NextRequest) {
   try {
+    // Check if we're in build time (no environment variables available)
+    if (!isAdminClientAvailable()) {
+      return NextResponse.json({ 
+        error: 'Admin client not available - missing environment variables' 
+      }, { status: 503 });
+    }
+
     const supabase = await createClient();
     
     // Get current user
@@ -36,7 +43,7 @@ export async function GET(request: NextRequest) {
     let adminTest = null;
     if (profile.role === 'superadmin') {
       try {
-        const adminClient = createAdminClient();
+        const adminClient = getAdminClient();
         const { data: authUsers, error } = await adminClient.auth.admin.listUsers({
           page: 1,
           perPage: 5

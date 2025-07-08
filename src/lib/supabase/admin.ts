@@ -19,5 +19,17 @@ export const createAdminClient = () => {
   })
 }
 
-// Singleton admin client instance
-export const supabaseAdmin = createAdminClient() 
+// Lazy admin client instance - only created when needed
+let adminClientInstance: ReturnType<typeof createAdminClient> | null = null
+
+export const getAdminClient = () => {
+  if (!adminClientInstance) {
+    adminClientInstance = createAdminClient()
+  }
+  return adminClientInstance
+}
+
+// Helper to check if environment variables are available
+export const isAdminClientAvailable = () => {
+  return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY)
+} 
