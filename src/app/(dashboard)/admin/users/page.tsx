@@ -59,6 +59,7 @@ export default function AdminUsersPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Form states for create/edit
   const [formData, setFormData] = useState({
@@ -73,37 +74,25 @@ export default function AdminUsersPage() {
     try {
       setLoading(true);
       
-      // Query users from the profiles table
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
-        
-      if (profilesError) {
-        console.error('Database error:', profilesError);
-        throw profilesError;
+      const response = await fetch('/api/admin/users');
+      
+      if (!response.ok) {
+        if (response.status === 403) {
+          toast.error('Access denied: Superadmin privileges required');
+          return;
+        }
+        throw new Error('Failed to fetch users');
       }
 
-      // Transform the data to match our interface
-      const formattedUsers: DatabaseUser[] = (profilesData || []).map((profile: ProfileRow) => ({
-        id: profile.id,
-        email: '', // Email is not available in profiles table directly
-        full_name: profile.full_name || 'Unknown',
-        role: profile.role,
-        created_at: profile.created_at,
-        updated_at: profile.updated_at,
-        organization_id: profile.organization_id || undefined,
-        avatar_url: profile.avatar_url || undefined,
-      }));
-
-      setUsers(formattedUsers);
+      const data = await response.json();
+      setUsers(data.users);
     } catch (error) {
       console.error('Error loading users:', error);
       toast.error('Failed to load users');
     } finally {
       setLoading(false);
     }
-  }, [supabase]);
+  }, []);
 
   useEffect(() => {
     loadUsers();
@@ -117,9 +106,37 @@ export default function AdminUsersPage() {
 
   // Create new user
   const handleCreateUser = async () => {
-    toast.error('User creation requires server-side implementation');
-    setIsCreateModalOpen(false);
-    // TODO: Implement server-side API endpoint for user creation
+    try {
+      setIsSubmitting(true);
+      
+      const response = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create user');
+      }
+
+      toast.success('User created successfully');
+      setIsCreateModalOpen(false);
+      setFormData({
+        email: '',
+        full_name: '',
+        role: 'user' as UserRole,
+        password: '',
+      });
+      loadUsers();
+    } catch (error) {
+      console.error('Error creating user:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to create user');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Update user
@@ -127,16 +144,23 @@ export default function AdminUsersPage() {
     if (!selectedUser) return;
 
     try {
-      // Update role in profiles table
-      const { error: dbError } = await supabase
-        .from('profiles')
-        .update({
+      setIsSubmitting(true);
+      
+      const response = await fetch(`/api/admin/users?id=${selectedUser.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           full_name: formData.full_name,
           role: formData.role,
-        })
-        .eq('id', selectedUser.id);
+        }),
+      });
 
-      if (dbError) throw dbError;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update user');
+      }
 
       toast.success('User updated successfully');
       setIsEditModalOpen(false);
@@ -144,7 +168,9 @@ export default function AdminUsersPage() {
       loadUsers();
     } catch (error) {
       console.error('Error updating user:', error);
-      toast.error('Failed to update user');
+      toast.error(error instanceof Error ? error.message : 'Failed to update user');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -153,15 +179,26 @@ export default function AdminUsersPage() {
     if (!selectedUser) return;
 
     try {
-      // Note: We cannot directly delete from profiles table due to foreign key constraint
-      // This would require admin API access to delete the auth.users record
-      toast.error('User deletion requires server-side implementation');
+      setIsSubmitting(true);
+      
+      const response = await fetch(`/api/admin/users?id=${selectedUser.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete user');
+      }
+
+      toast.success('User deleted successfully');
       setIsDeleteModalOpen(false);
       setSelectedUser(null);
-      // TODO: Implement server-side API endpoint for user deletion
+      loadUsers();
     } catch (error) {
       console.error('Error deleting user:', error);
-      toast.error('Failed to delete user');
+      toast.error(error instanceof Error ? error.message : 'Failed to delete user');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -185,10 +222,22 @@ export default function AdminUsersPage() {
 
   const getRoleBadgeColor = (role: UserRole) => {
     switch (role) {
+      case 'superadmin':
+        return 'bg-purple-100 text-purple-800';
       case 'admin':
         return 'bg-red-100 text-red-800';
-      case 'user':
+      case 'sales_rep':
+      case 'sales_manager':
         return 'bg-blue-100 text-blue-800';
+      case 'estimator':
+        return 'bg-green-100 text-green-800';
+      case 'project_manager':
+        return 'bg-indigo-100 text-indigo-800';
+      case 'foreman':
+        return 'bg-orange-100 text-orange-800';
+      case 'customer':
+        return 'bg-gray-100 text-gray-800';
+      case 'user':
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -325,8 +374,15 @@ export default function AdminUsersPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="superadmin">Super Admin</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="sales_manager">Sales Manager</SelectItem>
+                  <SelectItem value="sales_rep">Sales Rep</SelectItem>
+                  <SelectItem value="estimator">Estimator</SelectItem>
+                  <SelectItem value="project_manager">Project Manager</SelectItem>
+                  <SelectItem value="foreman">Foreman</SelectItem>
+                  <SelectItem value="customer">Customer</SelectItem>
+                  <SelectItem value="user">User</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -345,7 +401,9 @@ export default function AdminUsersPage() {
             <Button variant="outline" onClick={() => setIsCreateModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleCreateUser}>Create User</Button>
+            <Button onClick={handleCreateUser} disabled={isSubmitting}>
+              {isSubmitting ? 'Creating...' : 'Create User'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -385,8 +443,15 @@ export default function AdminUsersPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="superadmin">Super Admin</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="sales_manager">Sales Manager</SelectItem>
+                  <SelectItem value="sales_rep">Sales Rep</SelectItem>
+                  <SelectItem value="estimator">Estimator</SelectItem>
+                  <SelectItem value="project_manager">Project Manager</SelectItem>
+                  <SelectItem value="foreman">Foreman</SelectItem>
+                  <SelectItem value="customer">Customer</SelectItem>
+                  <SelectItem value="user">User</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -395,7 +460,9 @@ export default function AdminUsersPage() {
             <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleUpdateUser}>Update User</Button>
+            <Button onClick={handleUpdateUser} disabled={isSubmitting}>
+              {isSubmitting ? 'Updating...' : 'Update User'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -413,8 +480,8 @@ export default function AdminUsersPage() {
             <Button variant="outline" onClick={() => setIsDeleteModalOpen(false)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDeleteUser}>
-              Delete User
+            <Button variant="destructive" onClick={handleDeleteUser} disabled={isSubmitting}>
+              {isSubmitting ? 'Deleting...' : 'Delete User'}
             </Button>
           </DialogFooter>
         </DialogContent>

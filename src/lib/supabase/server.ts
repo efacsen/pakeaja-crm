@@ -3,8 +3,8 @@ import { cookies } from 'next/headers'
 import { Database } from '@/types/database.types'
 
 // Simple createClient export for compatibility
-export const createClient = () => {
-  const cookieStore = cookies()
+export const createClient = async () => {
+  const cookieStore = await cookies()
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -26,8 +26,8 @@ export const createClient = () => {
 }
 
 // For use in Server Components
-export const createServerSupabaseClient = () => {
-  const cookieStore = cookies()
+export const createServerSupabaseClient = async () => {
+  const cookieStore = await cookies()
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -49,8 +49,8 @@ export const createServerSupabaseClient = () => {
 }
 
 // For use in Route Handlers (API routes)
-export const createRouteHandlerSupabaseClient = () => {
-  const cookieStore = cookies()
+export const createRouteHandlerSupabaseClient = async () => {
+  const cookieStore = await cookies()
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -72,8 +72,8 @@ export const createRouteHandlerSupabaseClient = () => {
 }
 
 // For use in Server Actions
-export const createServerActionClient = () => {
-  const cookieStore = cookies()
+export const createServerActionClient = async () => {
+  const cookieStore = await cookies()
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
