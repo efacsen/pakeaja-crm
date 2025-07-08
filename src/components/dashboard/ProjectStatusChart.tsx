@@ -84,7 +84,7 @@ export function ProjectStatusChart({ data = mockData }: ProjectStatusChartProps)
             <Legend 
               verticalAlign="bottom" 
               height={36}
-              formatter={(value, entry) => entry?.payload?.nameId || value}
+              formatter={(value, entry: any) => entry?.payload?.nameId || value}
             />
           </PieChart>
         </ResponsiveContainer>

@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { User, Shield, Briefcase, HardHat, Calculator, Users } from 'lucide-react';
 
 const roleConfig: Record<UserRole, { label: string; icon: React.ReactNode; color: string }> = {
+  superadmin: { label: 'Super Admin', icon: <Shield className="h-4 w-4" />, color: 'bg-purple-500' },
   admin: { label: 'Admin', icon: <Shield className="h-4 w-4" />, color: 'bg-red-500' },
   sales_rep: { label: 'Sales Rep', icon: <Briefcase className="h-4 w-4" />, color: 'bg-blue-500' },
   sales_manager: { label: 'Sales Manager', icon: <Briefcase className="h-4 w-4" />, color: 'bg-indigo-500' },

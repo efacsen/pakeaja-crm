@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "node scripts/check-env.js && next build",
     "build:no-check": "next build",
+    "build:vercel": "echo 'Building for Vercel...' && next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
