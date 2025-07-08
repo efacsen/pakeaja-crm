@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { checkRoutePermission } from './middleware/rbac'
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -78,6 +79,12 @@ export async function middleware(request: NextRequest) {
   // Redirect to login if user is not authenticated and trying to access protected pages
   if (isProtectedPage && !session) {
     return NextResponse.redirect(new URL('/login', request.url))
+  }
+
+  // Check RBAC permissions for protected routes
+  if (isProtectedPage && session) {
+    // The RBAC check will handle the response
+    return checkRoutePermission(request)
   }
 
   return response

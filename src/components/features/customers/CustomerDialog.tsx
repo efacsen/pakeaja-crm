@@ -43,7 +43,7 @@ type CustomerFormData = z.infer<typeof customerSchema>;
 interface CustomerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  customer: Customer | null;
+  client: Customer | null;
   onSave: (data: CustomerFormData) => void;
 }
 

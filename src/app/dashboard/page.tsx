@@ -40,7 +40,7 @@ export default function DashboardPage() {
     canvassingMonth: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [currentRole, setCurrentRole] = useState<UserRole>('sales_rep');
+  const [currentRole, setCurrentRole] = useState<UserRole>('sales');
   const [viewingAs, setViewingAs] = useState<{
     userId: string;
     userName: string;
@@ -97,7 +97,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Role Switcher for Superadmin only */}
-      {user?.role === 'superadmin' && (
+      {user?.role === 'admin' && (
         <RoleSwitcher
           currentRole={currentRole}
           viewingAs={viewingAs}
@@ -116,8 +116,8 @@ export default function DashboardPage() {
       {dashboardData && (
         <div className="grid gap-6 lg:grid-cols-6">
           {/* Team KPI - visible to managers and above */}
-          {dashboardData.team_kpi && (currentRole === 'superadmin' || currentRole === 'admin' || currentRole === 'sales_manager' || 
-            (viewingAs && viewingAs.userRole === 'sales_manager')) && (
+          {dashboardData.team_kpi && (currentRole === 'admin' || currentRole === 'admin' || currentRole === 'manager' || 
+            (viewingAs && viewingAs.userRole === 'manager')) && (
             <TeamKPICard data={dashboardData.team_kpi} />
           )}
           

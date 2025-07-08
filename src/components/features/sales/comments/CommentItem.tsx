@@ -78,7 +78,7 @@ export function CommentItem({
 
   const getRoleBadge = (role: string) => {
     switch (role) {
-      case 'sales_manager':
+      case 'manager':
         return <Badge variant="secondary" className="text-xs">Manager</Badge>;
       case 'admin':
         return <Badge variant="destructive" className="text-xs">Admin</Badge>;

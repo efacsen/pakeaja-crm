@@ -169,7 +169,7 @@ export default function AdminTestPage() {
             <li>Run this query (replace with your user ID):
               <pre className="mt-2 p-2 bg-muted rounded text-xs overflow-x-auto">
 {`UPDATE profiles 
-SET role = 'superadmin' 
+SET role = 'admin' 
 WHERE id = 'your-user-id';`}
               </pre>
             </li>

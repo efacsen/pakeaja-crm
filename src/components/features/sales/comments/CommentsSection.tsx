@@ -15,7 +15,7 @@ interface CommentsSectionProps {
   leadId: string;
   currentUserId: string;
   currentUserName: string;
-  currentUserRole: 'sales_rep' | 'sales_manager' | 'admin';
+  currentUserRole: 'sales' | 'manager' | 'admin';
   onCommentAdded?: (comment: Comment) => void;
 }
 
@@ -33,7 +33,7 @@ const mockCommentService = {
       parent_id: data.parent_id,
       author_id: 'current_user',
       author_name: 'Current User',
-      author_role: 'sales_rep',
+      author_role: 'sales',
       content: data.content,
       mentions: data.mentions || [],
       is_edited: false,

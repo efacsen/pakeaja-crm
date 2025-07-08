@@ -40,13 +40,13 @@ import { cn } from '@/lib/utils';
 
 interface PipelineKanbanProps {
   viewMode?: 'full' | 'compact';
-  userRole?: 'sales_rep' | 'sales_manager' | 'admin';
+  userRole?: 'sales' | 'manager' | 'admin';
   userId?: string;
 }
 
 export function PipelineKanban({ 
   viewMode = 'full',
-  userRole = 'sales_rep',
+  userRole = 'sales',
   userId = 'demo-user'
 }: PipelineKanbanProps) {
   const { toast } = useToast();
@@ -101,7 +101,7 @@ export function PipelineKanban({
       return false;
     }
     // For sales reps, they can see all leads but only edit their own
-    if (userRole === 'sales_rep' && viewMode === 'compact') {
+    if (userRole === 'sales' && viewMode === 'compact') {
       return lead.assigned_to === userId;
     }
     return true;
@@ -153,7 +153,7 @@ export function PipelineKanban({
     if (!draggedLead || draggedLead.stage === stage) return;
 
     // Check permissions
-    if (userRole === 'sales_rep' && draggedLead.assigned_to !== userId) {
+    if (userRole === 'sales' && draggedLead.assigned_to !== userId) {
       toast({
         title: 'Permission Denied',
         description: 'You can only move your own leads',
@@ -227,26 +227,26 @@ export function PipelineKanban({
               {leadsByStage[stage.id]?.map(lead => (
                 <div
                   key={lead.id}
-                  draggable={userRole === 'sales_manager' || lead.assigned_to === userId}
+                  draggable={userRole === 'manager' || lead.assigned_to === userId}
                   onDragStart={(e) => handleDragStart(e, lead)}
                   className={cn(
                     "cursor-move",
-                    (userRole === 'sales_rep' && lead.assigned_to !== userId) && "cursor-not-allowed opacity-75"
+                    (userRole === 'sales' && lead.assigned_to !== userId) && "cursor-not-allowed opacity-75"
                   )}
                 >
                   {cardView === 'compact' ? (
                     <CompactDealCard
                       lead={lead}
                       onUpdate={loadLeads}
-                      canEdit={userRole === 'sales_manager' || lead.assigned_to === userId}
-                      showPrice={userRole === 'sales_manager' || lead.assigned_to === userId}
+                      canEdit={userRole === 'manager' || lead.assigned_to === userId}
+                      showPrice={userRole === 'manager' || lead.assigned_to === userId}
                     />
                   ) : (
                     <DealCard
                       lead={lead}
                       onUpdate={loadLeads}
-                      canEdit={userRole === 'sales_manager' || lead.assigned_to === userId}
-                      showPrice={userRole === 'sales_manager' || lead.assigned_to === userId}
+                      canEdit={userRole === 'manager' || lead.assigned_to === userId}
+                      showPrice={userRole === 'manager' || lead.assigned_to === userId}
                     />
                   )}
                 </div>

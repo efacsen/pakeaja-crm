@@ -354,7 +354,7 @@ export function DealDetailDialog({
                 leadId={lead.id}
                 currentUserId="demo-user" // In real app, get from auth context
                 currentUserName="Current User" // In real app, get from auth context
-                currentUserRole="sales_rep" // In real app, get from auth context
+                currentUserRole="sales" // In real app, get from auth context
                 onCommentAdded={(comment) => {
                   // Update lead comment count
                   lead.comment_count = (lead.comment_count || 0) + 1;

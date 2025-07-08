@@ -6,7 +6,7 @@ export interface Comment {
   // Author info
   author_id: string;
   author_name: string;
-  author_role: 'sales_rep' | 'sales_manager' | 'admin';
+  author_role: 'sales' | 'manager' | 'admin';
   
   // Content
   content: string;

@@ -1,7 +1,7 @@
 // Types for project detail page with Command Center layout
 
-export type UserRole = 'customer' | 'internal' | 'admin';
-export type ViewMode = 'internal' | 'customer';
+export type UserRole = 'client' | 'internal' | 'admin';
+export type ViewMode = 'internal' | 'client';
 
 // Tab types with role-based visibility
 export type ProjectTab = 
@@ -38,11 +38,11 @@ export interface ActivityItem {
 
 // Tab visibility configuration
 export const TAB_VISIBILITY: Record<ProjectTab, ViewMode[]> = {
-  overview: ['internal', 'customer'],
-  timeline: ['internal', 'customer'],
+  overview: ['internal', 'client'],
+  timeline: ['internal', 'client'],
   tasks: ['internal'],
   team: ['internal'],
-  documents: ['internal', 'customer'],
+  documents: ['internal', 'client'],
   reports: ['internal'],
   quality: ['internal'],
   budget: ['internal'],
@@ -50,8 +50,8 @@ export const TAB_VISIBILITY: Record<ProjectTab, ViewMode[]> = {
   safety: ['internal'],
   permits: ['internal'],
   notes: ['internal'],
-  photos: ['customer'],
-  warranty: ['customer']
+  photos: ['client'],
+  warranty: ['client']
 };
 
 // Tab configuration

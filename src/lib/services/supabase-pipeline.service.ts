@@ -25,7 +25,7 @@ export class SupabasePipelineService {
         .from('leads')
         .select(`
           *,
-          customer:customers(*),
+          client:customers(*),
           activities:lead_activities(
             *,
             created_by_user:users!created_by(full_name)
@@ -103,7 +103,7 @@ export class SupabasePipelineService {
         })
         .select(`
           *,
-          customer:customers(*),
+          client:customers(*),
           activities:lead_activities(*),
           _stats:lead_stats!id(*)
         `)
@@ -137,7 +137,7 @@ export class SupabasePipelineService {
         .eq('id', leadId)
         .select(`
           *,
-          customer:customers(*),
+          client:customers(*),
           activities:lead_activities(*),
           _stats:lead_stats!id(*)
         `)
@@ -188,7 +188,7 @@ export class SupabasePipelineService {
         .eq('id', leadId)
         .select(`
           *,
-          customer:customers(*),
+          client:customers(*),
           activities:lead_activities(*),
           _stats:lead_stats!id(*)
         `)
@@ -226,7 +226,7 @@ export class SupabasePipelineService {
         .eq('id', leadId)
         .select(`
           *,
-          customer:customers(*),
+          client:customers(*),
           activities:lead_activities(*),
           _stats:lead_stats!id(*)
         `)
@@ -277,7 +277,7 @@ export class SupabasePipelineService {
         .eq('id', leadId)
         .select(`
           *,
-          customer:customers(*),
+          client:customers(*),
           activities:lead_activities(*),
           _stats:lead_stats!id(*)
         `)
@@ -504,7 +504,7 @@ export class SupabasePipelineService {
         .from('leads')
         .select(`
           *,
-          customer:customers(*),
+          client:customers(*),
           activities:lead_activities(*),
           _stats:lead_stats!id(*)
         `)
@@ -532,7 +532,7 @@ export class SupabasePipelineService {
     
     return {
       id: dbLead.id,
-      customer: dbLead.customer ? {
+      client: dbLead.customer ? {
         id: dbLead.customer.id,
         company_name: dbLead.customer.company_name,
         contact_person: dbLead.customer.contact_person,

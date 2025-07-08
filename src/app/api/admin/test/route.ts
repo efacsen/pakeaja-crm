@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
 
     // Test admin capabilities if superadmin
     let adminTest = null;
-    if (profile.role === 'superadmin') {
+    if (profile.role === 'admin') {
       try {
         const adminClient = getAdminClient();
         const { data: authUsers, error } = await adminClient.auth.admin.listUsers({
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
         full_name: profile.full_name,
         organization_id: profile.organization_id
       },
-      isSuperadmin: profile.role === 'superadmin',
+      isSuperadmin: profile.role === 'admin',
       adminTest,
       message: 'Test successful'
     }, { status: 200 });

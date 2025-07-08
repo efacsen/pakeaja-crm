@@ -74,7 +74,7 @@ export class MockPipelineService {
       // Attach customer data
       const enrichedLeads = leads.map(lead => ({
         ...lead,
-        customer: customers.find(c => c.id === lead.customer_id),
+        client: customers.find(c => c.id === lead.customer_id),
         days_in_stage: Math.floor(
           (Date.now() - new Date(lead.stage_entered_at).getTime()) / (1000 * 60 * 60 * 24)
         )

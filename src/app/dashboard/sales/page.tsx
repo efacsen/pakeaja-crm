@@ -10,7 +10,7 @@ export default function SalesPage() {
   const { user } = useAuth();
   
   // Determine user role
-  const userRole = user?.role === 'sales_manager' ? 'sales_manager' : 'sales_rep';
+  const userRole = user?.role === 'manager' ? 'manager' : 'sales';
 
   return (
     <div className="h-full">

@@ -20,11 +20,11 @@ export const dashboardService = {
       .eq('id', targetUserId)
       .single();
 
-    const userRole = viewingAsRole || userData?.role || 'sales_rep';
+    const userRole = viewingAsRole || userData?.role || 'sales';
 
     // Get team KPI data (for managers and above)
     let teamKpi: TeamKPI | null = null;
-    if (['superadmin', 'admin', 'sales_manager'].includes(userRole)) {
+    if (['admin', 'admin', 'manager'].includes(userRole)) {
       teamKpi = await this.getTeamKPI();
     }
 
@@ -50,7 +50,7 @@ export const dashboardService = {
     const { data: teamMembers } = await supabase
       .from('users')
       .select('*')
-      .in('role', ['sales_rep', 'sales_manager']);
+      .in('role', ['sales', 'manager']);
 
     const teamMembersCount = teamMembers?.length || 0;
 

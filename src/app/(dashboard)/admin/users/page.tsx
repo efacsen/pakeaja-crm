@@ -222,12 +222,12 @@ export default function AdminUsersPage() {
 
   const getRoleBadgeColor = (role: UserRole) => {
     switch (role) {
-      case 'superadmin':
+      case 'admin':
         return 'bg-purple-100 text-purple-800';
       case 'admin':
         return 'bg-red-100 text-red-800';
-      case 'sales_rep':
-      case 'sales_manager':
+      case 'sales':
+      case 'manager':
         return 'bg-blue-100 text-blue-800';
       case 'estimator':
         return 'bg-green-100 text-green-800';
@@ -235,7 +235,7 @@ export default function AdminUsersPage() {
         return 'bg-indigo-100 text-indigo-800';
       case 'foreman':
         return 'bg-orange-100 text-orange-800';
-      case 'customer':
+      case 'client':
         return 'bg-gray-100 text-gray-800';
       case 'user':
       default:
@@ -374,14 +374,14 @@ export default function AdminUsersPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="superadmin">Super Admin</SelectItem>
+                  <SelectItem value="admin">Super Admin</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="sales_manager">Sales Manager</SelectItem>
-                  <SelectItem value="sales_rep">Sales Rep</SelectItem>
+                  <SelectItem value="manager">Sales Manager</SelectItem>
+                  <SelectItem value="sales">Sales Rep</SelectItem>
                   <SelectItem value="estimator">Estimator</SelectItem>
                   <SelectItem value="project_manager">Project Manager</SelectItem>
                   <SelectItem value="foreman">Foreman</SelectItem>
-                  <SelectItem value="customer">Customer</SelectItem>
+                  <SelectItem value="client">Customer</SelectItem>
                   <SelectItem value="user">User</SelectItem>
                 </SelectContent>
               </Select>
@@ -443,14 +443,14 @@ export default function AdminUsersPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="superadmin">Super Admin</SelectItem>
+                  <SelectItem value="admin">Super Admin</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="sales_manager">Sales Manager</SelectItem>
-                  <SelectItem value="sales_rep">Sales Rep</SelectItem>
+                  <SelectItem value="manager">Sales Manager</SelectItem>
+                  <SelectItem value="sales">Sales Rep</SelectItem>
                   <SelectItem value="estimator">Estimator</SelectItem>
                   <SelectItem value="project_manager">Project Manager</SelectItem>
                   <SelectItem value="foreman">Foreman</SelectItem>
-                  <SelectItem value="customer">Customer</SelectItem>
+                  <SelectItem value="client">Customer</SelectItem>
                   <SelectItem value="user">User</SelectItem>
                 </SelectContent>
               </Select>

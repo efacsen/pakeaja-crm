@@ -19,8 +19,8 @@ export default function AdminLayout({
       return;
     }
     
-    if (!loading && user && user.role !== 'superadmin') {
-      toast.error('Access denied. Superadmin only.');
+    if (!loading && user && user.role !== 'admin') {
+      toast.error('Access denied. Admin only.');
       router.push('/dashboard');
     }
   }, [user, loading, router]);
@@ -36,7 +36,7 @@ export default function AdminLayout({
     );
   }
 
-  if (!user || user.role !== 'superadmin') {
+  if (!user || user.role !== 'admin') {
     return null;
   }
 

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
-export async function checkSuperadminAccess() {
+export async function checkAdminAccess() {
   const supabase = await createClient();
   
   // Get authenticated user
@@ -14,17 +14,17 @@ export async function checkSuperadminAccess() {
     };
   }
 
-  // Check if user is superadmin
+  // Check if user is admin
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('role')
     .eq('id', user.id)
     .single();
 
-  if (profileError || !profile || profile.role !== 'superadmin') {
+  if (profileError || !profile || profile.role !== 'admin') {
     return {
       authorized: false,
-      response: NextResponse.json({ error: 'Forbidden: Superadmin access required' }, { status: 403 })
+      response: NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 })
     };
   }
 
@@ -34,3 +34,6 @@ export async function checkSuperadminAccess() {
     profile
   };
 }
+
+// Alias for backward compatibility
+export const checkSuperadminAccess = checkAdminAccess;

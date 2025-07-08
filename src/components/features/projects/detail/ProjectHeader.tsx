@@ -46,14 +46,14 @@ export function ProjectHeader({ project, viewMode }: ProjectHeaderProps) {
         id: 'progress',
         label: 'Complete',
         value: `${project.progress_percentage}%`,
-        visibility: ['internal', 'customer'],
+        visibility: ['internal', 'client'],
         color: project.progress_percentage === 100 ? 'success' : 'default'
       },
       {
         id: 'timeline',
         label: isOverdue ? 'Overdue' : 'Days Left',
         value: Math.abs(daysLeft),
-        visibility: ['internal', 'customer'],
+        visibility: ['internal', 'client'],
         color: isOverdue ? 'error' : daysLeft < 7 ? 'warning' : 'default'
       }
     ];
@@ -84,13 +84,13 @@ export function ProjectHeader({ project, viewMode }: ProjectHeaderProps) {
           id: 'start_date',
           label: 'Start Date',
           value: format(new Date(project.start_date), 'MMM d, yyyy'),
-          visibility: ['customer']
+          visibility: ['client']
         },
         {
           id: 'status',
           label: 'Status',
           value: isOverdue ? 'Delayed' : 'On Schedule',
-          visibility: ['customer'],
+          visibility: ['client'],
           color: isOverdue ? 'error' : 'success'
         }
       );
@@ -219,7 +219,7 @@ export function ProjectHeader({ project, viewMode }: ProjectHeaderProps) {
         </Alert>
       )}
 
-      {viewMode === 'customer' && project.next_milestone && (
+      {viewMode === 'client' && project.next_milestone && (
         <Alert className="border-green-500 bg-green-50">
           <AlertDescription className="text-green-800">
             <strong>Next Milestone:</strong> {project.next_milestone} (5 days)

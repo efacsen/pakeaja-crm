@@ -24,7 +24,7 @@ interface DraggableGanttChartProps {
   project: Project;
   tasks: ProjectTask[];
   onTaskUpdate?: (taskId: string, updates: Partial<ProjectTask>) => Promise<void>;
-  viewMode?: 'internal' | 'customer';
+  viewMode?: 'internal' | 'client';
 }
 
 interface GanttTask {

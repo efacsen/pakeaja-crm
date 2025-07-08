@@ -28,7 +28,7 @@ interface EnhancedGanttChartProps {
   project: Project;
   tasks: ProjectTask[];
   onTaskUpdate?: (taskId: string, updates: Partial<ProjectTask>) => Promise<void>;
-  viewMode?: 'internal' | 'customer';
+  viewMode?: 'internal' | 'client';
 }
 
 interface GanttTask {
@@ -367,7 +367,7 @@ export function EnhancedGanttChart({
 
   // Mouse event handlers with fullscreen protection
   const handleMouseDown = (e: React.MouseEvent, task: GanttTask, dragType: 'move' | 'resize-start' | 'resize-end') => {
-    if (!task.isEditable || viewMode === 'customer') return;
+    if (!task.isEditable || viewMode === 'client') return;
     
     e.preventDefault();
     e.stopPropagation();

@@ -33,7 +33,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<ProjectTab>('overview');
   // Determine view mode based on user role - customers see customer view
-  const viewMode: ViewMode = user?.role === 'customer' ? 'customer' : 'internal';
+  const viewMode: ViewMode = user?.role === 'client' ? 'client' : 'internal';
   const [activities, setActivities] = useState<ActivityItem[]>([]);
 
   useEffect(() => {

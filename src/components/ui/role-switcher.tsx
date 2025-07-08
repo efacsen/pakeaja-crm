@@ -13,12 +13,12 @@ import { Shield } from 'lucide-react';
 
 const ROLE_LABELS: Record<UserRole, string> = {
   admin: 'Administrator',
-  sales_rep: 'Sales Representative',
-  sales_manager: 'Sales Manager',
+  sales: 'Sales Representative',
+  manager: 'Sales Manager',
   estimator: 'Estimator',
   project_manager: 'Project Manager',
   foreman: 'Foreman',
-  customer: 'Customer',
+  client: 'Customer',
 };
 
 export function RoleSwitcher() {

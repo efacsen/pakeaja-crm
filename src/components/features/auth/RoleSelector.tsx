@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/contexts/auth-context';
-import { UserRole } from '@/types/auth';
+import { UserRole } from '@/types/rbac';
 import {
   Select,
   SelectContent,
@@ -14,14 +14,14 @@ import { Badge } from '@/components/ui/badge';
 import { User, Shield, Briefcase, HardHat, Calculator, Users } from 'lucide-react';
 
 const roleConfig: Record<UserRole, { label: string; icon: React.ReactNode; color: string }> = {
-  superadmin: { label: 'Super Admin', icon: <Shield className="h-4 w-4" />, color: 'bg-purple-500' },
   admin: { label: 'Admin', icon: <Shield className="h-4 w-4" />, color: 'bg-red-500' },
-  sales_rep: { label: 'Sales Rep', icon: <Briefcase className="h-4 w-4" />, color: 'bg-blue-500' },
-  sales_manager: { label: 'Sales Manager', icon: <Briefcase className="h-4 w-4" />, color: 'bg-indigo-500' },
+  manager: { label: 'Manager', icon: <Briefcase className="h-4 w-4" />, color: 'bg-indigo-500' },
+  sales: { label: 'Sales', icon: <Briefcase className="h-4 w-4" />, color: 'bg-blue-500' },
   estimator: { label: 'Estimator', icon: <Calculator className="h-4 w-4" />, color: 'bg-green-500' },
   project_manager: { label: 'Project Manager', icon: <User className="h-4 w-4" />, color: 'bg-purple-500' },
   foreman: { label: 'Foreman', icon: <HardHat className="h-4 w-4" />, color: 'bg-orange-500' },
-  customer: { label: 'Customer', icon: <Users className="h-4 w-4" />, color: 'bg-gray-500' },
+  inspector: { label: 'Inspector', icon: <Shield className="h-4 w-4" />, color: 'bg-yellow-500' },
+  client: { label: 'Client', icon: <Users className="h-4 w-4" />, color: 'bg-gray-500' },
 };
 
 export function RoleSelector() {

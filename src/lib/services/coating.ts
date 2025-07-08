@@ -168,7 +168,7 @@ export class CoatingService {
       .from('coating_calculations')
       .select(`
         *,
-        customer:customers(*)
+        client:customers(*)
       `)
       .order('created_at', { ascending: false })
 

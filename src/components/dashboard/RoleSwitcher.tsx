@@ -40,36 +40,36 @@ interface RoleSwitcherProps {
 }
 
 const roleIcons: Record<UserRole, React.ComponentType<{ className?: string }>> = {
-  superadmin: Shield,
   admin: Shield,
-  sales_manager: Users,
-  sales_rep: User,
+  admin: Shield,
+  manager: Users,
+  sales: User,
   project_manager: Briefcase,
   viewer: Eye,
 };
 
 const roleLabels: Record<UserRole, string> = {
-  superadmin: 'Super Admin',
+  admin: 'Super Admin',
   admin: 'Admin',
-  sales_manager: 'Sales Manager',
-  sales_rep: 'Sales Representative',
+  manager: 'Sales Manager',
+  sales: 'Sales Representative',
   project_manager: 'Project Manager',
   viewer: 'Viewer',
 };
 
 // Mock users for demonstration
 const mockUsers = [
-  { id: '1', name: 'Ahmad Wijaya', role: 'sales_rep' as UserRole, team: 'Team Jakarta' },
-  { id: '2', name: 'Siti Nurhasanah', role: 'sales_rep' as UserRole, team: 'Team Jakarta' },
-  { id: '3', name: 'Budi Santoso', role: 'sales_manager' as UserRole, team: 'Team Jakarta' },
-  { id: '4', name: 'Dewi Lestari', role: 'sales_rep' as UserRole, team: 'Team Surabaya' },
+  { id: '1', name: 'Ahmad Wijaya', role: 'sales' as UserRole, team: 'Team Jakarta' },
+  { id: '2', name: 'Siti Nurhasanah', role: 'sales' as UserRole, team: 'Team Jakarta' },
+  { id: '3', name: 'Budi Santoso', role: 'manager' as UserRole, team: 'Team Jakarta' },
+  { id: '4', name: 'Dewi Lestari', role: 'sales' as UserRole, team: 'Team Surabaya' },
   { id: '5', name: 'Rudi Hermawan', role: 'project_manager' as UserRole, team: 'Operations' },
 ];
 
 export function RoleSwitcher({ currentRole, viewingAs, onRoleSwitch }: RoleSwitcherProps) {
   const [selectedRole, setSelectedRole] = useState<UserRole | 'specific'>('specific');
 
-  if (currentRole !== 'superadmin') {
+  if (currentRole !== 'admin') {
     return null;
   }
 
@@ -90,7 +90,7 @@ export function RoleSwitcher({ currentRole, viewingAs, onRoleSwitch }: RoleSwitc
   };
 
   const clearViewAs = () => {
-    onRoleSwitch('superadmin');
+    onRoleSwitch('admin');
   };
 
   const Icon = viewingAs ? roleIcons[viewingAs.userRole] : Shield;
@@ -131,8 +131,8 @@ export function RoleSwitcher({ currentRole, viewingAs, onRoleSwitch }: RoleSwitc
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="specific">Specific User</SelectItem>
-              <SelectItem value="sales_manager">Sales Manager View</SelectItem>
-              <SelectItem value="sales_rep">Sales Rep View</SelectItem>
+              <SelectItem value="manager">Sales Manager View</SelectItem>
+              <SelectItem value="sales">Sales Rep View</SelectItem>
               <SelectItem value="project_manager">Project Manager View</SelectItem>
               <SelectItem value="viewer">Viewer View</SelectItem>
             </SelectContent>

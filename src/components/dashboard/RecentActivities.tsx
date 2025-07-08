@@ -13,7 +13,7 @@ import { id } from 'date-fns/locale';
 
 interface Activity {
   id: string;
-  type: 'calculation' | 'customer' | 'quote' | 'project';
+  type: 'calculation' | 'client' | 'quote' | 'project';
   action: string;
   actionId: string;
   description: string;
@@ -35,7 +35,7 @@ const mockActivities: Activity[] = [
   },
   {
     id: '2',
-    type: 'customer',
+    type: 'client',
     action: 'Customer Added',
     actionId: 'Pelanggan Ditambahkan',
     description: 'PT XYZ Indonesia',

@@ -442,7 +442,7 @@ export function CompactDealCard({ lead, onUpdate, canEdit = true, showPrice = tr
                     leadId={lead.id}
                     currentUserId="demo-user"
                     currentUserName="Current User"
-                    currentUserRole="sales_rep"
+                    currentUserRole="sales"
                     onCommentAdded={(comment) => {
                       lead.comment_count = (lead.comment_count || 0) + 1;
                       lead.last_comment_at = comment.created_at;

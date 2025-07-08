@@ -254,3 +254,5 @@ ME: I'll automatically:
 - Mobile experience is as important as desktop
 - Data integrity is critical for analytics
 - Client experience drives referrals
+
+In Plan Mode, ask the user to save the current plan as .md file after finishing the planning

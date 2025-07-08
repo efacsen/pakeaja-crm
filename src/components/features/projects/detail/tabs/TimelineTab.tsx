@@ -96,7 +96,7 @@ export function TimelineTab({ project, viewMode }: TimelineTabProps) {
         viewMode={viewMode}
       />
 
-      {viewMode === 'customer' && (
+      {viewMode === 'client' && (
         <Card>
           <CardHeader>
             <CardTitle>Key Dates</CardTitle>

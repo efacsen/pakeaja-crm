@@ -126,7 +126,7 @@ export interface Activity {
   user_avatar?: string;
   timestamp: string;
   related_entity?: {
-    type: 'lead' | 'quote' | 'project' | 'customer';
+    type: 'lead' | 'quote' | 'project' | 'client';
     id: string;
     name: string;
   };
@@ -143,7 +143,7 @@ export interface Notification {
 }
 
 // Role-based views
-export type UserRole = 'superadmin' | 'admin' | 'sales_manager' | 'sales_rep' | 'project_manager' | 'viewer';
+export type UserRole = 'admin' | 'admin' | 'manager' | 'sales' | 'project_manager' | 'viewer';
 
 export interface RolePermissions {
   can_view_all_teams: boolean;
@@ -156,7 +156,7 @@ export interface RolePermissions {
 }
 
 export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
-  superadmin: {
+  admin: {
     can_view_all_teams: true,
     can_view_all_users: true,
     can_switch_perspective: true,
@@ -174,7 +174,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     can_manage_projects: true,
     can_export_data: true,
   },
-  sales_manager: {
+  manager: {
     can_view_all_teams: false,
     can_view_all_users: false,
     can_switch_perspective: false,
@@ -183,7 +183,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     can_manage_projects: false,
     can_export_data: true,
   },
-  sales_rep: {
+  sales: {
     can_view_all_teams: false,
     can_view_all_users: false,
     can_switch_perspective: false,

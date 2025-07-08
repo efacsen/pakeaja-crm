@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI Iterations Viewer - 3 Login Page Variants</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #0f0f0f;
+            color: #e0e0e0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #888;
+            font-size: 1.1rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .preview {
+            background: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: slideUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+        
+        .preview:nth-child(1) { animation-delay: 0.1s; }
+        .preview:nth-child(2) { animation-delay: 0.2s; }
+        .preview:nth-child(3) { animation-delay: 0.3s; }
+        
+        .preview:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
+        }
+        
+        .preview-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+            border-bottom: 1px solid #333;
+        }
+        
+        .preview-header h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+        
+        .preview-header p {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .design-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        
+        .glassmorphism-badge {
+            background: rgba(102, 126, 234, 0.2);
+            color: #8b9bf4;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+        
+        .dark-badge {
+            background: rgba(147, 51, 234, 0.2);
+            color: #c084fc;
+            border: 1px solid rgba(147, 51, 234, 0.3);
+        }
+        
+        .bold-badge {
+            background: rgba(236, 72, 153, 0.2);
+            color: #f472b6;
+            border: 1px solid rgba(236, 72, 153, 0.3);
+        }
+        
+        iframe {
+            width: 100%;
+            height: 700px;
+            border: none;
+            background: #000;
+        }
+        
+        .actions {
+            padding: 20px;
+            background: #1e1e1e;
+            border-top: 1px solid #333;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid #333;
+            background: #2a2a2a;
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: #333;
+            border-color: #444;
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            iframe {
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>UI Iterations - Login Page Variants</h1>
+        <p>3 unique design approaches for the CRM/ERP login experience</p>
+    </div>
+    
+    <div class="grid">
+        <!-- Agent 1: Glassmorphism Enhanced -->
+        <div class="preview">
+            <div class="preview-header">
+                <h3>Agent 1: Glassmorphism Enhanced</h3>
+                <p>Ethereal glass layers with animated particles</p>
+                <span class="design-badge glassmorphism-badge">Glassmorphism</span>
+            </div>
+            <iframe src="2025_01_08_ui_1.html" loading="lazy"></iframe>
+            <div class="actions">
+                <a href="2025_01_08_ui_1.html" target="_blank" class="btn btn-primary">Open Full Screen</a>
+                <button class="btn" onclick="downloadFile('2025_01_08_ui_1.html')">Download</button>
+            </div>
+        </div>
+        
+        <!-- Agent 2: Dark Mode First -->
+        <div class="preview">
+            <div class="preview-header">
+                <h3>Agent 2: Dark Mode First</h3>
+                <p>Sleek dark theme with neon glow effects</p>
+                <span class="design-badge dark-badge">Dark Mode</span>
+            </div>
+            <iframe src="2025_01_08_ui_2.html" loading="lazy"></iframe>
+            <div class="actions">
+                <a href="2025_01_08_ui_2.html" target="_blank" class="btn btn-primary">Open Full Screen</a>
+                <button class="btn" onclick="downloadFile('2025_01_08_ui_2.html')">Download</button>
+            </div>
+        </div>
+        
+        <!-- Agent 3: Modern Bold -->
+        <div class="preview">
+            <div class="preview-header">
+                <h3>Agent 3: Modern Bold</h3>
+                <p>Vibrant gradients with dynamic animations</p>
+                <span class="design-badge bold-badge">Modern Bold</span>
+            </div>
+            <iframe src="2025_01_08_ui_3.html" loading="lazy"></iframe>
+            <div class="actions">
+                <a href="2025_01_08_ui_3.html" target="_blank" class="btn btn-primary">Open Full Screen</a>
+                <button class="btn" onclick="downloadFile('2025_01_08_ui_3.html')">Download</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function downloadFile(filename) {
+            const link = document.createElement('a');
+            link.href = filename;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Reload iframes on window focus (for development)
+        window.addEventListener('focus', () => {
+            const iframes = document.querySelectorAll('iframe');
+            iframes.forEach(iframe => {
+                iframe.src = iframe.src;
+            });
+        });
+    </script>
+</body>
+</html>

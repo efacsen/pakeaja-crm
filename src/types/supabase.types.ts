@@ -12,7 +12,7 @@ export interface Database {
       users: {
         Row: {
           id: string
-          role: 'sales_rep' | 'sales_manager' | 'admin' | 'field_sales' | 'estimator'
+          role: 'sales' | 'manager' | 'admin' | 'field_sales' | 'estimator'
           full_name: string
           phone: string | null
           territory: string | null
@@ -22,7 +22,7 @@ export interface Database {
         }
         Insert: {
           id: string
-          role?: 'sales_rep' | 'sales_manager' | 'admin' | 'field_sales' | 'estimator'
+          role?: 'sales' | 'manager' | 'admin' | 'field_sales' | 'estimator'
           full_name: string
           phone?: string | null
           territory?: string | null
@@ -32,7 +32,7 @@ export interface Database {
         }
         Update: {
           id?: string
-          role?: 'sales_rep' | 'sales_manager' | 'admin' | 'field_sales' | 'estimator'
+          role?: 'sales' | 'manager' | 'admin' | 'field_sales' | 'estimator'
           full_name?: string
           phone?: string | null
           territory?: string | null
@@ -431,7 +431,7 @@ export interface Database {
     }
     Functions: {}
     Enums: {
-      user_role: 'sales_rep' | 'sales_manager' | 'admin' | 'field_sales' | 'estimator'
+      user_role: 'sales' | 'manager' | 'admin' | 'field_sales' | 'estimator'
       lead_stage: 'lead' | 'qualified' | 'negotiation' | 'closing' | 'won' | 'lost'
       lead_temperature_status: 'cold' | 'warm' | 'hot' | 'critical'
       deal_type: 'supply' | 'apply' | 'supply_apply'
