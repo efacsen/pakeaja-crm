@@ -258,6 +258,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Handle error or missing profile
           if (!profileData || profileError) {
             console.error('Profile fetch error:', profileError);
+            
+            // Check if it's an RLS recursion error
+            if (profileError?.message?.includes('infinite recursion')) {
+              console.error('RLS infinite recursion detected. Profile system may need fixing.');
+              // Set a minimal user object to prevent app crash
+              const minimalUser: UserProfile = {
+                id: session.user.id,
+                email: session.user.email!,
+                full_name: session.user.user_metadata?.full_name || 'Unknown User',
+                role: 'sales' as UserRole,
+                organization_id: null,
+                is_active: false,
+                joined_at: new Date().toISOString().split('T')[0],
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              };
+              setUser(minimalUser);
+              setLoading(false);
+              return;
+            }
+            
             // Try to create profile if it doesn't exist
             const { data: orgData } = await supabase
               .from('organizations')
