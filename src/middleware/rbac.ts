@@ -80,15 +80,29 @@ export async function checkRoutePermission(request: NextRequest) {
   }
 
   // Get user profile with role
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('role, is_active, organization_id')
     .eq('id', user.id)
     .single();
 
+  // Add debugging headers
+  const headers = new Headers();
+  headers.set('X-Debug-User-Id', user.id);
+  headers.set('X-Debug-Profile-Found', profile ? 'true' : 'false');
+  headers.set('X-Debug-Profile-Active', profile?.is_active ? 'true' : 'false');
+  headers.set('X-Debug-Profile-Role', profile?.role || 'none');
+  
+  if (profileError) {
+    console.error('Profile fetch error:', profileError);
+    headers.set('X-Debug-Error', profileError.message);
+  }
+
   if (!profile || !profile.is_active) {
     // Redirect to unauthorized if profile not found or inactive
-    return NextResponse.redirect(new URL('/unauthorized', request.url));
+    const redirectUrl = new URL('/unauthorized', request.url);
+    redirectUrl.searchParams.set('reason', !profile ? 'no-profile' : 'inactive');
+    return NextResponse.redirect(redirectUrl, { headers });
   }
 
   // Admin can access everything
