@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ThemeSwitch } from '@/components/ui/theme-toggle';
 import { cn } from '@/lib/utils';
 
 interface DashboardHeaderProps {
@@ -136,6 +137,9 @@ export function DashboardHeader({
 
       {/* Right Side */}
       <div className="flex items-center gap-3">
+        {/* Theme Toggle */}
+        <ThemeSwitch />
+
         {/* View Settings */}
         <Button variant="outline" size="sm" className="gap-2">
           <Settings className="h-4 w-4" />
@@ -199,6 +203,11 @@ export function DashboardHeader({
             <Plus className="h-4 w-4" />
           </Button>
         </div>
+
+        {/* Share Button */}
+        <Button variant="outline" size="sm" className="gap-2">
+          Share
+        </Button>
       </div>
     </div>
   );

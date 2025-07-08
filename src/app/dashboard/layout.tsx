@@ -42,6 +42,7 @@ const navigation = [
 const adminNavigation = [
   { name: 'Admin', href: '#', icon: Shield, permission: null, isSection: true },
   { name: 'User Management', href: '/admin/users', icon: UserCog, permission: null },
+  { name: 'Test Access', href: '/admin/test', icon: Shield, permission: null },
 ];
 
 export default function DashboardLayout({
