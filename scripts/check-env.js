@@ -7,7 +7,8 @@
 
 // Skip validation in Vercel if environment variables are not set
 // This allows Vercel to build with its own environment configuration
-const isVercel = process.env.VERCEL === '1';
+// Vercel sets VERCEL_ENV to 'production', 'preview', or 'development'
+const isVercel = process.env.VERCEL_ENV !== undefined;
 
 const requiredEnvVars = [
   'NEXT_PUBLIC_SUPABASE_URL',
