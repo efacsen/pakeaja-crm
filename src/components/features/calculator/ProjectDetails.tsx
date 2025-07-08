@@ -238,7 +238,7 @@ export function ProjectDetails({ data, onNext }: ProjectDetailsProps) {
                         companyId={selectedCompanyId}
                         value={selectedContactId}
                         onSelect={handleContactSelect}
-                        onCreate={handleCreateContact}
+                        onCreate={(name) => { handleCreateContact(name); }}
                         placeholder="Pilih atau tambah contact person..."
                       />
                     </FormControl>

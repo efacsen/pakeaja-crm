@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-
 // Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic';
+
+import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,7 +39,7 @@ export default function TestSupabasePage() {
     // Test 1: Database Connection
     try {
       const { data, error } = await supabase
-        .from('users')
+        .from('profiles')
         .select('count', { count: 'exact', head: true });
       
       if (error) {
@@ -66,7 +66,7 @@ export default function TestSupabasePage() {
     // Test 3: RLS Policies
     try {
       const { data, error } = await supabase
-        .from('leads')
+        .from('sales_opportunities')
         .select('*')
         .limit(1);
       
@@ -87,13 +87,15 @@ export default function TestSupabasePage() {
       
       if (error) {
         updateTest(3, 'error', `Storage test failed: ${error.message}`);
-      } else {
+      } else if (buckets) {
         const hasCanvassingBucket = buckets.some(bucket => bucket.name === 'canvassing-photos');
         if (hasCanvassingBucket) {
           updateTest(3, 'success', 'Storage bucket configured correctly');
         } else {
           updateTest(3, 'error', 'canvassing-photos bucket not found');
         }
+      } else {
+        updateTest(3, 'error', 'No buckets returned from storage');
       }
     } catch (error) {
       updateTest(3, 'error', 'Storage access test failed');

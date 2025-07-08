@@ -28,14 +28,14 @@ import { Customer } from '@/lib/db/mock-db';
 const customerSchema = z.object({
   name: z.string().min(1, 'Nama wajib diisi'),
   email: z.string().email('Email tidak valid'),
-  phone: z.string().optional(),
-  company: z.string().optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  postal_code: z.string().optional(),
+  phone: z.string().optional().default(''),
+  company: z.string().optional().default(''),
+  address: z.string().optional().default(''),
+  city: z.string().optional().default(''),
+  state: z.string().optional().default(''),
+  postal_code: z.string().optional().default(''),
   country: z.string().default('Indonesia'),
-  notes: z.string().optional(),
+  notes: z.string().optional().default(''),
 });
 
 type CustomerFormData = z.infer<typeof customerSchema>;

@@ -192,8 +192,7 @@ export function CanvassingForm({ onSuccess, onCancel }: CanvassingFormProps) {
       const { data: report, error } = await canvassingService.createReport(
         requestData,
         'demo-user-123',
-        'Demo Sales Rep',
-        !isOnline
+        'Demo Sales Rep'
       );
 
       if (error) {
