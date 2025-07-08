@@ -2,6 +2,26 @@
 -- This migration creates the missing team and territory tables that were defined
 -- in the RBAC schema but may not have been created in the database
 
+-- 0. Ensure prerequisites are met
+DO $$
+BEGIN
+    -- Check if profiles table has organization_id column
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'profiles' AND column_name = 'organization_id'
+    ) THEN
+        RAISE EXCEPTION 'profiles table is missing organization_id column. Please run the RBAC migration first.';
+    END IF;
+    
+    -- Check if organizations table exists
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_schema = 'public' AND table_name = 'organizations'
+    ) THEN
+        RAISE EXCEPTION 'organizations table does not exist. Please run the RBAC migration first.';
+    END IF;
+END $$;
+
 -- 1. First, check what tables already exist
 DO $$
 BEGIN
@@ -97,13 +117,32 @@ CREATE TABLE IF NOT EXISTS team_members (
 CREATE INDEX IF NOT EXISTS idx_team_members_team ON team_members(team_id);
 CREATE INDEX IF NOT EXISTS idx_team_members_user ON team_members(user_id);
 
--- 6. Enable Row Level Security
+-- 6. Create helper function if it doesn't exist
+-- This function is used by RLS policies to get user's organization
+CREATE OR REPLACE FUNCTION get_user_organization(user_id UUID)
+RETURNS UUID AS $$
+DECLARE
+    v_org_id UUID;
+BEGIN
+    SELECT organization_id INTO v_org_id
+    FROM profiles
+    WHERE id = user_id
+    LIMIT 1;
+    
+    RETURN v_org_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Grant execute permission to authenticated users
+GRANT EXECUTE ON FUNCTION get_user_organization(UUID) TO authenticated;
+
+-- 7. Enable Row Level Security
 ALTER TABLE teams ENABLE ROW LEVEL SECURITY;
 ALTER TABLE team_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE territories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_territories ENABLE ROW LEVEL SECURITY;
 
--- 7. Create RLS Policies
+-- 8. Create RLS Policies
 
 -- Teams policies
 DROP POLICY IF EXISTS "Users can view teams in their organization" ON teams;
@@ -196,7 +235,7 @@ FOR ALL USING (
     )
 );
 
--- 8. Create some sample data for testing
+-- 9. Create some sample data for testing
 DO $$
 DECLARE
     v_org_id UUID;
@@ -250,7 +289,7 @@ BEGIN
     END IF;
 END $$;
 
--- 9. Create helper views for easier querying
+-- 10. Create helper views for easier querying
 CREATE OR REPLACE VIEW team_hierarchy AS
 SELECT 
     t.id,
@@ -304,7 +343,7 @@ GRANT SELECT ON team_hierarchy TO authenticated;
 GRANT SELECT ON user_team_memberships TO authenticated;
 GRANT SELECT ON user_territory_assignments TO authenticated;
 
--- 10. Verify table creation
+-- 11. Verify table creation
 DO $$
 DECLARE
     v_table_count INTEGER;

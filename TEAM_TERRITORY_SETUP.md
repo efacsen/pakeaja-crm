@@ -115,6 +115,30 @@ Once the tables are created and types are regenerated:
 
 ## Troubleshooting
 
+### "function get_user_organization(uuid) does not exist" Error
+If you get this error, run this first:
+```sql
+-- Run in Supabase SQL Editor
+-- File: supabase/migrations/20250109_fix_missing_function.sql
+CREATE OR REPLACE FUNCTION get_user_organization(user_id UUID)
+RETURNS UUID AS $$
+DECLARE
+    v_org_id UUID;
+BEGIN
+    SELECT organization_id INTO v_org_id
+    FROM profiles
+    WHERE id = user_id
+    LIMIT 1;
+    
+    RETURN v_org_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION get_user_organization(UUID) TO authenticated;
+```
+
+Then run the team/territory migration again.
+
 ### Tables not created
 - Check for errors in the SQL Editor output
 - Ensure you have admin role
@@ -128,7 +152,7 @@ Once the tables are created and types are regenerated:
 ### RLS errors
 - The migration uses `get_user_organization()` function
 - This should have been created in the RBAC migration
-- If missing, check the RBAC migration was fully applied
+- If missing, run the fix above
 
 ## Questions?
 
