@@ -80,7 +80,7 @@ export async function checkRoutePermission(request: NextRequest) {
   }
 
   // Get user profile with role
-  const { data: profile, error: profileError } = await supabase
+  let { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('role, is_active, organization_id')
     .eq('id', user.id)
@@ -98,8 +98,45 @@ export async function checkRoutePermission(request: NextRequest) {
     headers.set('X-Debug-Error', profileError.message);
   }
 
+  // If profile not found, try to create it as fallback
+  if (!profile && user.email) {
+    console.log('Profile not found in middleware, attempting to create...');
+    headers.set('X-Debug-Fallback', 'attempting-creation');
+    
+    try {
+      // Use the database function to create profile
+      const { error: createError } = await supabase.rpc('create_profile_if_missing', {
+        user_id: user.id,
+        user_email: user.email,
+        user_name: user.user_metadata?.full_name || user.email,
+        user_role: 'sales'
+      });
+      
+      if (!createError) {
+        // Try fetching the profile again
+        const { data: newProfile } = await supabase
+          .from('profiles')
+          .select('role, is_active, organization_id')
+          .eq('id', user.id)
+          .single();
+        
+        if (newProfile) {
+          profile = newProfile;
+          headers.set('X-Debug-Fallback', 'success');
+          console.log('Profile created successfully in middleware fallback');
+        }
+      } else {
+        console.error('Failed to create profile in middleware:', createError);
+        headers.set('X-Debug-Fallback', 'failed');
+      }
+    } catch (error) {
+      console.error('Middleware profile creation error:', error);
+      headers.set('X-Debug-Fallback', 'error');
+    }
+  }
+
   if (!profile || !profile.is_active) {
-    // Redirect to unauthorized if profile not found or inactive
+    // Redirect to unauthorized if profile still not found or inactive
     const redirectUrl = new URL('/unauthorized', request.url);
     redirectUrl.searchParams.set('reason', !profile ? 'no-profile' : 'inactive');
     return NextResponse.redirect(redirectUrl, { headers });
