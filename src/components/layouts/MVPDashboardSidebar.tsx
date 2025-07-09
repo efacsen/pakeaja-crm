@@ -71,7 +71,7 @@ const mvpNavigation: SidebarItem[] = [
     name: 'Reports', 
     href: '/dashboard/reports', 
     icon: BarChart3,
-    enabled: false // Disabled for MVP
+    enabled: true
   },
 ];
 

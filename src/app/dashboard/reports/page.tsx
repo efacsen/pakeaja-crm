@@ -1,34 +1,46 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart3, TrendingUp, Users, DollarSign, FileText, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { FileText, Users, TrendingUp, BarChart3, Calendar, Download } from 'lucide-react';
+import { useAuth } from '@/contexts/auth-context';
 
 export default function ReportsPage() {
+  const { user } = useAuth();
+  const isManager = user?.role === 'manager';
+
   const reportTypes = [
     {
-      title: 'Sales Performance',
-      description: 'Monthly sales targets and achievements',
-      icon: TrendingUp,
-      available: false,
-    },
-    {
-      title: 'Team Analytics',
-      description: 'Individual and team performance metrics',
+      title: 'Team Daily Reports',
+      description: 'Review and approve daily reports from your team members',
       icon: Users,
-      available: false,
+      href: '/dashboard/reports/team',
+      enabled: isManager,
+      badge: 'Manager Only'
     },
     {
-      title: 'Revenue Report',
-      description: 'Revenue breakdown by product and region',
-      icon: DollarSign,
-      available: false,
-    },
-    {
-      title: 'Activity Summary',
-      description: 'Daily and weekly activity reports',
+      title: 'My Reports History',
+      description: 'View your submitted daily reports and track your progress',
       icon: FileText,
-      available: true,
+      href: '/dashboard/reports/history',
+      enabled: true
+    },
+    {
+      title: 'Sales Performance',
+      description: 'Analyze sales metrics, trends, and team performance',
+      icon: TrendingUp,
+      href: '/dashboard/reports/sales',
+      enabled: false,
+      badge: 'Coming Soon'
+    },
+    {
+      title: 'Monthly Summary',
+      description: 'Comprehensive monthly reports with insights and analytics',
+      icon: Calendar,
+      href: '/dashboard/reports/monthly',
+      enabled: false,
+      badge: 'Coming Soon'
     },
   ];
 
@@ -38,61 +50,61 @@ export default function ReportsPage() {
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <BarChart3 className="h-6 w-6" />
-          Sales Reports
+          Reports Center
         </h1>
-        <p className="text-muted-foreground mt-1">Analytics and performance insights</p>
+        <p className="text-muted-foreground mt-1">Access various reports and analytics</p>
       </div>
 
       {/* Report Types Grid */}
       <div className="grid gap-4 md:grid-cols-2">
         {reportTypes.map((report) => (
-          <Card key={report.title} className={!report.available ? 'opacity-60' : ''}>
+          <Card key={report.href} className={!report.enabled ? 'opacity-60' : ''}>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <report.icon className="h-5 w-5" />
-                {report.title}
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <report.icon className="h-8 w-8 text-primary" />
+                {report.badge && (
+                  <span className="text-xs bg-secondary px-2 py-1 rounded">
+                    {report.badge}
+                  </span>
+                )}
+              </div>
+              <CardTitle>{report.title}</CardTitle>
               <CardDescription>{report.description}</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button 
-                variant="outline" 
-                className="w-full"
-                disabled={!report.available}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                {report.available ? 'Generate Report' : 'Coming Soon'}
-              </Button>
+              {report.enabled ? (
+                <Link href={report.href}>
+                  <Button className="w-full">
+                    View Reports
+                  </Button>
+                </Link>
+              ) : (
+                <Button className="w-full" disabled>
+                  {report.badge || 'Not Available'}
+                </Button>
+              )}
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Quick Stats */}
+      {/* Quick Actions */}
       <Card>
         <CardHeader>
-          <CardTitle>Quick Stats - This Month</CardTitle>
-          <CardDescription>Key performance indicators</CardDescription>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>Common reporting tasks</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-4">
-            <div className="text-center">
-              <p className="text-2xl font-bold">0</p>
-              <p className="text-sm text-muted-foreground">Total Leads</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold">0%</p>
-              <p className="text-sm text-muted-foreground">Conversion Rate</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold">$0</p>
-              <p className="text-sm text-muted-foreground">Revenue</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold">0</p>
-              <p className="text-sm text-muted-foreground">Active Deals</p>
-            </div>
-          </div>
+        <CardContent className="space-y-2">
+          <Link href="/dashboard/daily-report">
+            <Button variant="outline" className="w-full justify-start">
+              <FileText className="h-4 w-4 mr-2" />
+              Submit Today&apos;s Report
+            </Button>
+          </Link>
+          <Button variant="outline" className="w-full justify-start" disabled>
+            <Download className="h-4 w-4 mr-2" />
+            Export Reports (Coming Soon)
+          </Button>
         </CardContent>
       </Card>
     </div>
