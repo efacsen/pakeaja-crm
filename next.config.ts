@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_APP_NAME: 'PakeAja CRM',
     NEXT_PUBLIC_COMPANY_NAME: 'PT Pake Aja Teknologi',
   },
+
+  // Experimental features for better CSS handling
+  experimental: {
+    optimizeCss: true,
+  },
   
   // Ensure proper static file handling
   async rewrites() {

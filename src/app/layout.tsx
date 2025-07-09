@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./emergency-styles.css";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/auth-context";
 import { ThemeProvider } from "@/contexts/theme-context";
@@ -33,6 +34,10 @@ export default function RootLayout({
             `,
           }}
         />
+        {/* Tailwind CSS CDN Fallback for Production */}
+        {process.env.NODE_ENV === 'production' && (
+          <script src="https://cdn.tailwindcss.com"></script>
+        )}
       </head>
       <body className="antialiased transition-theme">
         <ThemeProvider>

@@ -1,0 +1,9 @@
+/* Tailwind CSS v3 Fallback for Production */
+/* This file ensures basic Tailwind styles work while v4 beta issues are resolved */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import the custom styles from globals.css */
+@import './globals.css';
