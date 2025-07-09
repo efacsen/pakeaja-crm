@@ -2,6 +2,7 @@
 
 import { ReactNode, useEffect, useRef } from 'react'
 import { Paintbrush } from 'lucide-react'
+import './auth.css'
 
 interface AuthLayoutProps {
   children: ReactNode
@@ -129,11 +130,11 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
   }, []);
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gray-900">
+    <div className="auth-container min-h-screen relative overflow-hidden bg-gray-900">
       {/* Particle Canvas */}
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 z-0"
+        className="auth-canvas absolute inset-0 z-0"
         style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
       />
       
