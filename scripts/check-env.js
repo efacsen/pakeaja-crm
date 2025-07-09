@@ -5,6 +5,11 @@
  * Checks required environment variables before build with comprehensive logging
  */
 
+// Load environment variables from .env files
+require('dotenv').config({ path: '.env.local' });
+require('dotenv').config({ path: '.env.development' });
+require('dotenv').config({ path: '.env' });
+
 const requiredEnvVars = [
   'NEXT_PUBLIC_SUPABASE_URL',
   'NEXT_PUBLIC_SUPABASE_ANON_KEY'
