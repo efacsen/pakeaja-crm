@@ -2,6 +2,7 @@
 
 import { ReactNode, useEffect, useRef } from 'react'
 import { Paintbrush } from 'lucide-react'
+import '../globals.css'
 import './auth.css'
 
 interface AuthLayoutProps {
@@ -130,13 +131,62 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
   }, []);
 
   return (
-    <div className="auth-container min-h-screen relative overflow-hidden bg-gray-900">
-      {/* Particle Canvas */}
-      <canvas
-        ref={canvasRef}
-        className="auth-canvas absolute inset-0 z-0"
-        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-      />
+    <>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          /* Emergency auth styles */
+          body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: #111827;
+          }
+          
+          .auth-container {
+            background: #111827;
+            color: white;
+          }
+          
+          .auth-card {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.75rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            padding: 2rem;
+          }
+          
+          input[type="email"],
+          input[type="password"],
+          input[type="text"] {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
+          }
+          
+          input::placeholder {
+            color: #9ca3af !important;
+          }
+          
+          button {
+            cursor: pointer;
+          }
+          
+          /* Fix text visibility */
+          .text-white { color: white !important; }
+          .text-gray-300 { color: #d1d5db !important; }
+          .text-gray-400 { color: #9ca3af !important; }
+          .bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important; }
+        `
+      }} />
+      <div className="auth-container min-h-screen relative overflow-hidden bg-gray-900" style={{ backgroundColor: '#111827', minHeight: '100vh', color: 'white' }}>
+        {/* Particle Canvas */}
+        <canvas
+          ref={canvasRef}
+          className="auth-canvas absolute inset-0 z-0"
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+        />
       
       {/* Content */}
       <div className="relative z-10 flex min-h-screen">
@@ -223,5 +273,6 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         </div>
       </div>
     </div>
+    </>
   )
 } 

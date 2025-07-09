@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./emergency-styles.css";
-import "./comprehensive-fallback.css";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/auth-context";
 import { ThemeProvider } from "@/contexts/theme-context";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { CSSGuard } from "@/components/CSSGuard";
 
 export const metadata: Metadata = {
   title: "PakeAja CRM - Complete Business Solution",
@@ -35,8 +36,88 @@ export default function RootLayout({
             `,
           }}
         />
-        {/* Tailwind CSS CDN Fallback for Production */}
-        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.0/dist/tailwind.min.css" rel="stylesheet" />
+        {/* CDN removed - using local Tailwind */}
+        
+        {/* Development CSP bypass */}
+        {process.env.NODE_ENV === 'development' && (
+          <meta 
+            httpEquiv="Content-Security-Policy" 
+            content="default-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://bemrgpgwaatizgxftzgg.supabase.co wss://bemrgpgwaatizgxftzgg.supabase.co https://api.vercel.com;" 
+          />
+        )}
+        
+        {/* Debug: Log what's trying to load Tailwind CDN */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Intercept and log any dynamic stylesheet additions
+              const originalAppendChild = document.head.appendChild;
+              const originalInsertBefore = document.head.insertBefore;
+              
+              // Block appendChild
+              document.head.appendChild = function(element) {
+                if (element.tagName === 'LINK' && element.href && element.href.includes('cdn')) {
+                  console.error('BLOCKED CDN stylesheet via appendChild:', element.href);
+                  console.trace('Stack trace for CDN load:');
+                  return element; // Return element without adding it
+                }
+                return originalAppendChild.call(this, element);
+              };
+              
+              // Block insertBefore
+              document.head.insertBefore = function(element, reference) {
+                if (element.tagName === 'LINK' && element.href && element.href.includes('cdn')) {
+                  console.error('BLOCKED CDN stylesheet via insertBefore:', element.href);
+                  console.trace('Stack trace for CDN load:');
+                  return element; // Return element without adding it
+                }
+                return originalInsertBefore.call(this, element, reference);
+              };
+              
+              // Also intercept createElement to see what's creating these links
+              const originalCreateElement = document.createElement;
+              document.createElement = function(tagName) {
+                const element = originalCreateElement.call(document, tagName);
+                if (tagName.toUpperCase() === 'LINK') {
+                  // Add a setter to track href changes
+                  let _href = '';
+                  Object.defineProperty(element, 'href', {
+                    get() { return _href; },
+                    set(value) {
+                      if (value && value.includes('cdn.jsdelivr.net') && value.includes('tailwind')) {
+                        console.error('DETECTED: Trying to set Tailwind CDN href:', value);
+                        console.trace('Stack trace:');
+                      }
+                      _href = value;
+                    }
+                  });
+                }
+                return element;
+              };
+              
+              // Monitor DOM changes
+              const observer = new MutationObserver((mutations) => {
+                mutations.forEach(mutation => {
+                  mutation.addedNodes.forEach(node => {
+                    if (node.tagName === 'LINK' && node.href?.includes('cdn')) {
+                      console.error('CDN Link added to DOM:', node.href);
+                      node.remove(); // Remove it immediately
+                    }
+                  });
+                });
+              });
+              
+              // Start observing when DOM is ready
+              if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => {
+                  observer.observe(document.head, { childList: true });
+                });
+              } else {
+                observer.observe(document.head, { childList: true });
+              }
+            `,
+          }}
+        />
         
         {/* Inline Critical CSS */}
         <style dangerouslySetInnerHTML={{
@@ -92,11 +173,14 @@ export default function RootLayout({
         }} />
       </head>
       <body className="antialiased">
+        <CSSGuard />
         <ThemeProvider>
-          <AuthProvider>
-            {children}
-            <Toaster />
-          </AuthProvider>
+          <ErrorBoundary>
+            <AuthProvider>
+              {children}
+              <Toaster />
+            </AuthProvider>
+          </ErrorBoundary>
         </ThemeProvider>
         <SpeedInsights />
       </body>

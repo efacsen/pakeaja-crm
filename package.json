@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:clean": "./scripts/dev.sh",
     "build": "node scripts/check-env.js && next build",
     "build:no-check": "next build",
     "build:vercel": "echo 'Building for Vercel...' && next build",

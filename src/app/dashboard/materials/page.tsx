@@ -1,180 +1,78 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { MaterialsWithAdvancedSort } from '@/components/features/materials/MaterialsWithAdvancedSort';
-import { MaterialForm } from '@/components/features/materials/MaterialForm';
-import { MaterialImport } from '@/components/features/materials/MaterialImport';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { MaterialsService } from '@/lib/services/materials-service';
-import { Material } from '@/types/materials';
-import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Construction, Package, Plus } from 'lucide-react';
 
-export default function Materials() {
-  const [materials, setMaterials] = useState<Material[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isImportOpen, setIsImportOpen] = useState(false);
-  const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
-  const { toast } = useToast();
-  const service = new MaterialsService();
-
-  useEffect(() => {
-    loadMaterials();
-  }, []);
-
-  const loadMaterials = async () => {
-    try {
-      setIsLoading(true);
-      const { data, error } = await service.getAllMaterials();
-      if (error) throw new Error(error);
-      setMaterials(data || []);
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to load materials',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleAddMaterial = () => {
-    setEditingMaterial(null);
-    setIsFormOpen(true);
-  };
-
-  const handleEditMaterial = (material: Material) => {
-    setEditingMaterial(material);
-    setIsFormOpen(true);
-  };
-
-  const handleDeleteMaterial = async (id: string) => {
-    try {
-      const { error } = await service.deleteMaterial(id);
-      if (error) throw new Error(error);
-      
-      toast({
-        title: 'Success',
-        description: 'Material deleted successfully',
-      });
-      
-      loadMaterials();
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to delete material',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleFormSubmit = async (data: Partial<Material>) => {
-    try {
-      if (editingMaterial) {
-        const { error } = await service.updateMaterial(editingMaterial.id, data);
-        if (error) throw new Error(error);
-        
-        toast({
-          title: 'Success',
-          description: 'Material updated successfully',
-        });
-      } else {
-        const { error } = await service.createMaterial(data as Omit<Material, 'id' | 'created_at' | 'updated_at'>);
-        if (error) throw new Error(error);
-        
-        toast({
-          title: 'Success',
-          description: 'Material created successfully',
-        });
-      }
-      
-      setIsFormOpen(false);
-      loadMaterials();
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: editingMaterial ? 'Failed to update material' : 'Failed to create material',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleImportComplete = () => {
-    setIsImportOpen(false);
-    loadMaterials();
-  };
-
-  const handleExport = () => {
-    // TODO: Implement export functionality
-    toast({
-      title: 'Export',
-      description: 'Export functionality coming soon',
-    });
-  };
-
-  const handleOpenImport = () => {
-    setIsImportOpen(true);
-  };
-
-  if (isLoading) {
-    return <div className="p-6">Loading materials...</div>;
-  }
-
+export default function MaterialsPage() {
   return (
-    <div className="p-6">
-      <MaterialsWithAdvancedSort
-        materials={materials}
-        onEdit={handleEditMaterial}
-        onDelete={handleDeleteMaterial}
-        onAdd={handleAddMaterial}
-        onExport={handleExport}
-      />
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold flex items-center gap-2">
+          <Package className="h-6 w-6" />
+          Materials Database
+        </h1>
+        <p className="text-muted-foreground mt-1">Material pricing and specifications</p>
+      </div>
 
-      {/* Add/Edit Material Dialog */}
-      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editingMaterial ? 'Edit Material' : 'Add New Material'}
-            </DialogTitle>
-            <DialogDescription>
-              {editingMaterial 
-                ? 'Update the material information below.' 
-                : 'Enter the details for the new material.'}
-            </DialogDescription>
-          </DialogHeader>
-          <MaterialForm
-            material={editingMaterial}
-            onSuccess={() => {
-              setIsFormOpen(false);
-              loadMaterials();
-            }}
-            onCancel={() => setIsFormOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      {/* Coming Soon Card */}
+      <Card className="border-dashed">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Construction className="h-5 w-5 text-orange-500" />
+            Under Development
+          </CardTitle>
+          <CardDescription>
+            The materials database is being optimized for better performance and usability.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              We're working on:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
+              <li>Comprehensive material catalog with pricing</li>
+              <li>Real-time inventory tracking</li>
+              <li>Supplier management integration</li>
+              <li>Automated price updates</li>
+              <li>Material specification sheets</li>
+            </ul>
+            
+            <div className="pt-4">
+              <p className="text-sm font-medium mb-2">Expected completion:</p>
+              <div className="bg-secondary rounded-lg p-3">
+                <p className="text-sm text-center">Phase 2 - Q2 2024</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Import Dialog */}
-      <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Import Materials</DialogTitle>
-            <DialogDescription>
-              Upload a CSV or Excel file to import multiple materials at once.
-            </DialogDescription>
-          </DialogHeader>
-          <MaterialImport
-            onSuccess={handleImportComplete}
-          />
-        </DialogContent>
-      </Dialog>
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>Available features during development</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3">
+            <Button variant="outline" className="justify-start" disabled>
+              <Plus className="h-4 w-4 mr-2" />
+              Add New Material
+            </Button>
+            <Button 
+              variant="outline" 
+              className="justify-start"
+              onClick={() => window.location.href = '/dashboard/calculator'}
+            >
+              <Package className="h-4 w-4 mr-2" />
+              Use Calculator Instead
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

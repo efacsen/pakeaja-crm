@@ -87,9 +87,7 @@ body {
 
 /* Colors */
 .text-white { color: #ffffff; }
-.text-primary { color: #3b82f6; }
-.text-muted-foreground { color: #6b7280; }
-.dark .text-muted-foreground { color: #9ca3af; }
+/* Removed conflicting text utilities - let Tailwind handle these */
 .text-red-400 { color: #f87171; }
 .text-green-400 { color: #4ade80; }
 .text-blue-400 { color: #60a5fa; }
@@ -97,9 +95,7 @@ body {
 .text-cyan-400 { color: #22d3ee; }
 .text-cyan-500 { color: #06b6d4; }
 
-.bg-white { background-color: #ffffff; }
-.bg-primary { background-color: #3b82f6; }
-.bg-card { background-color: #ffffff; }
+/* Removed conflicting Tailwind utilities - let Tailwind handle these */
 .bg-gray-900 { background-color: #111827; }
 .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-stops)); }
 .from-orange-500 { --tw-gradient-from: #f97316; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(249, 115, 22, 0)); }

@@ -15,7 +15,7 @@ export const dashboardService = {
 
     // Get user details
     const { data: userData } = await supabase
-      .from('users')
+      .from('profiles')
       .select('*')
       .eq('id', targetUserId)
       .single();
@@ -25,17 +25,34 @@ export const dashboardService = {
     // Get team KPI data (for managers and above)
     let teamKpi: TeamKPI | null = null;
     if (['admin', 'admin', 'manager'].includes(userRole)) {
-      teamKpi = await this.getTeamKPI();
+      try {
+        teamKpi = await this.getTeamKPI();
+      } catch (error) {
+        console.error('Error fetching team KPI:', error);
+        teamKpi = null;
+      }
     }
 
     // Get personal KPI data
-    const personalKpi = await this.getPersonalKPI(targetUserId, userData?.full_name || 'Unknown User');
+    let personalKpi;
+    try {
+      personalKpi = await this.getPersonalKPI(targetUserId, userData?.full_name || 'Unknown User');
+    } catch (error) {
+      console.error('Error fetching personal KPI:', error);
+      throw error; // Re-throw as personal KPI is required
+    }
 
     // Get active projects
-    const activeProjects = await this.getActiveProjects();
+    let activeProjects;
+    try {
+      activeProjects = await this.getActiveProjects();
+    } catch (error) {
+      console.error('Error fetching active projects:', error);
+      activeProjects = [];
+    }
 
     return {
-      team_kpi: teamKpi!,
+      team_kpi: teamKpi,
       personal_kpi: personalKpi,
       active_projects: activeProjects,
       recent_activities: [],
@@ -48,7 +65,7 @@ export const dashboardService = {
     
     // Get all sales team members
     const { data: teamMembers } = await supabase
-      .from('users')
+      .from('profiles')
       .select('*')
       .in('role', ['sales', 'manager']);
 
@@ -247,7 +264,7 @@ export const dashboardService = {
         leads (
           company_name
         ),
-        users (
+        profiles (
           full_name
         )
       `)
@@ -258,46 +275,81 @@ export const dashboardService = {
       id: activity.id,
       type: activity.type,
       description: activity.description,
-      user_name: activity.users?.full_name || 'Unknown User',
+      user_name: activity.profiles?.full_name || 'Unknown User',
       company_name: activity.leads?.company_name || 'Unknown Company',
       created_at: activity.created_at,
     })) || [];
   },
 
   async getStats() {
-    const supabase = createClient();
-    
-    // Get customer count
-    const { count: customerCount } = await supabase
-      .from('customers')
-      .select('*', { count: 'exact', head: true });
+    try {
+      const supabase = createClient();
+      
+      // Get customer count with error handling
+      let customerCount = 0;
+      try {
+        const { count } = await supabase
+          .from('customers')
+          .select('*', { count: 'exact', head: true });
+        customerCount = count || 0;
+      } catch (error) {
+        console.warn('Error fetching customer count:', error);
+        customerCount = 0;
+      }
 
-    // Get canvassing stats
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
+      // Get canvassing stats with error handling
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
 
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
 
-    const { count: canvassingToday } = await supabase
-      .from('canvassing_reports')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', startOfToday.toISOString());
+      let canvassingToday = 0;
+      let canvassingMonth = 0;
 
-    const { count: canvassingMonth } = await supabase
-      .from('canvassing_reports')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', startOfMonth.toISOString());
+      try {
+        const { count: todayCount } = await supabase
+          .from('canvassing_reports')
+          .select('*', { count: 'exact', head: true })
+          .gte('created_at', startOfToday.toISOString());
+        canvassingToday = todayCount || 0;
+      } catch (error) {
+        console.warn('Error fetching canvassing today count:', error);
+        canvassingToday = 0;
+      }
 
-    // Mock data for calculations and projects (as we don't have these tables yet)
-    return {
-      totalCustomers: customerCount || 0,
-      totalCalculations: 42, // Mock
-      activeProjects: 2, // Mock
-      monthlyRevenue: 2850000000, // Mock
-      canvassingToday: canvassingToday || 0,
-      canvassingMonth: canvassingMonth || 0,
-    };
+      try {
+        const { count: monthCount } = await supabase
+          .from('canvassing_reports')
+          .select('*', { count: 'exact', head: true })
+          .gte('created_at', startOfMonth.toISOString());
+        canvassingMonth = monthCount || 0;
+      } catch (error) {
+        console.warn('Error fetching canvassing month count:', error);
+        canvassingMonth = 0;
+      }
+
+      // Mock data for calculations and projects (as we don't have these tables yet)
+      return {
+        totalCustomers: customerCount,
+        totalCalculations: 42, // Mock
+        activeProjects: 2, // Mock
+        monthlyRevenue: 2850000000, // Mock
+        canvassingToday: canvassingToday,
+        canvassingMonth: canvassingMonth,
+      };
+    } catch (error) {
+      console.error('Error in getStats:', error);
+      // Return safe default values
+      return {
+        totalCustomers: 0,
+        totalCalculations: 0,
+        activeProjects: 0,
+        monthlyRevenue: 0,
+        canvassingToday: 0,
+        canvassingMonth: 0,
+      };
+    }
   },
 };

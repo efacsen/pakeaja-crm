@@ -41,6 +41,7 @@ import {
   TabsTrigger,
 } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useErrorHandler } from '@/hooks/use-error-handler';
 import { MaterialImport } from './MaterialImport';
 import { MaterialsTable } from './MaterialsTable';
 import { MaterialForm } from './MaterialForm';
@@ -64,36 +65,45 @@ export function MaterialsPage() {
   });
 
   const { toast } = useToast();
+  const { handleAsyncError } = useErrorHandler();
 
   // Load materials
   const loadMaterials = async () => {
     setLoading(true);
-    try {
-      const searchFilters = searchQuery ? { ...filters, search: searchQuery } : filters;
-      const { data, error } = await materialsService.searchMaterials(
-        searchFilters,
-        pagination.page,
-        pagination.limit
-      );
+    
+    const result = await handleAsyncError(
+      async () => {
+        const searchFilters = searchQuery ? { ...filters, search: searchQuery } : filters;
+        const { data, error } = await materialsService.searchMaterials(
+          searchFilters,
+          pagination.page,
+          pagination.limit
+        );
 
-      if (error) {
-        throw new Error(error);
-      }
+        if (error) {
+          throw new Error(error);
+        }
 
-      if (data) {
-        setMaterials(data.materials);
-        setPagination(prev => ({ ...prev, total: data.total }));
-      }
-    } catch (error) {
-      console.error('Error loading materials:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load materials database",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
+        return data;
+      },
+      {
+        component: 'MaterialsPage',
+        action: 'loadMaterials',
+        additionalInfo: { searchQuery, filters, pagination }
+      },
+      null, // fallback value
+      'Failed to load materials database'
+    );
+
+    if (result && result.materials) {
+      setMaterials(result.materials);
+      setPagination(prev => ({ ...prev, total: result.total || 0 }));
+    } else {
+      setMaterials([]);
+      setPagination(prev => ({ ...prev, total: 0 }));
     }
+    
+    setLoading(false);
   };
 
   // Initial load

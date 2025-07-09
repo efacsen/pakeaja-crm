@@ -8,7 +8,27 @@ export default function DashboardDebugPage() {
   const { user, loading } = useAuth();
   const [profileData, setProfileData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [renderError, setRenderError] = useState<string | null>(null);
   const supabase = createClient();
+
+  // Catch any rendering errors
+  useEffect(() => {
+    const handleError = (event: ErrorEvent) => {
+      setRenderError(event.message);
+    };
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      setRenderError(`Unhandled Promise Rejection: ${event.reason}`);
+    };
+
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    
+    return () => {
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -39,6 +59,14 @@ export default function DashboardDebugPage() {
       <h1 className="text-2xl font-bold mb-6">Dashboard Debug Information</h1>
       
       <div className="space-y-6">
+        {/* Render Error */}
+        {renderError && (
+          <div className="bg-red-100 dark:bg-red-800 p-4 rounded-lg">
+            <h2 className="font-semibold mb-2 text-red-800 dark:text-red-200">JavaScript Error</h2>
+            <p className="text-red-600 dark:text-red-300">{renderError}</p>
+          </div>
+        )}
+
         {/* Loading State */}
         <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
           <h2 className="font-semibold mb-2">Loading State</h2>
@@ -86,7 +114,7 @@ export default function DashboardDebugPage() {
         {/* Environment Check */}
         <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
           <h2 className="font-semibold mb-2">Environment</h2>
-          <p>NODE_ENV: {process.env.NODE_ENV}</p>
+          <p>NODE_ENV: {typeof window !== 'undefined' ? 'client' : process.env.NODE_ENV || 'undefined'}</p>
           <p>Supabase URL: {process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅ Set' : '❌ Missing'}</p>
           <p>Supabase Anon Key: {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅ Set' : '❌ Missing'}</p>
         </div>

@@ -1,6 +1,15 @@
+/* Tailwind CSS Directives */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Force Tailwind Processing */
+@layer base {
+  /* Ensure Tailwind is processing this file */
+  html { 
+    -webkit-tap-highlight-color: transparent;
+  }
+}
 
 
 :root {
@@ -202,21 +211,7 @@
 
 @layer utilities {
   
-  /* Background utilities */
-  .bg-primary { background-color: var(--bg-primary); }
-  .bg-secondary { background-color: var(--bg-secondary); }
-  .bg-tertiary { background-color: var(--bg-tertiary); }
-  .bg-hover { background-color: var(--bg-hover); }
-  
-  /* Text utilities */
-  .text-primary { color: var(--text-primary); }
-  .text-secondary { color: var(--text-secondary); }
-  .text-tertiary { color: var(--text-tertiary); }
-  .text-disabled { color: var(--text-disabled); }
-  
-  /* Border utilities */
-  .border-primary { border-color: var(--border-primary); }
-  .border-secondary { border-color: var(--border-secondary); }
+  /* Custom utilities that don't conflict with Tailwind */
   
   /* Card hover animations */
   .card-hover {

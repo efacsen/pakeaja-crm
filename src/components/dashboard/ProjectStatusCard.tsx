@@ -38,9 +38,10 @@ const statusLabels = {
 };
 
 export function ProjectStatusCard({ projects }: ProjectStatusCardProps) {
-  const activeProjects = projects.filter(p => p.status === 'in_progress' || p.status === 'planning');
-  const totalValue = projects.reduce((sum, p) => sum + p.contract_value, 0);
-  const totalOutstanding = projects.reduce((sum, p) => sum + p.outstanding_amount, 0);
+  const safeProjects = projects || [];
+  const activeProjects = safeProjects.filter(p => p.status === 'in_progress' || p.status === 'planning');
+  const totalValue = safeProjects.reduce((sum, p) => sum + (p.contract_value || 0), 0);
+  const totalOutstanding = safeProjects.reduce((sum, p) => sum + (p.outstanding_amount || 0), 0);
 
   return (
     <Card className="col-span-3">
@@ -65,7 +66,8 @@ export function ProjectStatusCard({ projects }: ProjectStatusCardProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {projects.slice(0, 5).map((project) => (
+          {safeProjects.length > 0 ? (
+            safeProjects.slice(0, 5).map((project) => (
             <div key={project.id} className="space-y-3 p-4 border rounded-lg">
               {/* Project Header */}
               <div className="flex items-start justify-between">
@@ -136,7 +138,7 @@ export function ProjectStatusCard({ projects }: ProjectStatusCardProps) {
                     Team
                   </div>
                   <p className="font-medium">
-                    {project.team_members.length} members
+                    {project.team_members?.length || 0} members
                   </p>
                 </div>
               </div>
@@ -156,13 +158,19 @@ export function ProjectStatusCard({ projects }: ProjectStatusCardProps) {
                 </div>
               )}
             </div>
-          ))}
+          ))
+          ) : (
+            <div className="text-center py-8">
+              <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">No active projects</p>
+            </div>
+          )}
         </div>
 
-        {projects.length > 5 && (
+        {safeProjects.length > 5 && (
           <div className="mt-4 text-center">
             <Button variant="outline" size="sm">
-              View all {projects.length} projects
+              View all {safeProjects.length} projects
             </Button>
           </div>
         )}

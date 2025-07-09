@@ -78,7 +78,8 @@ export function TeamKPICard({ data }: TeamKPICardProps) {
             Top Performers
           </h4>
           <div className="space-y-2">
-            {data.top_performers.slice(0, 3).map((member, index) => (
+            {data.top_performers && data.top_performers.length > 0 ? (
+              data.top_performers.slice(0, 3).map((member, index) => (
               <div key={member.id} className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <span className="text-lg font-bold text-muted-foreground">
@@ -102,7 +103,12 @@ export function TeamKPICard({ data }: TeamKPICardProps) {
                   <p className="text-xs text-green-600">{member.achievement_percentage}%</p>
                 </div>
               </div>
-            ))}
+            ))
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                No performance data available
+              </p>
+            )}
           </div>
         </div>
       </CardContent>

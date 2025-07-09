@@ -180,7 +180,7 @@ export default function DashboardPage() {
       {dashboardData && (
         <div className="grid gap-6 lg:grid-cols-6">
           {/* Team KPI - visible to managers and above */}
-          {dashboardData.team_kpi && (currentRole === 'admin' || currentRole === 'admin' || currentRole === 'manager' || 
+          {dashboardData.team_kpi && (currentRole === 'admin' || currentRole === 'manager' || 
             (viewingAs && viewingAs.userRole === 'manager')) && (
             <TeamKPICard data={dashboardData.team_kpi} />
           )}

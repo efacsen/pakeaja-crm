@@ -39,10 +39,7 @@ body {
 .font-semibold { font-weight: 600; }
 
 /* Colors */
-.text-primary { color: #3b82f6; }
-.bg-primary { background-color: #3b82f6; }
-.text-white { color: #ffffff; }
-.bg-white { background-color: #ffffff; }
+/* Common color utilities handled by Tailwind */
 .border { border: 1px solid #e5e7eb; }
 .rounded { border-radius: 0.25rem; }
 .rounded-lg { border-radius: 0.5rem; }
