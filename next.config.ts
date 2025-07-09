@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
 
   // Experimental features for better CSS handling
   experimental: {
-    optimizeCss: true,
+    optimizeCss: false, // Disable until Tailwind v4 is stable
   },
   
   // Ensure proper static file handling
