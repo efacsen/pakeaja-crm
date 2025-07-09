@@ -2,9 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Tailwind v4 beta fallback - will be ignored if using v3 */
-@import "tailwindcss" layer(tailwind);
-
 
 :root {
   --radius: 0.75rem;
