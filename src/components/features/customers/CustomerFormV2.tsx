@@ -5,8 +5,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { GlassInputSolid as Input } from '@/components/ui/glass-input';
+import { GlassTextareaSolid as Textarea } from '@/components/ui/glass-textarea';
 import {
   Form,
   FormControl,
@@ -17,12 +17,12 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  GlassSelect as Select,
+  GlassSelectContent as SelectContent,
+  GlassSelectItem as SelectItem,
+  GlassSelectTriggerSolid as SelectTrigger,
+  GlassSelectValue as SelectValue,
+} from '@/components/ui/glass-select';
 import { CompanyAutocomplete } from '@/components/ui/company-autocomplete';
 import { ContactAutocomplete } from '@/components/ui/contact-autocomplete';
 import { companyService } from '@/lib/services/company-service';
@@ -69,12 +69,22 @@ export function CustomerFormV2({ customerId, onSubmit, onCancel }: CustomerFormV
   const form = useForm<CustomerFormData>({
     resolver: zodResolver(customerFormSchema),
     defaultValues: {
+      company_id: '',
+      company_name: '',
       company_type: 'commercial',
+      company_address: '',
+      company_city: '',
+      contact_id: '',
+      contact_name: '',
+      contact_position: '',
+      contact_email: '',
+      contact_phone: '',
       lead_source: 'website',
       status: 'prospect',
       payment_terms: 30,
       credit_limit: 0,
       discount_percentage: 0,
+      notes: '',
     },
   });
 

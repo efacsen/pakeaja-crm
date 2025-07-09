@@ -1,23 +1,15 @@
 'use client';
 
 import { useAuth } from '@/contexts/auth-context';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { GlassCard, GlassCardHeader, GlassCardTitle, GlassCardDescription, GlassCardContent } from '@/components/ui/glass-card';
+import { Building2, Users, Settings, Shield } from 'lucide-react';
 
 export default function OrganizationPage() {
   const { user } = useAuth();
-  const router = useRouter();
 
-  useEffect(() => {
-    // Only admins can access organization settings
-    if (user && user.role !== 'admin') {
-      router.push('/dashboard');
-    }
-  }, [user, router]);
-
-  if (!user || user.role !== 'admin') {
-    return null;
-  }
+  // Show different content based on role
+  const isAdmin = user?.role === 'admin';
+  const isManager = user?.role === 'manager';
 
   return (
     <div className="space-y-6">
@@ -30,48 +22,98 @@ export default function OrganizationPage() {
 
       <div className="grid gap-6">
         {/* Organization Info */}
-        <div className="rounded-lg border p-6">
-          <h2 className="text-xl font-semibold mb-4">Organization Information</h2>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Organization Name</label>
-              <p className="text-lg">PakeAja</p>
+        <GlassCard>
+          <GlassCardHeader>
+            <GlassCardTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5" />
+              Organization Information
+            </GlassCardTitle>
+          </GlassCardHeader>
+          <GlassCardContent>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Organization Name</label>
+                <p className="text-lg font-semibold">PT Pake Aja Teknologi</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Organization ID</label>
+                <p className="text-sm font-mono opacity-70">{user?.organization_id || 'Not set'}</p>
+              </div>
+              {isManager && (
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Your Role</label>
+                  <p className="text-sm capitalize">{user?.role}</p>
+                </div>
+              )}
             </div>
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Organization ID</label>
-              <p className="text-sm font-mono">{user.organization_id || 'Not set'}</p>
-            </div>
-          </div>
-        </div>
+          </GlassCardContent>
+        </GlassCard>
 
         {/* Team Structure */}
-        <div className="rounded-lg border p-6">
-          <h2 className="text-xl font-semibold mb-4">Team Structure</h2>
-          <p className="text-muted-foreground">
-            Team hierarchy and territory management features coming soon.
-          </p>
-        </div>
+        <GlassCard>
+          <GlassCardHeader>
+            <GlassCardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Team Structure
+            </GlassCardTitle>
+            <GlassCardDescription>
+              {isAdmin ? 'Manage team hierarchy and territories' : 'View your team structure'}
+            </GlassCardDescription>
+          </GlassCardHeader>
+          <GlassCardContent>
+            <p className="text-muted-foreground">
+              Team hierarchy and territory management features coming soon.
+            </p>
+          </GlassCardContent>
+        </GlassCard>
 
         {/* Quick Actions */}
         <div className="grid gap-4 md:grid-cols-2">
-          <a
-            href="/dashboard/users"
-            className="rounded-lg border p-6 hover:border-primary transition-colors"
-          >
-            <h3 className="font-semibold mb-2">User Management</h3>
-            <p className="text-sm text-muted-foreground">
-              Manage users, roles, and permissions
-            </p>
+          {isAdmin && (
+            <a href="/dashboard/users">
+              <GlassCard className="h-full cursor-pointer hover:border-primary/50">
+                <GlassCardHeader>
+                  <GlassCardTitle className="flex items-center gap-2 text-lg">
+                    <Shield className="h-5 w-5" />
+                    User Management
+                  </GlassCardTitle>
+                  <GlassCardDescription>
+                    Manage users, roles, and permissions
+                  </GlassCardDescription>
+                </GlassCardHeader>
+              </GlassCard>
+            </a>
+          )}
+          
+          <a href="/dashboard/reports/team">
+            <GlassCard className="h-full cursor-pointer hover:border-primary/50">
+              <GlassCardHeader>
+                <GlassCardTitle className="flex items-center gap-2 text-lg">
+                  <Users className="h-5 w-5" />
+                  Team Reports
+                </GlassCardTitle>
+                <GlassCardDescription>
+                  View team performance and daily reports
+                </GlassCardDescription>
+              </GlassCardHeader>
+            </GlassCard>
           </a>
-          <a
-            href="/dashboard/settings"
-            className="rounded-lg border p-6 hover:border-primary transition-colors"
-          >
-            <h3 className="font-semibold mb-2">Settings</h3>
-            <p className="text-sm text-muted-foreground">
-              Configure system settings
-            </p>
-          </a>
+
+          {isAdmin && (
+            <a href="/dashboard/settings">
+              <GlassCard className="h-full cursor-pointer hover:border-primary/50">
+                <GlassCardHeader>
+                  <GlassCardTitle className="flex items-center gap-2 text-lg">
+                    <Settings className="h-5 w-5" />
+                    Settings
+                  </GlassCardTitle>
+                  <GlassCardDescription>
+                    Configure system settings
+                  </GlassCardDescription>
+                </GlassCardHeader>
+              </GlassCard>
+            </a>
+          )}
         </div>
       </div>
     </div>

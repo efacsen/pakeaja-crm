@@ -11,12 +11,12 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
+} from '@/components/ui/command-custom';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+  GlassPopover as Popover,
+  GlassPopoverContent as PopoverContent,
+  GlassPopoverTrigger as PopoverTrigger,
+} from '@/components/ui/glass-popover';
 import { companyService, type Contact } from '@/lib/services/company-service';
 
 interface ContactAutocompleteProps {
@@ -124,7 +124,7 @@ export function ContactAutocomplete({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[400px] p-0" align="start">
+      <PopoverContent className="w-[400px] p-0" align="start" style={{ zIndex: 9999 }}>
         <Command shouldFilter={false}>
           <CommandInput 
             placeholder="Cari contact person..." 
@@ -145,6 +145,10 @@ export function ContactAutocomplete({
                       size="sm"
                       variant="secondary"
                       className="w-full"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -169,6 +173,10 @@ export function ContactAutocomplete({
                       size="sm"
                       variant="secondary"
                       className="w-full"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -188,9 +196,7 @@ export function ContactAutocomplete({
                   <CommandItem
                     key={contact.id}
                     value={`${contact.name}-${contact.id}`}
-                    onSelect={() => {
-                      handleSelect(contact);
-                    }}
+                    onSelect={() => handleSelect(contact)}
                     className="cursor-pointer"
                   >
                     <Check
@@ -220,9 +226,7 @@ export function ContactAutocomplete({
                 ) && (
                   <CommandItem 
                     value={`create-new-${searchTerm}`}
-                    onSelect={() => {
-                      handleCreate();
-                    }}
+                    onSelect={() => handleCreate()}
                     className="cursor-pointer"
                   >
                     <Plus className="mr-2 h-4 w-4" />

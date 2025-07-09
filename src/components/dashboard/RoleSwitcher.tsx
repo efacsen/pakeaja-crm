@@ -8,6 +8,8 @@ import {
   User, 
   Briefcase, 
   Eye,
+  HardHat,
+  UserCircle,
   ChevronDown 
 } from 'lucide-react';
 import {
@@ -41,20 +43,24 @@ interface RoleSwitcherProps {
 
 const roleIcons: Record<UserRole, React.ComponentType<{ className?: string }>> = {
   admin: Shield,
-  admin: Shield,
   manager: Users,
   sales: User,
+  estimator: Briefcase,
   project_manager: Briefcase,
-  viewer: Eye,
+  foreman: HardHat,
+  inspector: Eye,
+  client: UserCircle,
 };
 
 const roleLabels: Record<UserRole, string> = {
-  admin: 'Super Admin',
   admin: 'Admin',
   manager: 'Sales Manager',
   sales: 'Sales Representative',
+  estimator: 'Estimator',
   project_manager: 'Project Manager',
-  viewer: 'Viewer',
+  foreman: 'Foreman',
+  inspector: 'Inspector',
+  client: 'Client',
 };
 
 // Mock users for demonstration

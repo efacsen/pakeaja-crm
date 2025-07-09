@@ -72,10 +72,13 @@ export async function GET() {
     const supabase = await createClient();
     
     // Get current user
-    const { data: { user, session }, error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     diagnostics.auth.user = user ? { id: user.id, email: user.email } : null;
+    
+    // Get current session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     diagnostics.auth.session = session ? { expires_at: session.expires_at } : null;
-    diagnostics.auth.error = authError?.message || null;
+    diagnostics.auth.error = authError?.message || sessionError?.message || null;
 
     // Test database connection with anon client
     try {

@@ -38,8 +38,7 @@ const nextConfig: NextConfig = {
   
   // TypeScript configuration  
   typescript: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has TypeScript errors.
+    // TODO: Re-enable after fixing remaining type issues
     ignoreBuildErrors: true,
   },
 };

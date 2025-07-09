@@ -42,7 +42,7 @@ export default function RootLayout({
         {process.env.NODE_ENV === 'development' && (
           <meta 
             httpEquiv="Content-Security-Policy" 
-            content="default-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://bemrgpgwaatizgxftzgg.supabase.co wss://bemrgpgwaatizgxftzgg.supabase.co https://api.vercel.com;" 
+            content="default-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://bemrgpgwaatizgxftzgg.supabase.co wss://bemrgpgwaatizgxftzgg.supabase.co https://api.vercel.com https://vitals.vercel-insights.com;" 
           />
         )}
         

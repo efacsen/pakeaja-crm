@@ -26,12 +26,12 @@ export async function GET() {
       .eq('id', user.id)
       .single();
 
-    // Get auth user details from auth.users table
-    const { data: authUser } = await supabase
-      .from('auth.users')
-      .select('email, created_at, last_sign_in_at')
-      .eq('id', user.id)
-      .single();
+    // Auth user details are available through the user object
+    const authUser = {
+      email: user.email,
+      created_at: user.created_at,
+      last_sign_in_at: user.last_sign_in_at
+    };
 
     // Check if user has organization
     let organization = null;
@@ -45,7 +45,7 @@ export async function GET() {
     }
 
     // Check permissions
-    let permissions = [];
+    let permissions: any[] = [];
     if (profile?.role && profile?.organization_id) {
       const { data: perms } = await supabase
         .from('permissions')
@@ -59,7 +59,6 @@ export async function GET() {
       authenticated: true,
       user: {
         id: user.id,
-        email: user.email,
         ...authUser
       },
       profile: profile || null,

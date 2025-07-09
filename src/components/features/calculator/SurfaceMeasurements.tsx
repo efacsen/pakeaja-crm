@@ -3,15 +3,15 @@
 import { useState } from 'react';
 import { Plus, Trash2, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassInputSolid as Input } from '@/components/ui/glass-input';
+import { GlassCard as Card, GlassCardContent as CardContent, GlassCardDescription as CardDescription, GlassCardHeader as CardHeader, GlassCardTitle as CardTitle } from '@/components/ui/glass-card';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  GlassSelect as Select,
+  GlassSelectContent as SelectContent,
+  GlassSelectItem as SelectItem,
+  GlassSelectTriggerSolid as SelectTrigger,
+  GlassSelectValue as SelectValue,
+} from '@/components/ui/glass-select';
 import {
   Table,
   TableBody,
@@ -104,7 +104,7 @@ export function SurfaceMeasurements({ data, onNext, onBack }: SurfaceMeasurement
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="rounded-lg border">
+            <div className="rounded-lg border border-white/20 dark:border-white/10 bg-white/5 dark:bg-gray-900/20 backdrop-blur-sm">
               <Table>
                 <TableHeader>
                   <TableRow>

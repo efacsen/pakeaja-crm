@@ -9,13 +9,13 @@ const createUserSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
   full_name: z.string().optional(),
-  role: z.enum(['user', 'admin', 'admin', 'sales', 'manager', 'estimator', 'project_manager', 'foreman', 'client']),
+  role: z.enum(['admin', 'sales', 'manager', 'estimator', 'project_manager', 'foreman', 'inspector', 'client']),
 });
 
 // Schema for updating a user
 const updateUserSchema = z.object({
   full_name: z.string().optional(),
-  role: z.enum(['user', 'admin', 'admin', 'sales', 'manager', 'estimator', 'project_manager', 'foreman', 'client']).optional(),
+  role: z.enum(['admin', 'sales', 'manager', 'estimator', 'project_manager', 'foreman', 'inspector', 'client']).optional(),
   email: z.string().email().optional(),
 });
 

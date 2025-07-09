@@ -186,7 +186,7 @@ export default function DashboardPage() {
           )}
           
           {/* Personal KPI - visible to sales roles */}
-          {(currentRole !== 'viewer' && (!viewingAs || viewingAs.userRole !== 'viewer')) && (
+          {(currentRole !== 'client' && (!viewingAs || viewingAs.userRole !== 'client')) && (
             <PersonalKPICard data={dashboardData.personal_kpi} />
           )}
           

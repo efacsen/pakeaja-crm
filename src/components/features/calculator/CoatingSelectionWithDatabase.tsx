@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react';
 import { Info, Plus, Search, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard as Card, GlassCardContent as CardContent, GlassCardDescription as CardDescription, GlassCardHeader as CardHeader, GlassCardTitle as CardTitle } from '@/components/ui/glass-card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { GlassInputSolid as Input } from '@/components/ui/glass-input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Accordion,
@@ -16,12 +16,12 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  GlassSelect as Select,
+  GlassSelectContent as SelectContent,
+  GlassSelectItem as SelectItem,
+  GlassSelectTriggerSolid as SelectTrigger,
+  GlassSelectValue as SelectValue,
+} from '@/components/ui/glass-select';
 import { CoatingSystem, CoatingProduct } from '@/types/calculator';
 import { MaterialSystem, Material } from '@/types/materials';
 import { formatCurrency } from '@/lib/calculator-utils';

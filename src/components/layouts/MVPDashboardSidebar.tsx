@@ -1,18 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
-  Activity,
-  Users,
-  TrendingUp,
-  FileText,
-  Calculator,
   Menu,
   X,
-  BarChart3,
-  Settings
+  Settings,
+  LogOut,
+  User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -24,61 +20,47 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/auth-context';
-
-interface SidebarItem {
-  name: string;
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-  badge?: number | string;
-  enabled: boolean;
-}
-
-// MVP Navigation - Only stable features
-const mvpNavigation: SidebarItem[] = [
-  { 
-    name: 'Dashboard', 
-    href: '/dashboard', 
-    icon: Activity,
-    enabled: true 
-  },
-  { 
-    name: 'Leads', 
-    href: '/dashboard/leads', 
-    icon: TrendingUp,
-    badge: 'New',
-    enabled: true 
-  },
-  { 
-    name: 'Customers', 
-    href: '/dashboard/customers', 
-    icon: Users,
-    enabled: true 
-  },
-  { 
-    name: 'Daily Report', 
-    href: '/dashboard/daily-report', 
-    icon: FileText,
-    badge: '!',
-    enabled: true 
-  },
-  { 
-    name: 'Calculator', 
-    href: '/dashboard/calculator', 
-    icon: Calculator,
-    enabled: true 
-  },
-  { 
-    name: 'Reports', 
-    href: '/dashboard/reports', 
-    icon: BarChart3,
-    enabled: true
-  },
-];
+import { createClient } from '@/lib/supabase/client';
+import { getMenuItemsForRole } from '@/lib/navigation/menu-items';
+import { UserRole } from '@/types/dashboard';
+import { toast } from 'sonner';
 
 export function MVPDashboardSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user } = useAuth();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const supabase = createClient();
+
+  // Get menu items based on user role
+  const navigationItems = useMemo(() => {
+    if (!user?.role) return [];
+    return getMenuItemsForRole(user.role as UserRole);
+  }, [user?.role]);
+
+  // Handle logout
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Logout error:', error);
+        toast.error('Failed to logout');
+      } else {
+        // Clear any local storage
+        localStorage.clear();
+        sessionStorage.clear();
+        // Redirect to login
+        router.push('/login');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Failed to logout');
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   return (
     <>
@@ -123,23 +105,8 @@ export function MVPDashboardSidebar() {
 
         {/* Navigation */}
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-          {mvpNavigation.map((item) => {
+          {navigationItems.map((item) => {
             const isActive = pathname === item.href;
-            
-            if (!item.enabled) {
-              return (
-                <div
-                  key={item.name}
-                  className="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg opacity-50 cursor-not-allowed"
-                >
-                  <span className="flex items-center gap-3">
-                    <item.icon className="h-4 w-4" />
-                    {item.name}
-                  </span>
-                  <span className="text-xs bg-secondary px-2 py-0.5 rounded">Coming Soon</span>
-                </div>
-              );
-            }
             
             return (
               <Link
@@ -196,19 +163,26 @@ export function MVPDashboardSidebar() {
             <DropdownMenuContent className="w-[220px]" align="start">
               <DropdownMenuItem asChild>
                 <Link href="/dashboard/profile">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Settings
+                  <User className="h-4 w-4 mr-2" />
+                  Profile
                 </Link>
               </DropdownMenuItem>
+              {user?.role === 'admin' && (
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/settings">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Settings
+                  </Link>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem 
-                className="text-red-600"
-                onClick={() => {
-                  // Logout logic
-                  window.location.href = '/login';
-                }}
+                className="text-red-600 cursor-pointer"
+                onClick={handleLogout}
+                disabled={isLoggingOut}
               >
-                Logout
+                <LogOut className="h-4 w-4 mr-2" />
+                {isLoggingOut ? 'Logging out...' : 'Logout'}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

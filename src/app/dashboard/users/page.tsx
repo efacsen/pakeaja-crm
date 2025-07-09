@@ -45,7 +45,7 @@ import {
 
 export default function UsersPage() {
   const { user: currentUser, hasRole } = useAuth();
-  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<string>('all');
@@ -239,7 +239,7 @@ export default function UsersPage() {
               {filteredUsers.map((user) => {
                 const initials = user.full_name
                   ?.split(' ')
-                  .map(n => n[0])
+                  .map((n: string) => n[0])
                   .join('')
                   .toUpperCase() || user.email[0].toUpperCase();
 
@@ -284,7 +284,7 @@ export default function UsersPage() {
                         </Select>
                       ) : (
                         <Badge variant="secondary">
-                          {ROLE_LABELS[user.role]}
+                          {ROLE_LABELS[user.role as UserRole] || user.role}
                         </Badge>
                       )}
                     </TableCell>

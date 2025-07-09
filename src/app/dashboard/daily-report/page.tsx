@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard as Card, GlassCardContent as CardContent, GlassCardDescription as CardDescription, GlassCardHeader as CardHeader, GlassCardTitle as CardTitle } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { GlassTextareaSolid as Textarea } from '@/components/ui/glass-textarea';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+import { GlassInputSolid as Input } from '@/components/ui/glass-input';
 import { Calendar, Clock, Save, Send, FileText, Target } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from 'sonner';

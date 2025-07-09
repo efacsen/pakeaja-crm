@@ -143,7 +143,7 @@ export interface Notification {
 }
 
 // Role-based views
-export type UserRole = 'admin' | 'admin' | 'manager' | 'sales' | 'project_manager' | 'viewer';
+export type UserRole = 'admin' | 'manager' | 'sales' | 'estimator' | 'project_manager' | 'foreman' | 'inspector' | 'client';
 
 export interface RolePermissions {
   can_view_all_teams: boolean;
@@ -165,20 +165,11 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     can_manage_projects: true,
     can_export_data: true,
   },
-  admin: {
+  manager: {
     can_view_all_teams: true,
     can_view_all_users: true,
     can_switch_perspective: false,
     can_edit_targets: true,
-    can_view_financials: true,
-    can_manage_projects: true,
-    can_export_data: true,
-  },
-  manager: {
-    can_view_all_teams: false,
-    can_view_all_users: false,
-    can_switch_perspective: false,
-    can_edit_targets: false,
     can_view_financials: true,
     can_manage_projects: false,
     can_export_data: true,
@@ -192,6 +183,15 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     can_manage_projects: false,
     can_export_data: false,
   },
+  estimator: {
+    can_view_all_teams: false,
+    can_view_all_users: false,
+    can_switch_perspective: false,
+    can_edit_targets: false,
+    can_view_financials: true,
+    can_manage_projects: false,
+    can_export_data: true,
+  },
   project_manager: {
     can_view_all_teams: false,
     can_view_all_users: false,
@@ -201,7 +201,25 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     can_manage_projects: true,
     can_export_data: true,
   },
-  viewer: {
+  foreman: {
+    can_view_all_teams: false,
+    can_view_all_users: false,
+    can_switch_perspective: false,
+    can_edit_targets: false,
+    can_view_financials: false,
+    can_manage_projects: false,
+    can_export_data: false,
+  },
+  inspector: {
+    can_view_all_teams: false,
+    can_view_all_users: false,
+    can_switch_perspective: false,
+    can_edit_targets: false,
+    can_view_financials: false,
+    can_manage_projects: false,
+    can_export_data: false,
+  },
+  client: {
     can_view_all_teams: false,
     can_view_all_users: false,
     can_switch_perspective: false,

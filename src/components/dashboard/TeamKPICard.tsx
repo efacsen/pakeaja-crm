@@ -1,7 +1,7 @@
 'use client';
 
 import { TeamKPI } from '@/types/dashboard';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard as Card, GlassCardContent as CardContent, GlassCardDescription as CardDescription, GlassCardHeader as CardHeader, GlassCardTitle as CardTitle } from '@/components/ui/glass-card';
 import { Progress } from '@/components/ui/progress';
 import { formatCurrency } from '@/lib/calculator-utils';
 import { TrendingUp, Users, Target, Trophy } from 'lucide-react';

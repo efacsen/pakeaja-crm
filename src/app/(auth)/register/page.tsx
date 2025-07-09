@@ -106,7 +106,7 @@ export default function RegisterPage() {
       console.log('Registration data:', data)
       toast.success('Account created successfully! Logging you in...')
       // Auto-login logic would go here
-    } catch (error) {
+    } catch {
       toast.error('Registration failed. Please try again.')
     } finally {
       setIsLoading(false)
@@ -119,7 +119,7 @@ export default function RegisterPage() {
       // TODO: Implement Google OAuth signup
       console.log('Google signup')
       toast.success('Google signup successful!')
-    } catch (error) {
+    } catch {
       toast.error('Google signup failed. Please try again.')
     } finally {
       setIsGoogleLoading(false)

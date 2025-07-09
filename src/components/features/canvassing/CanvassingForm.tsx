@@ -183,6 +183,7 @@ export function CanvassingForm({ onSuccess, onCancel }: CanvassingFormProps) {
     try {
       const requestData: CreateCanvassingReportRequest = {
         ...data,
+        contact_position: data.contact_position || '', // Ensure contact_position is always a string
         photos,
         gps_latitude: location?.lat,
         gps_longitude: location?.lng,

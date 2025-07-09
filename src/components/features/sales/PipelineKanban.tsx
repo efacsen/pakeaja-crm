@@ -3,19 +3,19 @@
 import { useState, useEffect, useRef } from 'react';
 import { Lead, LeadStage, LEAD_STAGES, DealType } from '@/types/sales';
 import { mockPipelineService } from '@/lib/services/sales/mock-pipeline.service';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard as Card, GlassCardContent as CardContent, GlassCardHeader as CardHeader, GlassCardTitle as CardTitle } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
+import { GlassInputSolid as Input } from '@/components/ui/glass-input';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  GlassSelect as Select,
+  GlassSelectContent as SelectContent,
+  GlassSelectItem as SelectItem,
+  GlassSelectTriggerSolid as SelectTrigger,
+  GlassSelectValue as SelectValue,
+} from '@/components/ui/glass-select';
 import { useToast } from '@/hooks/use-toast';
 import { DealCard } from './DealCard';
 import { CompactDealCard } from './CompactDealCard';

@@ -2643,6 +2643,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      create_profile_if_missing: {
+        Args: {
+          user_id: string
+          user_email?: string
+          user_name?: string
+          user_role?: Database["public"]["Enums"]["user_role"]
+        }
+        Returns: string
+      }
       get_or_create_company: {
         Args:
           | { p_company_name: string; p_city?: string; p_address?: string }
@@ -2663,6 +2672,16 @@ export type Database = {
       }
       is_superadmin: {
         Args: { user_id: string }
+        Returns: boolean
+      }
+      safe_create_profile: {
+        Args: {
+          p_id: string
+          p_email: string
+          p_full_name: string
+          p_role: Database["public"]["Enums"]["user_role"]
+          p_organization_id: string
+        }
         Returns: boolean
       }
       search_companies_with_contacts: {

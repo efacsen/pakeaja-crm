@@ -3,56 +3,83 @@ import type { NextRequest } from 'next/server';
 import { createClient, createServiceRoleClient } from '@/lib/supabase/server';
 import { UserRole, ResourceType, PermissionAction } from '@/types/rbac';
 
-// Define route-to-resource mappings
-const routeResourceMap: Record<string, { resource: ResourceType; action: PermissionAction }> = {
-  // User management
-  '/dashboard/users': { resource: 'users', action: 'read' },
-  '/dashboard/users/new': { resource: 'users', action: 'create' },
-  '/dashboard/users/[id]': { resource: 'users', action: 'read' },
-  '/dashboard/users/[id]/edit': { resource: 'users', action: 'update' },
-  
-  // Contacts
-  '/dashboard/contacts': { resource: 'contacts', action: 'read' },
-  '/dashboard/contacts/new': { resource: 'contacts', action: 'create' },
-  '/dashboard/contacts/[id]': { resource: 'contacts', action: 'read' },
-  '/dashboard/contacts/[id]/edit': { resource: 'contacts', action: 'update' },
-  
-  // Leads
-  '/dashboard/leads': { resource: 'leads', action: 'read' },
-  '/dashboard/leads/new': { resource: 'leads', action: 'create' },
-  '/dashboard/leads/[id]': { resource: 'leads', action: 'read' },
-  '/dashboard/leads/[id]/edit': { resource: 'leads', action: 'update' },
-  
-  // Opportunities
-  '/dashboard/opportunities': { resource: 'opportunities', action: 'read' },
-  '/dashboard/opportunities/new': { resource: 'opportunities', action: 'create' },
-  '/dashboard/opportunities/[id]': { resource: 'opportunities', action: 'read' },
-  '/dashboard/opportunities/[id]/edit': { resource: 'opportunities', action: 'update' },
-  
-  // Quotes
-  '/dashboard/quotes': { resource: 'quotes', action: 'read' },
-  '/dashboard/quotes/new': { resource: 'quotes', action: 'create' },
-  '/dashboard/quotes/[id]': { resource: 'quotes', action: 'read' },
-  '/dashboard/quotes/[id]/edit': { resource: 'quotes', action: 'update' },
-  '/dashboard/quotes/[id]/approve': { resource: 'quotes', action: 'approve' },
-  
-  // Projects
-  '/dashboard/projects': { resource: 'projects', action: 'read' },
-  '/dashboard/projects/new': { resource: 'projects', action: 'create' },
-  '/dashboard/projects/[id]': { resource: 'projects', action: 'read' },
-  '/dashboard/projects/[id]/edit': { resource: 'projects', action: 'update' },
-  
-  // Materials & Calculations
-  '/dashboard/materials': { resource: 'materials', action: 'read' },
-  '/dashboard/calculator': { resource: 'calculations', action: 'create' },
-  
-  // Reports
-  '/dashboard/reports': { resource: 'reports', action: 'read' },
-  '/dashboard/reports/new': { resource: 'reports', action: 'create' },
-  
-  // Settings
-  '/dashboard/settings': { resource: 'settings', action: 'read' },
-  '/dashboard/settings/[section]': { resource: 'settings', action: 'update' },
+// Import the menu-based access control
+import { getAccessibleRoutesForRole } from '@/lib/navigation/menu-items';
+
+// Define simple role-based route access for MVP
+// This replaces the complex resource-permission system with a simpler approach
+const roleRouteAccess: Record<UserRole, string[]> = {
+  admin: [
+    '/dashboard',
+    '/dashboard/leads',
+    '/dashboard/customers',
+    '/dashboard/daily-report',
+    '/dashboard/calculator',
+    '/dashboard/reports',
+    '/dashboard/users',
+    '/dashboard/organization',
+    '/dashboard/settings',
+    '/dashboard/profile',
+    '/dashboard/materials',
+    '/dashboard/projects',
+    '/dashboard/quotes',
+  ],
+  manager: [
+    '/dashboard',
+    '/dashboard/leads',
+    '/dashboard/customers', 
+    '/dashboard/daily-report',
+    '/dashboard/calculator',
+    '/dashboard/reports',
+    '/dashboard/reports/team',
+    '/dashboard/organization',
+    '/dashboard/profile',
+    '/dashboard/materials',
+    '/dashboard/projects',
+    '/dashboard/quotes',
+  ],
+  sales: [
+    '/dashboard',
+    '/dashboard/leads',
+    '/dashboard/customers',
+    '/dashboard/daily-report',
+    '/dashboard/calculator',
+    '/dashboard/profile',
+    '/dashboard/materials',
+    '/dashboard/quotes',
+  ],
+  estimator: [
+    '/dashboard',
+    '/dashboard/customers',
+    '/dashboard/calculator',
+    '/dashboard/quotes',
+    '/dashboard/materials',
+    '/dashboard/profile',
+  ],
+  project_manager: [
+    '/dashboard',
+    '/dashboard/projects',
+    '/dashboard/daily-report',
+    '/dashboard/reports',
+    '/dashboard/profile',
+  ],
+  foreman: [
+    '/dashboard',
+    '/dashboard/projects',
+    '/dashboard/daily-report',
+    '/dashboard/profile',
+  ],
+  inspector: [
+    '/dashboard',
+    '/dashboard/projects',
+    '/dashboard/reports',
+    '/dashboard/profile',
+  ],
+  client: [
+    '/dashboard',
+    '/dashboard/projects',
+    '/dashboard/profile',
+  ],
 };
 
 // Define role-based dashboard redirects
@@ -145,41 +172,32 @@ export async function checkRoutePermission(request: NextRequest) {
     return NextResponse.redirect(redirectUrl, { headers });
   }
 
+  const userRole = profile.role as UserRole;
+
   // Admin can access everything
-  if (profile.role === 'admin') {
+  if (userRole === 'admin') {
     return NextResponse.next();
   }
 
-  // Find matching route pattern
-  let routePermission = null;
-  for (const [pattern, permission] of Object.entries(routeResourceMap)) {
-    // Convert Next.js dynamic route pattern to regex
-    const regex = new RegExp(
-      '^' + pattern.replace(/\[([^\]]+)\]/g, '([^/]+)') + '$'
-    );
+  // Get allowed routes for this role
+  const allowedRoutes = roleRouteAccess[userRole] || [];
+  
+  // Check if the current path or any parent path is allowed
+  const isAllowed = allowedRoutes.some(route => {
+    // Exact match
+    if (pathname === route) return true;
     
-    if (regex.test(pathname)) {
-      routePermission = permission;
-      break;
-    }
-  }
+    // Check if it's a sub-route of an allowed route
+    // e.g., /dashboard/leads/new is allowed if /dashboard/leads is allowed
+    if (pathname.startsWith(route + '/')) return true;
+    
+    return false;
+  });
 
-  // If no specific route permission found, allow access
-  if (!routePermission) {
-    return NextResponse.next();
-  }
-
-  // Check if user has permission using the database function
-  const { data: hasPermission } = await supabase
-    .rpc('check_permission', {
-      p_user_id: user.id,
-      p_resource: routePermission.resource,
-      p_action: routePermission.action,
-    });
-
-  if (!hasPermission) {
+  if (!isAllowed) {
     // Redirect to their default route if they don't have permission
-    const defaultRoute = roleDefaultRoutes[profile.role as UserRole] || '/dashboard';
+    const defaultRoute = roleDefaultRoutes[userRole] || '/dashboard';
+    console.log(`Access denied for ${userRole} to ${pathname}, redirecting to ${defaultRoute}`);
     return NextResponse.redirect(new URL(defaultRoute, request.url));
   }
 

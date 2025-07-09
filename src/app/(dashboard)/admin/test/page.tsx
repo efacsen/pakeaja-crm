@@ -8,7 +8,12 @@ import { Loader2, CheckCircle, XCircle, Shield } from 'lucide-react';
 
 export default function AdminTestPage() {
   const [testing, setTesting] = useState(false);
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<{
+    status: string;
+    role: string;
+    email: string;
+    permissions?: string[];
+  } | null>(null);
 
   const runTest = async () => {
     setTesting(true);

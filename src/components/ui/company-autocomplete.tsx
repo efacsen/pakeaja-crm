@@ -11,12 +11,12 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
+} from '@/components/ui/command-custom';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+  GlassPopover as Popover,
+  GlassPopoverContent as PopoverContent,
+  GlassPopoverTrigger as PopoverTrigger,
+} from '@/components/ui/glass-popover';
 import { companyService, type Company, type SearchResult } from '@/lib/services/company-service';
 import { useDebounce } from '@/hooks/use-debounce';
 
@@ -127,7 +127,7 @@ export function CompanyAutocomplete({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[400px] p-0" align="start">
+      <PopoverContent className="w-[400px] p-0" align="start" style={{ zIndex: 9999 }}>
         <Command shouldFilter={false}>
           <CommandInput 
             placeholder="Cari perusahaan..." 
@@ -148,6 +148,10 @@ export function CompanyAutocomplete({
                       size="sm"
                       variant="secondary"
                       className="w-full"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -169,9 +173,7 @@ export function CompanyAutocomplete({
                   <CommandItem
                     key={result.company_id}
                     value={`${result.company_name}-${result.company_id}`}
-                    onSelect={() => {
-                      handleSelect(result);
-                    }}
+                    onSelect={() => handleSelect(result)}
                     className="cursor-pointer"
                   >
                     <Check
@@ -193,9 +195,7 @@ export function CompanyAutocomplete({
                 ) && (
                   <CommandItem 
                     value={`create-new-${searchTerm}`}
-                    onSelect={() => {
-                      handleCreate();
-                    }}
+                    onSelect={() => handleCreate()}
                     className="cursor-pointer"
                   >
                     <Plus className="mr-2 h-4 w-4" />

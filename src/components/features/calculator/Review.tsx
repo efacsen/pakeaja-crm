@@ -2,7 +2,7 @@
 
 import { FileDown, Send, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard as Card, GlassCardContent as CardContent, GlassCardDescription as CardDescription, GlassCardHeader as CardHeader, GlassCardTitle as CardTitle } from '@/components/ui/glass-card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -198,7 +198,7 @@ export function Review({
             <div className="rounded-lg border">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b bg-muted/50">
+                  <tr className="border-b bg-white/10 dark:bg-gray-900/30 backdrop-blur-sm">
                     <th className="text-left p-3">Permukaan</th>
                     <th className="text-left p-3">Tipe</th>
                     <th className="text-left p-3">Dimensi</th>
@@ -239,7 +239,7 @@ export function Review({
           {/* Coating System */}
           <div>
             <h4 className="font-semibold mb-3">Sistem Coating</h4>
-            <div className="rounded-lg border p-4">
+            <div className="rounded-lg border border-white/20 dark:border-white/10 bg-white/5 dark:bg-gray-900/20 backdrop-blur-sm p-4">
               <div className="flex items-center justify-between mb-2">
                 <h5 className="font-medium">{system.nameId || system.name}</h5>
                 <div className="flex gap-2">

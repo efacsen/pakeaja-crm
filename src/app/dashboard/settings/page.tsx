@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { GlassCard as Card, GlassCardContent as CardContent, GlassCardDescription as CardDescription, GlassCardHeader as CardHeader, GlassCardTitle as CardTitle } from "@/components/ui/glass-card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle, ThemeIndicator } from "@/components/ui/theme-toggle";
@@ -86,7 +86,7 @@ export default function Settings() {
                          <div className="space-y-1">
                <p className="text-sm font-medium">Profile</p>
                <p className="text-xs text-muted-foreground">
-                 {user?.name || 'Update your profile'}
+                 {user?.full_name || 'Update your profile'}
                </p>
              </div>
             

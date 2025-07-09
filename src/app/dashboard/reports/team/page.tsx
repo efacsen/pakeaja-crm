@@ -62,7 +62,7 @@ export default function TeamReportsPage() {
       case 'submitted':
         return <Badge variant="default">Submitted</Badge>;
       case 'approved':
-        return <Badge variant="success">Approved</Badge>;
+        return <Badge variant="default" className="bg-green-100 text-green-800">Approved</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }

@@ -7,9 +7,9 @@ import { Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassInputSolid as Input } from '@/components/ui/glass-input';
+import { GlassTextareaSolid as Textarea } from '@/components/ui/glass-textarea';
+import { GlassCard as Card, GlassCardContent as CardContent, GlassCardDescription as CardDescription, GlassCardHeader as CardHeader, GlassCardTitle as CardTitle } from '@/components/ui/glass-card';
 import { CompanyAutocomplete } from '@/components/ui/company-autocomplete';
 import { ContactAutocomplete } from '@/components/ui/contact-autocomplete';
 import { companyService } from '@/lib/services/company-service';
@@ -79,11 +79,11 @@ export function ProjectDetails({ data, onNext }: ProjectDetailsProps) {
     const mappedData = {
       projectName: values.projectName,
       clientName: values.companyName,
-      clientEmail: values.contactEmail,
-      clientPhone: values.contactPhone,
-      projectAddress: values.projectAddress,
-      projectDate: values.projectDate,
-      notes: values.notes,
+      clientEmail: values.contactEmail || '',
+      clientPhone: values.contactPhone || '',
+      projectAddress: values.projectAddress || '',
+      projectDate: values.projectDate || new Date(),
+      notes: values.notes || '',
     };
     onNext(mappedData);
   };

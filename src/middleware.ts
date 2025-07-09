@@ -61,6 +61,7 @@ export async function middleware(request: NextRequest) {
                      request.nextUrl.pathname.startsWith('/register')
   const isProtectedPage = request.nextUrl.pathname.startsWith('/dashboard')
   const isRootPage = request.nextUrl.pathname === '/'
+  const isLogoutPage = request.nextUrl.pathname === '/logout'
 
   // Redirect root to login if not authenticated, dashboard if authenticated
   if (isRootPage) {
@@ -74,6 +75,11 @@ export async function middleware(request: NextRequest) {
   // Redirect to dashboard if user is already authenticated and trying to access auth pages
   if (isAuthPage && session) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+
+  // Allow logout page to be accessed (it handles its own logic)
+  if (isLogoutPage) {
+    return response
   }
 
   // Redirect to login if user is not authenticated and trying to access protected pages

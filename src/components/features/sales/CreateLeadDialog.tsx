@@ -4,27 +4,27 @@ import { useState } from 'react';
 import { Lead, DealType, TERRITORIES } from '@/types/sales';
 import { mockPipelineService } from '@/lib/services/sales/mock-pipeline.service';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  GlassDialog as Dialog,
+  GlassDialogContent as DialogContent,
+  GlassDialogDescription as DialogDescription,
+  GlassDialogFooter as DialogFooter,
+  GlassDialogHeader as DialogHeader,
+  GlassDialogTitle as DialogTitle,
+} from '@/components/ui/glass-dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { GlassInputSolid as Input } from '@/components/ui/glass-input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { GlassTextareaSolid as Textarea } from '@/components/ui/glass-textarea';
 import { CompanyAutocomplete } from '@/components/ui/company-autocomplete';
 import { ContactAutocomplete } from '@/components/ui/contact-autocomplete';
 import { companyService } from '@/lib/services/company-service';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  GlassSelect as Select,
+  GlassSelectContent as SelectContent,
+  GlassSelectItem as SelectItem,
+  GlassSelectTriggerSolid as SelectTrigger,
+  GlassSelectValue as SelectValue,
+} from '@/components/ui/glass-select';
 import { useToast } from '@/hooks/use-toast';
 import { Save, Building2, MapPin, Package } from 'lucide-react';
 

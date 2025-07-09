@@ -3,24 +3,24 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, Filter, Users, Building, Factory } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassInputSolid as Input } from '@/components/ui/glass-input';
+import { GlassCard as Card, GlassCardContent as CardContent, GlassCardDescription as CardDescription, GlassCardHeader as CardHeader, GlassCardTitle as CardTitle } from '@/components/ui/glass-card';
 import { Badge } from '@/components/ui/badge';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  GlassSelect as Select,
+  GlassSelectContent as SelectContent,
+  GlassSelectItem as SelectItem,
+  GlassSelectTriggerSolid as SelectTrigger,
+  GlassSelectValue as SelectValue,
+} from '@/components/ui/glass-select';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+  GlassDialog as Dialog,
+  GlassDialogContent as DialogContent,
+  GlassDialogDescription as DialogDescription,
+  GlassDialogHeader as DialogHeader,
+  GlassDialogTitle as DialogTitle,
+  GlassDialogTrigger as DialogTrigger,
+} from '@/components/ui/glass-dialog';
 import { CustomersTable } from './CustomersTable';
 import { CustomerFormV2 } from './CustomerFormV2';
 import { CustomerStats } from './CustomerStats';
@@ -60,7 +60,7 @@ export function CustomersPage() {
       }
 
       if (data) {
-        setCustomers(data.customers);
+        setCustomers(data.customers as Customer[]);
         setPagination(prev => ({ ...prev, total: data.total }));
       }
     } catch (error) {
@@ -190,7 +190,7 @@ export function CustomersPage() {
               Add Customer
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add New Customer</DialogTitle>
               <DialogDescription>

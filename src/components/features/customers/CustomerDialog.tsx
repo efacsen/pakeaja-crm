@@ -28,14 +28,14 @@ import { Customer } from '@/lib/db/mock-db';
 const customerSchema = z.object({
   name: z.string().min(1, 'Nama wajib diisi'),
   email: z.string().email('Email tidak valid'),
-  phone: z.string().optional().default(''),
-  company: z.string().optional().default(''),
-  address: z.string().optional().default(''),
-  city: z.string().optional().default(''),
-  state: z.string().optional().default(''),
-  postal_code: z.string().optional().default(''),
+  phone: z.string().default(''),
+  company: z.string().default(''),
+  address: z.string().default(''),
+  city: z.string().default(''),
+  state: z.string().default(''),
+  postal_code: z.string().default(''),
   country: z.string().default('Indonesia'),
-  notes: z.string().optional().default(''),
+  notes: z.string().default(''),
 });
 
 type CustomerFormData = z.infer<typeof customerSchema>;
@@ -50,10 +50,10 @@ interface CustomerDialogProps {
 export function CustomerDialog({
   open,
   onOpenChange,
-  customer,
+  client,
   onSave,
 }: CustomerDialogProps) {
-  const form = useForm<CustomerFormData>({
+  const form = useForm({
     resolver: zodResolver(customerSchema),
     defaultValues: {
       name: '',
@@ -69,20 +69,20 @@ export function CustomerDialog({
     },
   });
 
-  // Reset form when customer changes
+  // Reset form when client changes
   useEffect(() => {
-    if (customer) {
+    if (client) {
       form.reset({
-        name: customer.name || '',
-        email: customer.email || '',
-        phone: customer.phone || '',
-        company: customer.company || '',
-        address: customer.address || '',
-        city: customer.city || '',
-        state: customer.state || '',
-        postal_code: customer.postal_code || '',
-        country: customer.country || 'Indonesia',
-        notes: customer.notes || '',
+        name: client.name || '',
+        email: client.email || '',
+        phone: client.phone || '',
+        company: client.company || '',
+        address: client.address || '',
+        city: client.city || '',
+        state: client.state || '',
+        postal_code: client.postal_code || '',
+        country: client.country || 'Indonesia',
+        notes: client.notes || '',
       });
     } else {
       form.reset({
@@ -98,9 +98,9 @@ export function CustomerDialog({
         notes: '',
       });
     }
-  }, [customer, form]);
+  }, [client, form]);
 
-  const onSubmit = (data: CustomerFormData) => {
+  const onSubmit = (data: z.infer<typeof customerSchema>) => {
     onSave(data);
   };
 
@@ -109,10 +109,10 @@ export function CustomerDialog({
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>
-            {customer ? 'Edit Pelanggan' : 'Tambah Pelanggan Baru'}
+            {client ? 'Edit Pelanggan' : 'Tambah Pelanggan Baru'}
           </DialogTitle>
           <DialogDescription>
-            {customer 
+            {client 
               ? 'Perbarui informasi pelanggan' 
               : 'Masukkan informasi pelanggan baru'}
           </DialogDescription>
@@ -263,7 +263,7 @@ export function CustomerDialog({
                 Batal
               </Button>
               <Button type="submit">
-                {customer ? 'Simpan Perubahan' : 'Tambah Pelanggan'}
+                {client ? 'Simpan Perubahan' : 'Tambah Pelanggan'}
               </Button>
             </DialogFooter>
           </form>

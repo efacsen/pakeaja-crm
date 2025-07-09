@@ -35,7 +35,6 @@ import { toast } from 'sonner';
 import { Loader2, Pencil, Trash2, UserPlus, Search, Shield } from 'lucide-react';
 
 type UserRole = Database['public']['Enums']['user_role'];
-type ProfileRow = Database['public']['Tables']['profiles']['Row'];
 
 interface DatabaseUser {
   id: string;
@@ -49,8 +48,6 @@ interface DatabaseUser {
 }
 
 export default function AdminUsersPage() {
-  const { user } = useAuth();
-  const supabase = createClient();
   
   const [users, setUsers] = useState<DatabaseUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -237,7 +234,6 @@ export default function AdminUsersPage() {
         return 'bg-orange-100 text-orange-800';
       case 'client':
         return 'bg-gray-100 text-gray-800';
-      case 'user':
       default:
         return 'bg-gray-100 text-gray-800';
     }
