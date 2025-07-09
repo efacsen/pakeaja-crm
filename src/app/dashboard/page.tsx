@@ -30,7 +30,7 @@ import { DashboardData, UserRole } from '@/types/dashboard';
 import { useAuth } from '@/contexts/auth-context';
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [stats, setStats] = useState({
     totalCustomers: 0,
     totalCalculations: 0,
@@ -47,22 +47,29 @@ export default function DashboardPage() {
     userRole: UserRole;
   } | undefined>();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Set user role based on actual user
-    if (user) {
+    if (user && user.role) {
       setCurrentRole(user.role as UserRole);
     }
-    loadDashboardData();
-  }, [user]);
+    // Only load dashboard data if user is available
+    if (user && !authLoading) {
+      loadDashboardData();
+    }
+  }, [user, authLoading]);
 
   useEffect(() => {
-    loadDashboardData(viewingAs?.userId);
-  }, [viewingAs]);
+    if (user && !authLoading) {
+      loadDashboardData(viewingAs?.userId);
+    }
+  }, [viewingAs, user, authLoading]);
 
   const loadDashboardData = async (userId?: string) => {
     try {
       setLoading(true);
+      setError(null);
       
       // Load dashboard data from Supabase
       const data = await dashboardService.getDashboardData(userId, viewingAs?.userRole);
@@ -73,6 +80,7 @@ export default function DashboardPage() {
       setStats(statsData);
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
+      setError(error instanceof Error ? error.message : 'Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
@@ -94,10 +102,66 @@ export default function DashboardPage() {
     }
   };
 
+  // Show loading state while auth is loading
+  if (authLoading) {
+    return (
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent mx-auto" />
+          <p className="mt-2 text-sm text-muted-foreground">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if no user
+  if (!user) {
+    return (
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg font-semibold text-red-500">No user data available</p>
+          <p className="mt-2 text-sm text-muted-foreground">Please try refreshing the page</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
+          >
+            Refresh Page
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show debug link if error occurs
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <h3 className="text-red-800 dark:text-red-200 font-semibold mb-2">Dashboard Error</h3>
+          <p className="text-red-600 dark:text-red-300 text-sm">{error}</p>
+          <div className="mt-4 space-x-4">
+            <a
+              href="/dashboard/debug"
+              className="inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Open Debug Page
+            </a>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Role Switcher for Superadmin only */}
-      {user?.role === 'admin' && (
+      {user.role === 'admin' && (
         <RoleSwitcher
           currentRole={currentRole}
           viewingAs={viewingAs}

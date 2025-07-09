@@ -319,6 +319,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               }
             }
           } else {
+            console.log('Profile data loaded:', profileData);
             const userData: UserProfile = {
               id: session.user.id,
               email: session.user.email!,
@@ -338,6 +339,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               created_at: profileData.created_at,
               updated_at: profileData.updated_at,
             };
+            console.log('User data set:', userData);
             setUser(userData);
             
             if (userData.organization_id) {

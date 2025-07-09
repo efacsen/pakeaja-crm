@@ -31,6 +31,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { ResourceType, PermissionAction, ROLE_LABELS } from '@/types/rbac';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -186,7 +187,8 @@ export default function DashboardLayout({
 
   return (
     <ProtectedRoute>
-      <div className="flex h-screen">
+      <ErrorBoundary>
+        <div className="flex h-screen">
         {/* Sidebar */}
         <div className="w-64 bg-card border-r flex flex-col">
           {/* Logo */}
@@ -301,6 +303,7 @@ export default function DashboardLayout({
           <main className="p-6">{children}</main>
         </div>
       </div>
+      </ErrorBoundary>
     </ProtectedRoute>
   );
 }
