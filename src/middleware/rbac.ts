@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createServiceRoleClient } from '@/lib/supabase/server';
 import { UserRole, ResourceType, PermissionAction } from '@/types/rbac';
 
 // Define route-to-resource mappings
@@ -79,8 +79,11 @@ export async function checkRoutePermission(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Get user profile with role
-  let { data: profile, error: profileError } = await supabase
+  // Use service role client to bypass RLS when reading profiles
+  const serviceRoleSupabase = await createServiceRoleClient();
+  
+  // Get user profile with role using service role client
+  let { data: profile, error: profileError } = await serviceRoleSupabase
     .from('profiles')
     .select('role, is_active, organization_id')
     .eq('id', user.id)
@@ -104,8 +107,8 @@ export async function checkRoutePermission(request: NextRequest) {
     headers.set('X-Debug-Fallback', 'attempting-creation');
     
     try {
-      // Use the database function to create profile
-      const { error: createError } = await supabase.rpc('create_profile_if_missing', {
+      // Use the database function to create profile with service role client
+      const { error: createError } = await serviceRoleSupabase.rpc('create_profile_if_missing', {
         user_id: user.id,
         user_email: user.email,
         user_name: user.user_metadata?.full_name || user.email,
@@ -113,8 +116,8 @@ export async function checkRoutePermission(request: NextRequest) {
       });
       
       if (!createError) {
-        // Try fetching the profile again
-        const { data: newProfile } = await supabase
+        // Try fetching the profile again with service role client
+        const { data: newProfile } = await serviceRoleSupabase
           .from('profiles')
           .select('role, is_active, organization_id')
           .eq('id', user.id)
@@ -190,7 +193,8 @@ export async function checkApiPermission(
   action: PermissionAction,
   resourceId?: string
 ): Promise<boolean> {
-  const supabase = await createClient();
+  // Use service role client for permission checks to bypass RLS
+  const supabase = await createServiceRoleClient();
   
   const { data: hasPermission } = await supabase
     .rpc('check_permission', {
