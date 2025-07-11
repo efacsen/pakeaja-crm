@@ -1,14 +1,14 @@
 import 'package:drift/drift.dart';
 import '../app_database.dart';
-import '../tables/material_products_indexed_table.dart';
+import '../tables/material_products_table.dart';
 import '../tables/material_categories_table.dart';
-import '../../features/materials/domain/entities/material_product.dart';
-import '../../features/materials/domain/entities/material_category.dart';
+import '../../../features/materials/domain/entities/material_product.dart';
+import '../../../features/materials/domain/entities/material_category.dart';
 import 'dart:convert';
 
 part 'materials_dao.g.dart';
 
-@DriftAccessor(tables: [MaterialProductsIndexed, MaterialCategories])
+@DriftAccessor(tables: [MaterialProducts, MaterialCategories])
 class MaterialsDao extends DatabaseAccessor<AppDatabase> with _$MaterialsDaoMixin {
   MaterialsDao(AppDatabase db) : super(db);
   
@@ -42,13 +42,13 @@ class MaterialsDao extends DatabaseAccessor<AppDatabase> with _$MaterialsDaoMixi
           if (maxPrice != null) Variable.withReal(maxPrice),
           Variable.withInt(limit),
         ],
-        readsFrom: {materialProductsIndexed},
+        readsFrom: {materialProducts},
       ).map(_mapToMaterialProduct).get();
       
       return ftsResults;
     } else {
       // Regular query without text search
-      final queryBuilder = select(materialProductsIndexed);
+      final queryBuilder = select(materialProducts);
       
       if (category != null) {
         queryBuilder.where((t) => t.category.equals(category));
@@ -79,7 +79,7 @@ class MaterialsDao extends DatabaseAccessor<AppDatabase> with _$MaterialsDaoMixi
   
   // Get recently viewed materials
   Stream<List<MaterialProduct>> watchRecentlyViewed({int limit = 10}) {
-    final query = select(materialProductsIndexed)
+    final query = select(materialProducts)
       ..where((t) => t.lastViewedAt.isNotNull())
       ..orderBy([(t) => OrderingTerm.desc(t.lastViewedAt)])
       ..limit(limit);
@@ -91,7 +91,7 @@ class MaterialsDao extends DatabaseAccessor<AppDatabase> with _$MaterialsDaoMixi
   
   // Get material by ID
   Future<MaterialProduct?> getMaterialById(String id) async {
-    final query = select(materialProductsIndexed)
+    final query = select(materialProducts)
       ..where((t) => t.id.equals(id));
     
     final result = await query.getSingleOrNull();
@@ -100,7 +100,7 @@ class MaterialsDao extends DatabaseAccessor<AppDatabase> with _$MaterialsDaoMixi
   
   // Track material view
   Future<void> trackMaterialView(String materialId) async {
-    await (update(materialProductsIndexed)
+    await (update(materialProducts)
       ..where((t) => t.id.equals(materialId)))
       .write(MaterialProductsIndexedCompanion(
         lastViewedAt: Value(DateTime.now()),
@@ -123,7 +123,7 @@ class MaterialsDao extends DatabaseAccessor<AppDatabase> with _$MaterialsDaoMixi
   Future<void> bulkInsertMaterials(List<MaterialProduct> materials) async {
     await batch((batch) {
       batch.insertAllOnConflictUpdate(
-        materialProductsIndexed,
+        materialProducts,
         materials.map((m) => MaterialProductsIndexedCompanion(
           id: Value(m.id),
           code: Value(m.code),
