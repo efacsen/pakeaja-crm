@@ -1,112 +1,143 @@
-# PakeAja CRM Documentation
+# 📱 PakeAja CRM Mobile Development Documentation
 
-> **Complete documentation for the PakeAja CRM system**  
-> **Organized by category for easy navigation**
-
----
-
-## 📚 **DOCUMENTATION STRUCTURE**
-
-### **🚀 Quick Start**
-- [Development Setup](./development/) - Get started with development
-- [API Reference](./api/) - REST API and GraphQL documentation
-- [Database Setup](./database/) - Database schemas and setup
-- [Deployment Guide](./deployment/) - Production deployment
-
-### **📁 Documentation Categories**
-
-#### **🔧 [Development](./development/)**
-- Setup guides and development workflows
-- Feature roadmaps and development plans
-- Environment configuration
-- Development best practices
-
-#### **🗄️ [Database](./database/)**
-- Database schema documentation
-- Migration guides
-- Data management strategies
-- Performance optimization
-
-#### **🚀 [Deployment](./deployment/)**
-- Production deployment guides
-- CI/CD pipeline setup
-- Environment configuration
-- Monitoring and maintenance
-
-#### **📱 [Mobile App](./mobile/)**
-- Mobile application documentation
-- Setup and development guides
-- API integration for mobile
-- Testing strategies for mobile
-
-#### **🧪 [Testing](./testing/)**
-- Testing strategies and frameworks
-- Test documentation and reports
-- Quality assurance processes
-- Performance testing
-
-#### **🔧 [Troubleshooting](./troubleshooting/)**
-- Common issues and solutions
-- Emergency procedures
-- Fix documentation
-- Debugging guides
-
-#### **📡 [API](./api/)**
-- REST API documentation
-- GraphQL schemas
-- Authentication guides
-- Rate limiting and usage
+> **Complete Documentation Suite for Mobile Development Team**  
+> Flutter | Dart | Supabase | Offline-First Architecture
 
 ---
 
-## 🎯 **QUICK NAVIGATION**
+## 🎯 Overview
 
-### **For Developers:**
-1. [Development Setup](./development/) - Start here
-2. [API Documentation](./api/) - Understand the APIs
-3. [Database Schema](./database/) - Know your data
+Welcome to the PakeAja CRM Mobile App development documentation. This comprehensive guide provides everything needed to build a robust, offline-first field sales application for the coating industry using Flutter.
 
-### **For DevOps:**
-1. [Deployment Guide](./deployment/) - Deploy to production
-2. [Troubleshooting](./troubleshooting/) - Fix issues quickly
-3. [Testing](./testing/) - Ensure quality
-
-### **For Mobile Team:**
-1. [Mobile Documentation](./mobile/) - Mobile app development
-2. [API Integration](./api/) - Backend integration
-3. [Testing](./testing/) - Mobile testing strategies
+### 📋 Project Summary
+- **Target Users**: Field Sales Representatives & Managers
+- **Platform**: Android (iOS support in future releases)
+- **Framework**: Flutter with Clean Architecture
+- **Backend**: Supabase (PostgreSQL + Authentication + Storage)
+- **Key Features**: Offline-first operations, real-time sync, GPS tracking, photo uploads
+- **Development Approach**: Git worktrees for parallel feature development
 
 ---
 
-## 📋 **DOCUMENT TYPES**
+## 📚 Documentation Index
 
-- **📖 Guides** - Step-by-step instructions
-- **📚 References** - Technical specifications
-- **🔧 Troubleshooting** - Problem-solving resources
-- **📊 Reports** - Analysis and metrics
-- **🚀 Roadmaps** - Future planning
+### Core Documents
+
+1. **[Product Requirements Document (PRD.md)](./PRD.md)**
+   - Executive summary and business objectives
+   - User personas and stories
+   - Feature specifications and priorities
+   - Success metrics and KPIs
+
+2. **[Implementation Guide (Implementation.md)](./Implementation.md)**
+   - Technical architecture with Clean Architecture
+   - Flutter project setup and dependencies
+   - Offline-first implementation details
+   - Code examples and best practices
+
+3. **[Project Structure (Project_Structure.md)](./Project_Structure.md)**
+   - Detailed folder organization
+   - Feature-based module structure
+   - Git worktree layout
+   - Naming conventions
+
+4. **[UI/UX Guidelines (UI_UX.md)](./UI_UX.md)**
+   - Material Design 3 implementation
+   - Design system and components
+   - Screen layouts and interactions
+   - Accessibility requirements
+
+5. **[Git Worktree Guide (worktree-guide.md)](./worktree-guide.md)**
+   - Parallel development workflow
+   - Worktree setup and management
+   - Feature integration process
+   - CI/CD integration
+
+6. **[Bug Tracking Guide (Bug_Tracking.md)](./Bug_Tracking.md)**
+   - Bug severity classifications
+   - Reporting and tracking workflow
+   - Prevention strategies
+   - Emergency response procedures
+
+### Setup & Configuration
+
+7. **[Mobile App Setup (MOBILE_APP_SETUP.md)](./MOBILE_APP_SETUP.md)**
+   - Repository transformation steps
+   - Flutter initialization
+   - Environment configuration
+   - Quick command reference
+
+### Legacy Mobile Documentation (Reference Only)
+
+These documents were from the initial React Native planning phase but contain useful API and database information:
+
+- [Mobile API Reference](./MOBILE_API_REFERENCE.md) - Supabase API endpoints
+- [Mobile Database Schema](./MOBILE_DATABASE_SCHEMA.md) - Database structure
+- [Mobile Development Spec](./MOBILE_APP_DEVELOPMENT_SPEC.md) - Original spec (React Native)
+- [Mobile Setup Guide](./MOBILE_SETUP_GUIDE.md) - Original setup (React Native)
 
 ---
 
-## 🔄 **MAINTENANCE**
+## 🚀 Quick Start
 
-This documentation is organized to prevent clutter and improve maintainability:
+1. **Setup Development Environment**
+   ```bash
+   # Run cleanup script
+   ./scripts/cleanup-for-mobile.sh
+   
+   # Setup worktrees
+   ./scripts/setup-worktrees.sh
+   
+   # Initialize Flutter
+   flutter create .
+   ```
 
-- **Categorized by purpose** - Easy to find relevant docs
-- **Consistent structure** - Predictable organization
-- **Version controlled** - Track changes over time
-- **Regular updates** - Keep documentation current
+2. **Choose a Feature to Develop**
+   ```bash
+   cd ../mobile-app-daily-reports
+   flutter pub get
+   ```
+
+3. **Start Development**
+   - Follow the Implementation Guide
+   - Use the UI/UX Guidelines
+   - Track bugs using Bug_Tracking.md
 
 ---
 
-## 🆘 **NEED HELP?**
+## 🎯 Development Priorities
 
-- **Development Issues:** Check [Development](./development/) and [Troubleshooting](./troubleshooting/)
-- **API Questions:** See [API Documentation](./api/)
-- **Database Problems:** Review [Database](./database/) docs
-- **Deployment Issues:** Check [Deployment](./deployment/) guides
+### Phase 1: MVP (Current Focus)
+- ✅ Authentication with biometric support
+- ✅ Daily activity reports
+- ✅ Canvassing with offline support
+- ✅ Basic sync engine
+- ✅ Materials database (read-only)
+
+### Phase 2: Enhanced Features
+- 📊 Analytics dashboard
+- 📈 Sales pipeline integration
+- 📅 Visit planning
+- 🔔 Push notifications
+
+### Phase 3: Advanced Features
+- 🤖 AI-powered insights
+- 📸 OCR document scanning
+- 🗺️ Territory management
+- 🏆 Gamification
 
 ---
 
-**📝 Last Updated:** $(date +"%Y-%m-%d")  
-**🏗️ Maintained by:** Development Team 
+## 📞 Support
+
+For questions or clarifications:
+1. Check the relevant documentation
+2. Review the Implementation Guide
+3. Consult the Git Worktree Guide for workflow questions
+4. Use Bug_Tracking.md for issue reporting
+
+---
+
+**Last Updated**: January 2025  
+**Framework**: Flutter  
+**Architecture**: Clean Architecture with Offline-First Design

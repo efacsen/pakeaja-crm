@@ -1,0 +1,424 @@
+---
+alwaysApply: true
+---
+# Cursor Agent Workflow - Mobile Developer Protocol
+
+## 🎯 Purpose
+This document defines the standard workflow protocol for the Cursor AI agent when implementing the PakeAja CRM Mobile App. Follow these procedures to ensure consistent, high-quality development aligned with project documentation.
+
+## 📋 Core Workflow Process
+
+### 1. Pre-Task Assessment Protocol
+
+#### 1.1 Documentation Review
+Before starting any task:
+```markdown
+1. Check Implementation.md for:
+   - Current development stage
+   - Available tasks in current sprint
+   - Task priorities and deadlines
+   
+2. Review task dependencies:
+   - Prerequisites completed?
+   - Required features implemented?
+   - Database schema ready?
+   - APIs available?
+   
+3. Verify scope understanding:
+   - Read task description completely
+   - Identify deliverables
+   - Note acceptance criteria
+   - Clarify ambiguities before starting
+```
+
+#### 1.2 Context Gathering
+```markdown
+1. Load project state:
+   - Use claude-continuity:load_project_state
+   - Review recent changes
+   - Check current branch/worktree
+   
+2. Verify environment:
+   - Flutter SDK version
+   - Dependencies installed
+   - Database migrations current
+   - Test suite passing
+```
+
+### 2. Task Execution Protocol
+
+#### 2.1 Task Analysis
+```markdown
+1. Read subtask from Implementation.md
+   
+2. Assess complexity:
+   a) Simple Tasks (< 2 hours):
+      - Direct implementation
+      - Single file changes
+      - No architectural impact
+      
+   b) Complex Tasks (> 2 hours):
+      - Create detailed TODO list
+      - Break into sub-components
+      - Plan implementation sequence
+      - Identify risk areas
+```
+
+#### 2.2 Documentation Research
+```markdown
+1. Check Implementation.md for:
+   - Relevant documentation links
+   - Code examples
+   - Architecture decisions
+   
+2. Required reading order:
+   - Project_Structure.md (for file locations)
+   - UI_UX.md (for design specs)
+   - Bug_Tracking.md (for known issues)
+   - Feature-specific READMEs
+   
+3. External documentation:
+   - Flutter/Dart official docs
+   - Package documentation
+   - Supabase guides
+```
+
+#### 2.3 Implementation Flow
+```markdown
+1. Setup phase:
+   - Switch to correct worktree
+   - Create feature branch if needed
+   - Update dependencies
+   
+2. Development phase:
+   - Follow clean architecture layers
+   - Write code incrementally
+   - Test each component
+   - Commit frequently
+   
+3. Testing phase:
+   - Unit tests first
+   - Widget tests for UI
+   - Integration tests for flows
+   - Manual testing on device
+```
+
+### 3. Code Quality Protocol
+
+#### 3.1 Before Writing Code
+```markdown
+1. Check existing patterns:
+   - Similar features implemented?
+   - Reusable components available?
+   - Established conventions?
+   
+2. Plan architecture:
+   - Which layers affected?
+   - New models needed?
+   - State management approach?
+   - Error handling strategy?
+```
+
+#### 3.2 While Writing Code
+```markdown
+1. Follow standards:
+   - Naming conventions (from Project_Structure.md)
+   - Import organization
+   - Comment complex logic
+   - Add TODOs for pending items
+   
+2. Maintain consistency:
+   - Use established patterns
+   - Follow project style guide
+   - Match existing code style
+   - Keep similar file structures
+```
+
+#### 3.3 After Writing Code
+```markdown
+1. Self-review checklist:
+   - [ ] Code follows architecture
+   - [ ] No hardcoded values
+   - [ ] Proper error handling
+   - [ ] Offline functionality works
+   - [ ] UI matches design specs
+   - [ ] Tests written and passing
+   
+2. Documentation updates:
+   - Update feature README
+   - Add inline documentation
+   - Update API docs if needed
+   - Log architectural decisions
+```
+
+### 4. Testing Protocol
+
+#### 4.1 Test Planning
+```markdown
+1. Identify test scenarios:
+   - Happy path flows
+   - Error conditions
+   - Offline behavior
+   - Edge cases
+   
+2. Test coverage targets:
+   - Unit tests: >80%
+   - Critical paths: 100%
+   - UI components: Visual testing
+```
+
+#### 4.2 Test Implementation
+```markdown
+1. Test order:
+   - Unit tests first
+   - Integration tests
+   - Widget tests
+   - E2E tests last
+   
+2. Test data:
+   - Use fixtures from test/fixtures/
+   - Create realistic test data
+   - Test with edge cases
+   - Include invalid inputs
+```
+
+### 5. Git Workflow Protocol
+
+#### 5.1 Worktree Management
+```markdown
+1. Working with worktrees:
+   - One feature per worktree
+   - Keep main branch clean
+   - Regular rebasing from main
+   - Clean up completed worktrees
+   
+2. Branch naming:
+   - feature/mobile-[feature-name]
+   - bugfix/mobile-[issue-number]
+   - hotfix/mobile-[description]
+```
+
+#### 5.2 Commit Protocol
+```markdown
+1. Commit message format:
+   feat(scope): description
+   fix(scope): description
+   docs(scope): description
+   test(scope): description
+   refactor(scope): description
+   
+2. Commit frequency:
+   - Logical units of work
+   - After each subtask
+   - Before switching context
+   - End of work session
+```
+
+### 6. Sync & State Management Protocol
+
+#### 6.1 Offline-First Development
+```markdown
+1. Always consider offline:
+   - Local database first
+   - Queue for sync
+   - Handle conflicts
+   - Show sync status
+   
+2. Test offline scenarios:
+   - No network connection
+   - Intermittent connection
+   - Sync conflicts
+   - Data persistence
+```
+
+#### 6.2 State Persistence
+```markdown
+1. Save project state:
+   - After major milestones
+   - Before context switch
+   - End of session
+   - After complex implementations
+   
+2. State includes:
+   - Current focus area
+   - Completed tasks
+   - Pending items
+   - Technical decisions
+   - Known issues
+```
+
+### 7. Communication Protocol
+
+#### 7.1 Progress Updates
+```markdown
+1. Update frequency:
+   - Daily progress summary
+   - Milestone completions
+   - Blocker identification
+   - Risk escalation
+   
+2. Update format:
+   - What was completed
+   - Current focus
+   - Next steps
+   - Issues/blockers
+```
+
+#### 7.2 Documentation Updates
+```markdown
+1. Keep docs current:
+   - Update Implementation.md progress
+   - Add new findings to docs
+   - Document workarounds
+   - Note technical debt
+   
+2. Documentation timing:
+   - During implementation
+   - Not after completion
+   - Include examples
+   - Explain "why" decisions
+```
+
+### 8. Problem-Solving Protocol
+
+#### 8.1 When Stuck
+```markdown
+1. Debugging steps:
+   - Read error messages carefully
+   - Check logs (app and system)
+   - Verify assumptions
+   - Isolate the problem
+   
+2. Research approach:
+   - Check project docs first
+   - Search in codebase
+   - Official documentation
+   - Community resources
+   
+3. Ask for help:
+   - Clearly describe problem
+   - Show what was tried
+   - Include error messages
+   - Provide minimal reproduction
+```
+
+#### 8.2 Bug Handling
+```markdown
+1. Bug discovery:
+   - Document in Bug_Tracking.md
+   - Assess severity
+   - Create workaround if critical
+   - Add tests to prevent regression
+   
+2. Bug fixing:
+   - Reproduce consistently
+   - Identify root cause
+   - Fix with minimal changes
+   - Test thoroughly
+   - Update documentation
+```
+
+### 9. Performance Protocol
+
+#### 9.1 Performance Monitoring
+```markdown
+1. Watch for:
+   - Slow screen loads
+   - Janky animations
+   - Memory leaks
+   - Large bundle sizes
+   
+2. Regular checks:
+   - App startup time
+   - Screen transition speed
+   - List scrolling performance
+   - Memory usage trends
+```
+
+#### 9.2 Optimization Approach
+```markdown
+1. Measure first:
+   - Profile before optimizing
+   - Identify bottlenecks
+   - Set performance targets
+   
+2. Common optimizations:
+   - Image compression
+   - Lazy loading
+   - List virtualization
+   - State management efficiency
+```
+
+### 10. Release Protocol
+
+#### 10.1 Pre-Release Checklist
+```markdown
+- [ ] All tests passing
+- [ ] No console errors
+- [ ] Performance acceptable
+- [ ] Offline mode working
+- [ ] UI matches designs
+- [ ] Documentation updated
+- [ ] Version bumped
+- [ ] Changelog updated
+```
+
+#### 10.2 Post-Release
+```markdown
+1. Monitor:
+   - Crash reports
+   - User feedback
+   - Performance metrics
+   - Error rates
+   
+2. Quick response:
+   - Hotfix critical issues
+   - Document known issues
+   - Plan next iteration
+```
+
+## 🚀 Quick Start Checklist
+
+When starting a new work session:
+```markdown
+1. [ ] Load project state
+2. [ ] Check Implementation.md
+3. [ ] Verify environment setup
+4. [ ] Review current task
+5. [ ] Plan implementation approach
+6. [ ] Set up testing strategy
+7. [ ] Begin coding
+```
+
+## 📊 Decision Tree
+
+```
+Start Task
+    ↓
+Is it documented? → No → Read Implementation.md
+    ↓ Yes
+Dependencies met? → No → Complete prerequisites
+    ↓ Yes
+Simple task? → No → Create TODO breakdown
+    ↓ Yes          ↓
+Implement    Create subtasks → Implement each
+    ↓              ↓
+Test        Test each component
+    ↓              ↓
+Document    Document thoroughly
+    ↓              ↓
+Commit      Commit with clear message
+    ↓              ↓
+Update state → Save project state
+```
+
+## 🔄 Continuous Improvement
+
+1. **Learn from mistakes**: Document issues in Bug_Tracking.md
+2. **Improve patterns**: Update this workflow when better approaches found
+3. **Share knowledge**: Update documentation for future reference
+4. **Optimize process**: Streamline repetitive tasks
+
+---
+
+Remember: **Quality over speed**. A well-implemented feature following these protocols is worth more than rushed code that creates technical debt.
